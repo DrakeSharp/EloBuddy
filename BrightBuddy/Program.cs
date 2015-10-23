@@ -27,6 +27,7 @@ namespace BrightBuddy
             setbright.OnValueChange += setbright_OnValueChange;
             if (menu.Add("sh", new CheckBox("Apply on game load", false)).CurrentValue)
                 SetBrightness(setbright.CurrentValue);
+            menu.AddSeparator(330);
             menu.AddGroupLabel("By Christian Brutal Sniper");
         }
 
