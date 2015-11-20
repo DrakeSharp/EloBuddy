@@ -1,6 +1,8 @@
 ﻿using Buddy_vs_Bot.MyChampLogic;
 using EloBuddy;
 using EloBuddy.SDK;
+using EloBuddy.SDK.Menu;
+using EloBuddy.SDK.Menu.Values;
 using SharpDX;
 using Color = System.Drawing.Color;
 
@@ -41,8 +43,8 @@ namespace Buddy_vs_Bot.MainLogics
             surrender=new Surrender();
             Core.DelayAction(()=>loadLogic.SetLane(), 1000);
             localAwareness=new LocalAwareness();
-            
-            Drawing.OnEndScene += Drawing_OnDraw;
+            if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
+                Drawing.OnEndScene += Drawing_OnDraw;
             Game.OnUpdate += Game_OnUpdate;
             Core.DelayAction(Watchdog, 3000);
 

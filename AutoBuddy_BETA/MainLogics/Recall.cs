@@ -2,6 +2,8 @@
 using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
+using EloBuddy.SDK.Menu;
+using EloBuddy.SDK.Menu.Values;
 using SharpDX;
 
 namespace Buddy_vs_Bot.MainLogics
@@ -24,7 +26,8 @@ namespace Buddy_vs_Bot.MainLogics
                 spawn = so;
             }
             Core.DelayAction(ShouldRecall, 3000);
-            Drawing.OnDraw+=Drawing_OnDraw;
+            if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
+                Drawing.OnDraw+=Drawing_OnDraw;
         }
 
 

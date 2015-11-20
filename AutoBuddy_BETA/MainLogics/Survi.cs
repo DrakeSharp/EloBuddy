@@ -2,6 +2,8 @@
 using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
+using EloBuddy.SDK.Menu;
+using EloBuddy.SDK.Menu.Values;
 using SharpDX;
 using Color = System.Drawing.Color;
 
@@ -21,7 +23,8 @@ namespace Buddy_vs_Bot.MainLogics
             Game.OnUpdate += Game_OnUpdate;
             Obj_AI_Base.OnSpellCast += Obj_AI_Base_OnSpellCast;
             DecHits();
-            Drawing.OnDraw += Drawing_OnDraw;
+            if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
+                Drawing.OnDraw += Drawing_OnDraw;
         }
 
         private void Obj_AI_Base_OnSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)

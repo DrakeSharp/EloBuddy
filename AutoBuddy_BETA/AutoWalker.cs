@@ -2,6 +2,8 @@
 using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
+using EloBuddy.SDK.Menu;
+using EloBuddy.SDK.Menu.Values;
 using SharpDX;
 using Color = System.Drawing.Color;
 
@@ -37,7 +39,8 @@ namespace Buddy_vs_Bot
             Orbwalker.DisableMovement = true;
             Orbwalker.OnPreAttack += Orbwalker_OnPreAttack;
             Game.OnTick += OnTick;
-            Drawing.OnDraw += Drawing_OnDraw;
+            if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
+                Drawing.OnDraw += Drawing_OnDraw;
         }
 
         private static void Drawing_OnDraw(EventArgs args)

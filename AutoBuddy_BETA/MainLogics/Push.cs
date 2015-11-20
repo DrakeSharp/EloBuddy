@@ -3,6 +3,8 @@ using System.Drawing.Text;
 using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
+using EloBuddy.SDK.Menu;
+using EloBuddy.SDK.Menu.Values;
 using SharpDX;
 using Color = System.Drawing.Color;
 
@@ -31,7 +33,8 @@ namespace Buddy_vs_Bot.MainLogics
             Core.DelayAction(SetWaveNumber, 500);
             SetCurrentWave();
             SetOffset();
-            Drawing.OnDraw += Drawing_OnDraw;
+            if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
+                Drawing.OnDraw += Drawing_OnDraw;
            
         }
 

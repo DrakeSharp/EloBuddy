@@ -49,7 +49,7 @@ namespace Buddy_vs_Bot
                 if (h.hero.Health <= 0) continue;
                 danger += (-0.0042857142857143f * (h.hero.Distance(pos) + 100) + 4.4285714285714f) *HeroStrength(h) * (h.hero.IsAlly ? -1 : 1);
             }
-            foreach (Obj_AI_Minion tt in ObjectManager.Get<Obj_AI_Minion>().Where(min=>min.Health>0&&min.Distance(pos)<600&&min.Name.StartsWith("H-28G")))
+            foreach (Obj_AI_Minion tt in ObjectManager.Get<Obj_AI_Minion>().Where(min=>min.Health>0&&min.Distance(pos)<600&&min.Name.StartsWith("H28-G")))
             {
                 danger += 10000*(tt.IsEnemy?1:-1);
             }
