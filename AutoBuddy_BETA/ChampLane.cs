@@ -1,0 +1,25 @@
+﻿using EloBuddy;
+
+namespace Buddy_vs_Bot
+{
+    enum Lane
+    {
+        Unknown,
+        Top,
+        Mid,
+        Bot,
+        HQ,
+        Spawn
+    }
+    class ChampLane
+    {
+        public readonly AIHeroClient champ;
+        public readonly Lane lane;
+
+        public ChampLane(AIHeroClient champ, Lane lane)
+        {
+            this.champ = champ;
+            this.lane = lane;
+        }
+    }
+}
