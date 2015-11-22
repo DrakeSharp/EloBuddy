@@ -85,7 +85,7 @@ namespace AutoBuddy.MainLogics
             if ((victim != null || har != null) && !active)
             {
                 LogicSelector.MainLogics returnT = current.SetLogic(LogicSelector.MainLogics.CombatLogic);
-                if (returnT != LogicSelector.MainLogics.SurviLogic) returnTo = returnT;
+                if (returnT != LogicSelector.MainLogics.CombatLogic) returnTo = returnT;
             }
 
             if (!active)
@@ -98,7 +98,7 @@ namespace AutoBuddy.MainLogics
 
             if (victim != null)
             {
-                Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.Combo;
+                
                 current.myChamp.Combo(victim);
                 Vector3 vicPos=Prediction.Position.PredictUnitPosition(victim, 500).To3D();
                 Vector3 posToWalk =
@@ -120,7 +120,7 @@ namespace AutoBuddy.MainLogics
                     }
                     lastMode = "combo under turret";
                 }
-
+                Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.Combo;
                 AutoWalker.WalkTo(posToWalk);
 
 

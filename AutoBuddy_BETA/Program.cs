@@ -32,8 +32,8 @@ namespace AutoBuddy
 
         private static void Loading_OnLoadingComplete(EventArgs args)
         {
-            Chat.Print("AutoBuddy will start in 6 seconds.");
-            Core.DelayAction(Start, 6000);
+            Chat.Print("AutoBuddy will start in 5 seconds.");
+            Core.DelayAction(Start, 5000);
             menu = MainMenu.AddMenu("AUTOBUDDY", "AB");
             menu.Add("autolvl", new CheckBox("Disable built-in skill leveler(press f5 after)", false));
             menu.Add("sep1", new Separator(1));
@@ -72,9 +72,11 @@ namespace AutoBuddy
             }
             if (!generic)
                 easyShop = new EasyShop(myChamp.ShopSequence, menu);
+                
             else
             {
-                if (MainMenu.GetMenu("AB_" + ObjectManager.Player.ChampionName).Get<Label>("shopSequence") != null)
+                myChamp = new Generic();
+                if (MainMenu.GetMenu("AB_" + ObjectManager.Player.ChampionName)!=null&&MainMenu.GetMenu("AB_" + ObjectManager.Player.ChampionName).Get<Label>("shopSequence") != null)
                 {
                     Chat.Print("Autobuddy: Loaded shop plugin for " + ObjectManager.Player.ChampionName);
                     easyShop = new EasyShop(
@@ -82,6 +84,13 @@ namespace AutoBuddy
                             .Get<Label>("shopSequence")
                             .DisplayName, menu);
                 }
+                else
+                {
+                    Chat.Print("Autobuddy shop and auto skill lvl: no plugins detected for " +
+                               ObjectManager.Player.ChampionName + ", using generic ADC build");
+                    easyShop = new EasyShop(myChamp.ShopSequence, menu);
+                }
+                
             }
             if (!menu.Get<CheckBox>("autolvl").CurrentValue)
                 LevelUp = new SkillLevelUp(myChamp);
