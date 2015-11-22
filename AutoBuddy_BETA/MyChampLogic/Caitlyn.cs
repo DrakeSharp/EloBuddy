@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Net.Mail;
 using AutoBuddy.MainLogics;
 using EloBuddy;
 using EloBuddy.SDK;
@@ -79,7 +80,7 @@ namespace AutoBuddy.MyChampLogic
             AIHeroClient vic =
                 EntityManager.Heroes.Enemies.FirstOrDefault(
                     v => v.IsVisible() &&
-                         v.Health < AutoWalker.p.GetSpellDamage(v, SpellSlot.R) && v.Distance(AutoWalker.p) > 700 &&
+                         v.Health < AutoWalker.p.GetSpellDamage(v, SpellSlot.R) && v.Distance(AutoWalker.p) > 670+v.BoundingRadius &&
                          AutoWalker.p.Distance(v) < 2000 && Logic.surviLogic.dangerValue < -10000);
             if (vic == null) return;
             R.Cast(vic);

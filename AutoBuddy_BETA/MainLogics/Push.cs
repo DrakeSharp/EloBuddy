@@ -83,7 +83,7 @@ namespace AutoBuddy.MainLogics
             }
             if (currentWave.Length == 0)
                 UnderMyTurret();
-            else if (AutoWalker.p.Distance(enemyTurret) < 900)
+            else if (AutoWalker.p.Distance(enemyTurret) < 970+AutoWalker.p.BoundingRadius)
                 UnderEnemyTurret();
             else
                 Between();
@@ -110,11 +110,11 @@ namespace AutoBuddy.MainLogics
                     .Count(min => min.IsAlly && min.HealthPercent > 30 && min.Distance(enemyTurret) < 850) < 2)
             {
                 Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.None;
-                AutoWalker.WalkTo(enemyTurret.Position.Extend(AutoWalker.p, 1000).To3DWorld());
+                AutoWalker.WalkTo(enemyTurret.Position.Extend(AutoWalker.p, 1100).To3DWorld());
                 return;
             }
-            if (AutoWalker.p.Distance(enemyTurret) < AutoWalker.p.AttackRange + 60 &&
-                AutoWalker.p.Distance(enemyTurret) > AutoWalker.p.AttackRange + 40)
+            if (AutoWalker.p.Distance(enemyTurret) < AutoWalker.p.AttackRange + enemyTurret.BoundingRadius+10 &&
+                AutoWalker.p.Distance(enemyTurret) > AutoWalker.p.AttackRange + enemyTurret.BoundingRadius - 10)
             {
                 Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.None;
                 Player.IssueOrder(GameObjectOrder.AttackUnit, enemyTurret);
@@ -122,7 +122,7 @@ namespace AutoBuddy.MainLogics
             else
             {
                 Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.LastHit;
-                AutoWalker.WalkTo(enemyTurret.Position.Extend(AutoWalker.p, AutoWalker.p.AttackRange + 50).To3DWorld());
+                AutoWalker.WalkTo(enemyTurret.Position.Extend(AutoWalker.p, AutoWalker.p.AttackRange + enemyTurret.BoundingRadius).To3DWorld());
             }
         }
 

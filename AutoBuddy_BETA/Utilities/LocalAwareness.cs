@@ -43,7 +43,7 @@ namespace AutoBuddy.Utilities
             {
                 danger += 10000*(tt.IsEnemy ? 1 : -1);
             }
-            if (AutoWalker.p.GetNearestTurret().Distance(pos) < 1000) danger += 35000;
+            if (AutoWalker.p.GetNearestTurret().Distance(pos) < 1000+AutoWalker.p.BoundingRadius) danger += 35000;
             if (AutoWalker.p.GetNearestTurret(false).Distance(pos) < 400) danger -= 35000;
             return danger;
         }

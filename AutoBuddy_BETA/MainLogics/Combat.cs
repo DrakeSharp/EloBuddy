@@ -12,6 +12,7 @@ namespace AutoBuddy.MainLogics
     {
         private readonly LogicSelector current;
         private bool active;
+        private string lastMode = " ";
         private LogicSelector.MainLogics returnTo;
 
         public Combat(LogicSelector currentLogic)
@@ -24,7 +25,7 @@ namespace AutoBuddy.MainLogics
 
         private void Drawing_OnDraw(EventArgs args)
         {
-            Drawing.DrawText(250, 25, System.Drawing.Color.Gold, "Combat, active:  " + active);
+            Drawing.DrawText(250, 25, System.Drawing.Color.Gold, "Combat, active:  " + active+" last mode: "+lastMode);
         }
 
 
@@ -71,7 +72,7 @@ namespace AutoBuddy.MainLogics
                     .FirstOrDefault();
 
 
-            if (victim == null || AutoWalker.p.GetNearestTurret().Distance(AutoWalker.p) > 1000)
+            if (victim == null || AutoWalker.p.GetNearestTurret().Distance(AutoWalker.p) > 1100)
             {
                 har =
                     EntityManager.Heroes.Enemies.Where(
@@ -103,15 +104,26 @@ namespace AutoBuddy.MainLogics
                 Vector3 posToWalk =
                     vicPos.Extend(AutoWalker.myNexus,
                         (victim.BoundingRadius + AutoWalker.p.AttackRange - 30)*
-                        Math.Min(current.localAwareness.MyStrength()/current.localAwareness.HeroStrength(victim)*.8f, 1))
+                        Math.Min(current.localAwareness.HeroStrength(victim)/current.localAwareness.MyStrength()*2f, 1))
                         .To3DWorld();
 
+                Obj_AI_Turret nearestEnemyTurret = posToWalk.GetNearestTurret();
+                lastMode = "combo";
+                if (
+                    AutoWalker.p.Distance(nearestEnemyTurret)<950+AutoWalker.p.BoundingRadius)
+                {
+                    if (victim.Health > AutoWalker.p.GetAutoAttackDamage(victim) + 15||victim.Distance(AutoWalker.p)>AutoWalker.p.AttackRange+victim.BoundingRadius-20)
+                    {
+                        lastMode = "enemy under turret, ignoring";
+                        current.SetLogic(returnTo);
+                        return;
+                    }
+                    lastMode = "combo under turret";
+                }
 
-                if (victim.Health > AutoWalker.p.TotalAttackDamage &&
-                    posToWalk.GetNearestTurret().Distance(posToWalk) < 850 + AutoWalker.p.BoundingRadius)
-                    posToWalk = posToWalk.GetNearestTurret()
-                        .Position.Extend(posToWalk, 850 + AutoWalker.p.BoundingRadius).To3DWorld();
                 AutoWalker.WalkTo(posToWalk);
+
+
                 if (AutoWalker.Ghost != null && AutoWalker.Ghost.IsReady() &&
                     AutoWalker.p.HealthPercent/victim.HealthPercent > 2 &&
                     victim.Distance(AutoWalker.p) > AutoWalker.p.AttackRange + victim.BoundingRadius + 100 &&
@@ -122,11 +134,24 @@ namespace AutoBuddy.MainLogics
             {
                 Vector3 harPos = Prediction.Position.PredictUnitPosition(har, 500).To3D();
                 harPos=harPos.Extend(AutoWalker.p.Position, AutoWalker.p.AttackRange + har.BoundingRadius-20).To3D();
+                lastMode = "harass";
                 Obj_AI_Turret tu = harPos.GetNearestTurret();
-                if (harPos.Distance(tu) < 1000)
-                    harPos = tu.Position.Extend(harPos, 1000).To3DWorld();
-                current.myChamp.Harass(har);
+                
+                if (harPos.Distance(tu) < 1090)
+                {
+
+                    harPos = tu.Position.Extend(harPos, 1090).To3DWorld();
+                    lastMode = "harass under turret";
+
+                    if (harPos.Distance(AutoWalker.myNexus) > tu.Distance(AutoWalker.myNexus))
+                        harPos =
+                            tu.Position.Extend(AutoWalker.myNexus, 1050 + AutoWalker.p.BoundingRadius).To3DWorld();
+                    
+                }
+
                 Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.Harass;
+                current.myChamp.Harass(har);
+                
 
                 AutoWalker.WalkTo(harPos);
             }
