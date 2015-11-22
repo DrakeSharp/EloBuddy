@@ -81,7 +81,8 @@ namespace AutoBuddy.MainLogics
         {
             Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.Combo;
             if (ObjectManager.Player.Distance(spawn) < 400 && ObjectManager.Player.HealthPercent > 85 &&
-                ObjectManager.Player.ManaPercent > 80)
+                (ObjectManager.Player.ManaPercent > 80||ObjectManager.Player.PARRegenRate<=.0001))
+
                 current.SetLogic(LogicSelector.MainLogics.PushLogic);
             else if (ObjectManager.Player.Distance(spawn) < 1000)
                 AutoWalker.WalkTo(spawn.Position);

@@ -136,11 +136,11 @@ namespace AutoBuddy.MainLogics
                     EntityManager.Heroes.Allies.Where(
                         al => !al.IsMe &&
                               AutoWalker.p.Distance(al) < 1200 &&
-                              al.Distance(enemyTurret) < p.Distance(enemyTurret) + 150 &&
+                              al.Distance(enemyTurret) < p.Distance(enemyTurret) + 100 &&
                               currentLogic.localAwareness.LocalDomination(al) < -15000)
                         .OrderBy(l => l.Distance(AutoWalker.p))
                         .FirstOrDefault();
-                if (ally != null)
+                if (AutoWalker.p.Gold > 550 && ally != null)
                     p = ally.Position.Extend(myTurret, 160).To3DWorld() + randomVector;
                 if (Math.Abs(p.Distance(AutoWalker.enemyNexus) - AutoWalker.p.Distance(AutoWalker.enemyNexus)) < 200)
                 {

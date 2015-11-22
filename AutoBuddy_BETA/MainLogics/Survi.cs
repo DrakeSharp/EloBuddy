@@ -78,9 +78,9 @@ namespace AutoBuddy.MainLogics
         {
             if (hits*20 > AutoWalker.p.HealthPercent) SetSpierdalanko(.5f);
             dangerValue = current.localAwareness.LocalDomination(AutoWalker.p);
-            if (dangerValue > -2000)
+            if (dangerValue > -2000||AutoWalker.p.Distance(AutoWalker.enemyLazer)<1600)
             {
-                SetSpierdalankoUnc(2);
+                SetSpierdalankoUnc(1.8f);
                 current.saveMylife = true;
             }
             if (!active)
@@ -98,13 +98,24 @@ namespace AutoBuddy.MainLogics
             if (closestSafePoint.Distance(AutoWalker.p) > 2000)
             {
                 AIHeroClient ally = EntityManager.Heroes.Allies.Where(
-                    a => a.Distance(AutoWalker.p) < 2000 && current.localAwareness.LocalDomination(a.Position) < -40000)
+                    a => a.Distance(AutoWalker.p) < 1500 && current.localAwareness.LocalDomination(a.Position) < -40000)
                     .OrderBy(al => al.Distance(AutoWalker.p))
                     .FirstOrDefault();
                 if (ally != null)
                     closestSafePoint = ally.Position;
             }
-            Orbwalker.ActiveModesFlags = AutoWalker.p.Distance(closestSafePoint) < 400
+            if (closestSafePoint.Distance(AutoWalker.p) > 150)
+            {
+                AIHeroClient ene =
+                    EntityManager.Heroes.Enemies
+                        .FirstOrDefault(en => en.Health > 0 && en.Distance(closestSafePoint) < 300);
+                if (ene != null)
+                {
+                    closestSafePoint = AutoWalker.myNexus.Position;
+                }
+            }
+
+            Orbwalker.ActiveModesFlags = AutoWalker.p.Distance(closestSafePoint) < 200
                 ? Orbwalker.ActiveModes.Combo
                 : Orbwalker.ActiveModes.None;
             AutoWalker.WalkTo(closestSafePoint.Extend(AutoWalker.myNexus, 200).To3DWorld());
@@ -129,7 +140,7 @@ namespace AutoBuddy.MainLogics
                 hits = 4;
             if (hits > 0)
                 hits--;
-            Core.DelayAction(DecHits, 800);
+            Core.DelayAction(DecHits, 700);
         }
     }
 }

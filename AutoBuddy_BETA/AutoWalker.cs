@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using AutoBuddy.Humanizers;
+using AutoBuddy.Utilities;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Menu;
@@ -21,7 +22,7 @@ namespace AutoBuddy
         public static int adjustAnimation = 20;
         public static float holdRadius = 100;
         public static float movementDelay = .25f;
-
+        public static Obj_AI_Turret enemyLazer;
 
         private static float nextMove;
 
@@ -29,6 +30,7 @@ namespace AutoBuddy
         {
             myNexus = ObjectManager.Get<Obj_HQ>().First(n => n.IsAlly);
             enemyNexus = ObjectManager.Get<Obj_HQ>().First(n => n.IsEnemy);
+            enemyLazer = ObjectManager.Get<Obj_AI_Turret>().FirstOrDefault(tur => tur.IsEnemy && tur.GetLane() == Lane.Spawn);
             p = ObjectManager.Player;
 
             if (p.Spellbook.GetSpell(SpellSlot.Summoner1).Name == "summonerheal")
