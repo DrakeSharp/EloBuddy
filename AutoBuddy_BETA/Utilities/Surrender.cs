@@ -1,7 +1,8 @@
-﻿using EloBuddy;
+﻿using AutoBuddy.Humanizers;
+using EloBuddy;
 using EloBuddy.SDK;
 
-namespace AutoBuddy
+namespace AutoBuddy.Utilities
 {
     internal class Surrender
     {
@@ -13,9 +14,8 @@ namespace AutoBuddy
         //auto agree to surrender
         private void Game_OnNotify(GameNotifyEventArgs args)
         {
-            if(args.EventId==GameEventId.OnSurrenderVote)
-                Core.DelayAction(()=>SafeFunctions.SayChat("/ff"), RandGen.r.Next(2000, 5000));
+            if (args.EventId == GameEventId.OnSurrenderVote)
+                Core.DelayAction(() => SafeFunctions.SayChat("/ff"), RandGen.r.Next(2000, 5000));
         }
-
     }
 }

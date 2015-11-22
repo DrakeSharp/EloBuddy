@@ -1,4 +1,5 @@
-﻿using Buddy_vs_Bot.MyChampLogic;
+﻿using AutoBuddy.MyChampLogic;
+using AutoBuddy.Utilities;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Menu;
@@ -6,29 +7,20 @@ using EloBuddy.SDK.Menu.Values;
 using SharpDX;
 using Color = System.Drawing.Color;
 
-namespace Buddy_vs_Bot.MainLogics
+namespace AutoBuddy.MainLogics
 {
     internal class LogicSelector
     {
-        internal enum MainLogics
-        {
-            PushLogic,
-            RecallLogic,
-            LoadLogic,
-            SurviLogic,
-            CombatLogic,
-            Nothing
-        }
+        public readonly Combat combatLogic;
+        public readonly Load loadLogic;
+        public readonly LocalAwareness localAwareness;
+        public readonly Push pushLogic;
+        public readonly Recall recallLogic;
+        public readonly Surrender surrender;
+        public readonly Survi surviLogic;
+
 
         public IChampLogic myChamp;
-        public MainLogics current { get; set; }
-        public readonly Push pushLogic;
-        public readonly Load loadLogic;
-        public readonly Recall recallLogic;
-        public readonly Survi surviLogic;
-        public readonly Combat combatLogic;
-        public readonly Surrender surrender;
-        public readonly LocalAwareness localAwareness;
         public bool saveMylife;
 
         public LogicSelector(IChampLogic my)
@@ -40,26 +32,24 @@ namespace Buddy_vs_Bot.MainLogics
             pushLogic = new Push(this);
             loadLogic = new Load(this);
             combatLogic = new Combat(this);
-            surrender=new Surrender();
-            Core.DelayAction(()=>loadLogic.SetLane(), 1000);
-            localAwareness=new LocalAwareness();
+            surrender = new Surrender();
+            
+            Core.DelayAction(() => loadLogic.SetLane(), 1000);
+            localAwareness = new LocalAwareness();
             if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
                 Drawing.OnEndScene += Drawing_OnDraw;
-            Game.OnUpdate += Game_OnUpdate;
+            myChamp.Logic = this;
+            
             Core.DelayAction(Watchdog, 3000);
-
         }
 
-        void Game_OnUpdate(System.EventArgs args)
-        {
-            myChamp.OnUpdate(this);
-        }
+        public MainLogics current { get; set; }
 
-        void Drawing_OnDraw(System.EventArgs args)
+        private void Drawing_OnDraw(System.EventArgs args)
         {
             Drawing.DrawText(250, 85, Color.Gold, current.ToString());
             Vector2 v = Game.CursorPos.WorldToScreen();
-            Drawing.DrawText(v.X, v.Y-20, Color.Gold, localAwareness.LocalDomination(Game.CursorPos)+" ");
+            Drawing.DrawText(v.X, v.Y - 20, Color.Gold, localAwareness.LocalDomination(Game.CursorPos) + " ");
         }
 
         public MainLogics SetLogic(MainLogics newlogic)
@@ -70,7 +60,6 @@ namespace Buddy_vs_Bot.MainLogics
             MainLogics old = current;
             switch (current)
             {
-
                 case MainLogics.SurviLogic:
                     surviLogic.Deactivate();
                     break;
@@ -82,7 +71,6 @@ namespace Buddy_vs_Bot.MainLogics
                     combatLogic.Deactivate();
                     break;
             }
-
 
 
             switch (newlogic)
@@ -118,8 +106,16 @@ namespace Buddy_vs_Bot.MainLogics
                 Chat.Print("Hang detected");
                 loadLogic.SetLane();
             }
-
         }
 
+        internal enum MainLogics
+        {
+            PushLogic,
+            RecallLogic,
+            LoadLogic,
+            SurviLogic,
+            CombatLogic,
+            Nothing
+        }
     }
 }

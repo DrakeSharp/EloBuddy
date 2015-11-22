@@ -4,15 +4,16 @@ using EloBuddy;
 using EloBuddy.SDK;
 using SharpDX;
 
-namespace AutoBuddy
+namespace AutoBuddy.Utilities
 {
     internal class LocalAwareness
     {
         private readonly List<HeroInfo> heroTable;
         private readonly HeroInfo me;
+
         public LocalAwareness()
         {
-            heroTable=new List<HeroInfo>();
+            heroTable = new List<HeroInfo>();
             foreach (AIHeroClient h in EntityManager.Heroes.AllHeroes)
             {
                 if (h.IsMe)
@@ -23,7 +24,6 @@ namespace AutoBuddy
                 else
                     heroTable.Add(new HeroInfo(h));
             }
-
         }
 
 
@@ -33,11 +33,15 @@ namespace AutoBuddy
             foreach (HeroInfo h in heroTable.Where(h => h.hero.Distance(pos) < 900 && h.hero.IsVisible()))
             {
                 if (h.hero.Health <= 0) continue;
-                danger += (-0.0042857142857143f * (h.hero.Distance(pos) + 100) + 4.4285714285714f) *HeroStrength(h) * (h.hero.IsAlly ? -1 : 1);
+                danger += (-0.0042857142857143f*(h.hero.Distance(pos) + 100) + 4.4285714285714f)*HeroStrength(h)*
+                          (h.hero.IsAlly ? -1 : 1);
             }
-            foreach (Obj_AI_Minion tt in ObjectManager.Get<Obj_AI_Minion>().Where(min=>min.Health>0&&min.Distance(pos)<600&&min.Name.StartsWith("H28-G")))
+            foreach (
+                Obj_AI_Minion tt in
+                    ObjectManager.Get<Obj_AI_Minion>()
+                        .Where(min => min.Health > 0 && min.Distance(pos) < 600 && min.Name.StartsWith("H28-G")))
             {
-                danger += 10000*(tt.IsEnemy?1:-1);
+                danger += 10000*(tt.IsEnemy ? 1 : -1);
             }
             if (AutoWalker.p.GetNearestTurret().Distance(pos) < 1000) danger += 35000;
             if (AutoWalker.p.GetNearestTurret(false).Distance(pos) < 400) danger -= 35000;
@@ -46,13 +50,14 @@ namespace AutoBuddy
 
         public float HeroStrength(HeroInfo h)
         {
-            return (h.hero.HealthPercent)*(100 + h.hero.Level*10 + h.kills*5);
+            return h.hero.HealthPercent*(100 + h.hero.Level*10 + h.kills*5);
         }
 
         public float MyStrength()
         {
             return HeroStrength(me);
         }
+
         public float HeroStrength(AIHeroClient h)
         {
             return HeroStrength(heroTable.First(he => he.hero == h));
@@ -62,6 +67,5 @@ namespace AutoBuddy
         {
             return LocalDomination(ob.Position);
         }
-
     }
 }

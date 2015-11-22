@@ -1,17 +1,18 @@
 ﻿using EloBuddy;
 
-namespace AutoBuddy
+namespace AutoBuddy.Utilities
 {
     internal class HeroInfo
     {
         public AIHeroClient hero;
-        public int kills { get; private set; }
 
         public HeroInfo(AIHeroClient h)
         {
             hero = h;
             Game.OnNotify += Game_OnNotify;
         }
+
+        public int kills { get; private set; }
 
         private void Game_OnNotify(GameNotifyEventArgs args)
         {

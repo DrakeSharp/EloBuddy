@@ -1,22 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net.NetworkInformation;
+using AutoBuddy.Humanizers;
+using AutoBuddy.Utilities;
 using EloBuddy;
 using EloBuddy.SDK;
 using SharpDX;
 
-namespace Buddy_vs_Bot
+namespace AutoBuddy
 {
     internal static class BrutalExtensions
     {
-        
         public static Lane GetLane(this Obj_AI_Minion min)
         {
-            if (min.Name == null || min.Name.Length < 13) return Lane.Unknown;
-            if (min.Name[12] == '0') return Lane.Bot;
-            if (min.Name[12] == '1') return Lane.Mid;
-            if (min.Name[12] == '2') return Lane.Top;
+            try
+            {
+                if (min.Name == null || min.Name.Length < 13) return Lane.Unknown;
+                if (min.Name[12] == '0') return Lane.Bot;
+                if (min.Name[12] == '1') return Lane.Mid;
+                if (min.Name[12] == '2') return Lane.Top;
+            }
+            catch (Exception e) {Console.WriteLine("GetLane:"+e.Message); }
             return Lane.Unknown;
         }
 
@@ -33,24 +36,22 @@ namespace Buddy_vs_Bot
 
         public static int GetWave(this Obj_AI_Minion min)
         {
-            
             if (min.Name == null || min.Name.Length < 17) return 0;
             int result;
             try
             {
                 result = int.Parse(min.Name.Substring(14, 2));
             }
-            catch (FormatException e)
+            catch (FormatException)
             {
                 result = 0;
-                Console.WriteLine("GetWave error, minion name: "+min.Name);
+                Console.WriteLine("GetWave error, minion name: " + min.Name);
             }
             return result;
         }
 
-        public static Vector3 RotateAround(this Vector3 rotated, Vector3 around, float angle)
+        public static Vector3 RotatedAround(this Vector3 rotated, Vector3 around, float angle)
         {
-
             double s = Math.Sin(angle);
             double c = Math.Cos(angle);
 
@@ -63,6 +64,11 @@ namespace Buddy_vs_Bot
             ret.Y = (float) ynew + around.Y;
 
             return ret.To3DWorld();
+        }
+
+        public static Vector3 Randomized(this Vector3 vec, float min = -300, float max = 300)
+        {
+            return new Vector3(vec.X + RandGen.r.NextFloat(min, max), vec.Y + RandGen.r.NextFloat(min, max), vec.Z);
         }
 
         public static Obj_AI_Turret GetNearestTurret(this Vector3 pos, bool enemy = true)

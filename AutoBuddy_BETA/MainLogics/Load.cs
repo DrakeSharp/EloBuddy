@@ -1,33 +1,34 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using AutoBuddy.Humanizers;
+using AutoBuddy.Utilities;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 using SharpDX;
 
-namespace Buddy_vs_Bot.MainLogics
+namespace AutoBuddy.MainLogics
 {
     internal class Load
     {
-        public bool waiting = false;
-        private readonly LogicSelector currentLogic;
         private const float waitTime = 40;
+        private readonly LogicSelector currentLogic;
         private readonly float startTime;
         private string status = " ";
+        public bool waiting;
+
         public Load(LogicSelector c)
         {
-
             currentLogic = c;
             startTime = Game.Time + waitTime + RandGen.r.NextFloat(-10, 20);
             if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
                 Drawing.OnDraw += Drawing_OnDraw;
             MainMenu.GetMenu("AB").Get<CheckBox>("reselectlane").OnValueChange += Checkbox_OnValueChange;
             MainMenu.GetMenu("AB").Get<Slider>("lane").OnValueChange += Slider_OnValueChange;
-
         }
 
-        void Slider_OnValueChange(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs args)
+        private void Slider_OnValueChange(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs args)
         {
             ReselectLane();
         }
@@ -50,11 +51,10 @@ namespace Buddy_vs_Bot.MainLogics
 
         public void Activate()
         {
-
         }
+
         public void SetLane()
         {
-
             if (MainMenu.GetMenu("AB").Get<Slider>("lane").CurrentValue != 1)
             {
                 switch (MainMenu.GetMenu("AB").Get<Slider>("lane").CurrentValue)
@@ -74,30 +74,28 @@ namespace Buddy_vs_Bot.MainLogics
 
             if (ObjectManager.Get<Obj_AI_Turret>().Count() == 24)
             {
-                if (AutoWalker.p.Gold < 550 && MainMenu.GetMenu("AB").Get<CheckBox>("mid").CurrentValue )
+                if (AutoWalker.p.Gold < 550 && MainMenu.GetMenu("AB").Get<CheckBox>("mid").CurrentValue)
                 {
                     Vector3 p =
                         ObjectManager.Get<Obj_AI_Turret>()
                             .First(tur => tur.IsAlly && tur.Name.EndsWith("C_05_A"))
                             .Position;
 
-                    Core.DelayAction(
-                        () =>
-                            TacticalMap.SendPing(PingCategory.OnMyWay,
-                                new Vector3(p.X + RandGen.r.NextFloat(-300, 300), p.Y + RandGen.r.NextFloat(-300, 300),
-                                    p.Z)), RandGen.r.Next(3000));
-
-                    Core.DelayAction(() => Chat.Say("mid"), RandGen.r.Next(200, 1000));
+                    Core.DelayAction(() => SafeFunctions.Ping(PingCategory.OnMyWay, p.Randomized()),
+                        RandGen.r.Next(1500, 3000));
+                    Core.DelayAction(() => SafeFunctions.SayChat("mid"), RandGen.r.Next(200, 1000));
                     AutoWalker.WalkTo(p);
                 }
+
+
                 CanSelectLane();
             }
             else
                 SelectMostPushedLane();
         }
+
         public void Deactivate()
         {
-
         }
 
         public void CanSelectLane()
@@ -132,38 +130,39 @@ namespace Buddy_vs_Bot.MainLogics
             if (ally == null)
             {
                 ally =
-                ObjectManager.Get<Obj_AI_Turret>()
-                    .Where(tur => tur.Health > 0 && tur.IsAlly
-                && tur.GetLane() == Lane.HQ)
-                    .OrderBy(tur => tur.Distance(andrzej))
-                    .FirstOrDefault();
+                    ObjectManager.Get<Obj_AI_Turret>()
+                        .Where(tur => tur.Health > 0 && tur.IsAlly
+                                      && tur.GetLane() == Lane.HQ)
+                        .OrderBy(tur => tur.Distance(andrzej))
+                        .FirstOrDefault();
             }
             if (ally == null)
             {
-                ally = ObjectManager.Get<Obj_AI_Turret>().FirstOrDefault(tur => tur.IsAlly && tur.GetLane() == Lane.Spawn);
+                ally =
+                    ObjectManager.Get<Obj_AI_Turret>().FirstOrDefault(tur => tur.IsAlly && tur.GetLane() == Lane.Spawn);
             }
 
             Obj_AI_Base enemy =
-    ObjectManager.Get<Obj_AI_Turret>()
-        .Where(tur => tur.IsEnemy && tur.Health > 0 && tur.GetLane() == andrzej.GetLane())
-        .OrderBy(tur => tur.Distance(andrzej))
-        .FirstOrDefault();
+                ObjectManager.Get<Obj_AI_Turret>()
+                    .Where(tur => tur.IsEnemy && tur.Health > 0 && tur.GetLane() == andrzej.GetLane())
+                    .OrderBy(tur => tur.Distance(andrzej))
+                    .FirstOrDefault();
             if (enemy == null)
             {
                 enemy =
-                ObjectManager.Get<Obj_AI_Turret>()
-                    .Where(tur => tur.Health > 0 && tur.IsEnemy
-                && tur.GetLane() == Lane.HQ)
-                    .OrderBy(tur => tur.Distance(andrzej))
-                    .FirstOrDefault();
+                    ObjectManager.Get<Obj_AI_Turret>()
+                        .Where(tur => tur.Health > 0 && tur.IsEnemy
+                                      && tur.GetLane() == Lane.HQ)
+                        .OrderBy(tur => tur.Distance(andrzej))
+                        .FirstOrDefault();
             }
             if (enemy == null)
             {
-                enemy = ObjectManager.Get<Obj_AI_Turret>().FirstOrDefault(tur => tur.IsEnemy && tur.GetLane() == Lane.Spawn);
+                enemy =
+                    ObjectManager.Get<Obj_AI_Turret>().FirstOrDefault(tur => tur.IsEnemy && tur.GetLane() == Lane.Spawn);
             }
 
             currentLogic.pushLogic.Reset(ally, enemy, andrzej.GetLane());
-
         }
 
         public void SelectLane2(Lane l)
@@ -217,44 +216,62 @@ namespace Buddy_vs_Bot.MainLogics
             if (ally == null)
                 ally = ObjectManager.Get<Obj_AI_Turret>().FirstOrDefault(tur => tur.IsAlly && tur.GetLane() == Lane.HQ);
             if (ally == null)
-                ally = ObjectManager.Get<Obj_AI_Turret>().FirstOrDefault(tur => tur.IsAlly && tur.GetLane() == Lane.Spawn);
+                ally =
+                    ObjectManager.Get<Obj_AI_Turret>().FirstOrDefault(tur => tur.IsAlly && tur.GetLane() == Lane.Spawn);
 
             if (enemy == null)
-                enemy = ObjectManager.Get<Obj_AI_Turret>().FirstOrDefault(tur => tur.IsEnemy && tur.GetLane() == Lane.HQ);
+                enemy = ObjectManager.Get<Obj_AI_Turret>()
+                    .FirstOrDefault(tur => tur.IsEnemy && tur.GetLane() == Lane.HQ);
             if (enemy == null)
-                enemy = ObjectManager.Get<Obj_AI_Turret>().FirstOrDefault(tur => tur.IsEnemy && tur.GetLane() == Lane.Spawn);
+                enemy =
+                    ObjectManager.Get<Obj_AI_Turret>().FirstOrDefault(tur => tur.IsEnemy && tur.GetLane() == Lane.Spawn);
 
             currentLogic.pushLogic.Reset(ally, enemy, l);
-
         }
+
         private void SelectLane()
         {
             status = "selected free lane";
             List<ChampLane> list = GetChampLanes();
             if (list.All(cl => cl.lane != Lane.Mid))
             {
-                currentLogic.pushLogic.Reset(ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("C_05_A")), ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsEnemy && tur.Name.EndsWith("C_05_A")), Lane.Mid);
+                currentLogic.pushLogic.Reset(
+                    ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("C_05_A")),
+                    ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsEnemy && tur.Name.EndsWith("C_05_A")),
+                    Lane.Mid);
                 return;
             }
             if (list.Count(cl => cl.lane == Lane.Bot) < 2)
             {
-                currentLogic.pushLogic.Reset(ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("R_03_A")), ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsEnemy && tur.Name.EndsWith("R_03_A")), Lane.Bot);
+                currentLogic.pushLogic.Reset(
+                    ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("R_03_A")),
+                    ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsEnemy && tur.Name.EndsWith("R_03_A")),
+                    Lane.Bot);
                 return;
             }
             if (list.Count(cl => cl.lane == Lane.Top) < 2)
             {
-                currentLogic.pushLogic.Reset(ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("L_03_A")), ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsEnemy && tur.Name.EndsWith("L_03_A")), Lane.Top);
+                currentLogic.pushLogic.Reset(
+                    ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("L_03_A")),
+                    ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsEnemy && tur.Name.EndsWith("L_03_A")),
+                    Lane.Top);
             }
         }
 
         private static List<ChampLane> GetChampLanes(float maxDistance = 2000, float maxDistanceFront = 3000)
         {
-            Obj_AI_Turret top1 = ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("L_03_A"));
-            Obj_AI_Turret top2 = ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("L_02_A"));
-            Obj_AI_Turret mid1 = ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("C_05_A"));
-            Obj_AI_Turret mid2 = ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("C_04_A"));
-            Obj_AI_Turret bot1 = ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("R_03_A"));
-            Obj_AI_Turret bot2 = ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("R_02_A"));
+            Obj_AI_Turret top1 =
+                ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("L_03_A"));
+            Obj_AI_Turret top2 =
+                ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("L_02_A"));
+            Obj_AI_Turret mid1 =
+                ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("C_05_A"));
+            Obj_AI_Turret mid2 =
+                ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("C_04_A"));
+            Obj_AI_Turret bot1 =
+                ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("R_03_A"));
+            Obj_AI_Turret bot2 =
+                ObjectManager.Get<Obj_AI_Turret>().First(tur => tur.IsAlly && tur.Name.EndsWith("R_02_A"));
 
             List<ChampLane> ret = new List<ChampLane>();
 

@@ -1,16 +1,18 @@
-﻿using AutoBuddy.MyChampLogic;
+﻿using AutoBuddy.Humanizers;
+using AutoBuddy.MyChampLogic;
 using EloBuddy;
 using EloBuddy.SDK;
 
-namespace AutoBuddy
+namespace AutoBuddy.Utilities
 {
-    class SkillLevelUp
+    internal class SkillLevelUp
     {
         private readonly IChampLogic champ;
-        private readonly SpellDataInst q = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q);
-        private readonly SpellDataInst w = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W);
         private readonly SpellDataInst e = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E);
+        private readonly SpellDataInst q = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q);
         private readonly SpellDataInst r = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R);
+        private readonly SpellDataInst w = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W);
+
         public SkillLevelUp(IChampLogic myChamp)
         {
             champ = myChamp;
@@ -18,10 +20,10 @@ namespace AutoBuddy
             Obj_AI_Base.OnLevelUp += Player_OnLevelUp;
         }
 
-        void Player_OnLevelUp(Obj_AI_Base sender, Obj_AI_BaseLevelUpEventArgs args)
+        private void Player_OnLevelUp(Obj_AI_Base sender, Obj_AI_BaseLevelUpEventArgs args)
         {
             if (sender != ObjectManager.Player) return;
-            Core.DelayAction(()=>OnLvLUp(args.Level), RandGen.r.Next(300, 2000));
+            Core.DelayAction(() => OnLvLUp(args.Level), RandGen.r.Next(300, 2000));
         }
 
         private void OnLvLUp(int level)

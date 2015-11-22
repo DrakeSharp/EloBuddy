@@ -1,9 +1,11 @@
 ﻿using System;
-using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
-using Buddy_vs_Bot.MainLogics;
-using Buddy_vs_Bot.MyChampLogic;
+using AutoBuddy.Humanizers;
+using AutoBuddy.MainLogics;
+using AutoBuddy.MyChampLogic;
+using AutoBuddy.Utilities;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Events;
@@ -11,29 +13,22 @@ using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 using Version = System.Version;
 
-namespace Buddy_vs_Bot
+namespace AutoBuddy
 {
     internal class Program
     {
         private static Menu menu;
-        public static SkillLevelUp LevelUp { get; private set; }
-        public static LogicSelector Logic { get; private set; }
         private static IChampLogic myChamp;
+        public static SkillLevelUp LevelUp { get; private set; }
+        private static EasyShop easyShop;
+        public static LogicSelector Logic { get; private set; }
 
         public static void Main()
         {
             Hacks.RenderWatermark = false;
             Loading.OnLoadingComplete += Loading_OnLoadingComplete;
-            
-            
-
         }
 
-        // ReSharper disable once UnusedMember.Local
-        private static void Drawing_OnDraw(EventArgs args)
-        {
-
-        }
 
         private static void Loading_OnLoadingComplete(EventArgs args)
         {
@@ -48,35 +43,50 @@ namespace Buddy_vs_Bot
             menu.Add("reselectlane", new CheckBox("Reselect lane", false));
             menu.Add("debuginfo", new CheckBox("Draw debug info(press f5 after)", true));
             menu.Add("l1", new Label("By Christian Brutal Sniper"));
-            Version v=Assembly.GetExecutingAssembly().GetName().Version;
-            menu.Add("l2", new Label(("Version " + v.Major + "." + v.Minor + " Build time: " + v.Build % 100 + " " + CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(v.Build / 100)) + " " + (v.Revision / 100).ToString().PadLeft(2, '0') + ":" + (v.Revision % 100).ToString().PadLeft(2, '0')));
+            Version v = Assembly.GetExecutingAssembly().GetName().Version;
+            menu.Add("l2",
+                new Label("Version " + v.Major + "." + v.Minor + " Build time: " + v.Build%100 + " " +
+                          CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(v.Build/100) + " " +
+                          (v.Revision/100).ToString().PadLeft(2, '0') + ":" +
+                          (v.Revision%100).ToString().PadLeft(2, '0')));
+
+
         }
 
         private static void Start()
         {
             RandGen.Start();
+            bool generic = false;
             if (ObjectManager.Player.Hero == Champion.Ashe)
             {
                 myChamp = new Ashe();
-
             }
             else if (ObjectManager.Player.Hero == Champion.Caitlyn)
             {
                 myChamp = new Caitlyn();
-
             }
             else
             {
+                generic = true;
                 myChamp = new Generic();
             }
-            if(!menu.Get<CheckBox>("autolvl").CurrentValue)
+            if (!generic)
+                easyShop = new EasyShop(myChamp.ShopSequence, menu);
+            else
+            {
+                if (MainMenu.GetMenu("AB_" + ObjectManager.Player.ChampionName).Get<Label>("shopSequence") != null)
+                {
+                    Chat.Print("Autobuddy: Loaded shop plugin for " + ObjectManager.Player.ChampionName);
+                    easyShop = new EasyShop(
+                        MainMenu.GetMenu("AB_" + ObjectManager.Player.ChampionName)
+                            .Get<Label>("shopSequence")
+                            .DisplayName, menu);
+                }
+            }
+            if (!menu.Get<CheckBox>("autolvl").CurrentValue)
                 LevelUp = new SkillLevelUp(myChamp);
-            AutoShop();
             Logic = new LogicSelector(myChamp);
         }
-        private static void AutoShop()
-        {   myChamp.ShopLogic();
-            Core.DelayAction(AutoShop, RandGen.r.Next(300, 800));
-        }
+
     }
 }

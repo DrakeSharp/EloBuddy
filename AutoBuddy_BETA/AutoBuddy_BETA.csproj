@@ -7,8 +7,8 @@
     <ProjectGuid>{91E742EE-1C58-41A7-9FAF-3302235F2456}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Buddy_vs_Bot</RootNamespace>
-    <AssemblyName>Buddy_vs_Bot</AssemblyName>
+    <RootNamespace>AutoBuddy</RootNamespace>
+    <AssemblyName>AutoBuddy</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -54,11 +54,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Humanizers\SafeShop.cs" />
     <Compile Include="AutoWalker.cs" />
     <Compile Include="BrutalExtensions.cs" />
-    <Compile Include="ChampLane.cs" />
-    <Compile Include="HeroInfo.cs" />
-    <Compile Include="LocalAwareness.cs" />
+    <Compile Include="Utilities\ChampLane.cs" />
+    <Compile Include="Utilities\EasyShop.cs" />
+    <Compile Include="Utilities\HeroInfo.cs" />
+    <Compile Include="Utilities\LocalAwareness.cs" />
     <Compile Include="MainLogics\LogicSelector.cs" />
     <Compile Include="MainLogics\Load.cs" />
     <Compile Include="MyChampLogic\Caitlyn.cs" />
@@ -68,12 +70,13 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MainLogics\Push.cs" />
-    <Compile Include="RandGen.cs" />
+    <Compile Include="Humanizers\RandGen.cs" />
     <Compile Include="MainLogics\Combat.cs" />
     <Compile Include="MainLogics\Survi.cs" />
     <Compile Include="MainLogics\Recall.cs" />
-    <Compile Include="SkillLevelUp.cs" />
-    <Compile Include="Surrender.cs" />
+    <Compile Include="Humanizers\SafeFunctions.cs" />
+    <Compile Include="Utilities\SkillLevelUp.cs" />
+    <Compile Include="Utilities\Surrender.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

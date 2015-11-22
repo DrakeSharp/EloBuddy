@@ -1,8 +1,8 @@
 ﻿using EloBuddy;
 
-namespace AutoBuddy
+namespace AutoBuddy.Utilities
 {
-    enum Lane
+    internal enum Lane
     {
         Unknown,
         Top,
@@ -11,7 +11,8 @@ namespace AutoBuddy
         HQ,
         Spawn
     }
-    class ChampLane
+
+    internal class ChampLane
     {
         public readonly AIHeroClient champ;
         public readonly Lane lane;

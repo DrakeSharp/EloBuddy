@@ -1,15 +1,15 @@
-﻿using Buddy_vs_Bot.MainLogics;
+﻿using AutoBuddy.MainLogics;
 using EloBuddy;
 
-namespace Buddy_vs_Bot.MyChampLogic
+namespace AutoBuddy.MyChampLogic
 {
     internal interface IChampLogic
     {
         int[] skillSequence { get; }
-        void ShopLogic();
+        LogicSelector Logic { get; set; }
+        string ShopSequence { get; }
         void Harass(AIHeroClient target);
         void Survi();
-        void OnUpdate(LogicSelector l);
         void Combo(AIHeroClient target);
     }
 }
