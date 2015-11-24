@@ -43,7 +43,7 @@ namespace AutoBuddy.MainLogics
         private void SetSpierdalanko(float sec)
         {
             spierdalanko = Game.Time + sec;
-            if (active || (current.current == LogicSelector.MainLogics.CombatLogic && AutoWalker.p.HealthPercent > 13))
+            if (active || (current.current == LogicSelector.MainLogics.CombatLogic && AutoWalker.p.HealthPercent() > 13))
                 return;
             LogicSelector.MainLogics returnT = current.SetLogic(LogicSelector.MainLogics.SurviLogic);
             if (returnT != LogicSelector.MainLogics.SurviLogic) returnTo = returnT;
@@ -76,10 +76,14 @@ namespace AutoBuddy.MainLogics
 
         private void Game_OnUpdate(EventArgs args)
         {
-            if (hits*20 > AutoWalker.p.HealthPercent) SetSpierdalanko(.5f);
+            if (hits*20 > AutoWalker.p.HealthPercent())
+            {
+                SetSpierdalanko(.5f);
+            }
             dangerValue = current.localAwareness.LocalDomination(AutoWalker.p);
             if (dangerValue > -2000||AutoWalker.p.Distance(AutoWalker.enemyLazer)<1600)
             {
+                
                 SetSpierdalankoUnc(1.8f);
                 current.saveMylife = true;
             }
@@ -119,13 +123,13 @@ namespace AutoBuddy.MainLogics
                 ? Orbwalker.ActiveModes.Combo
                 : Orbwalker.ActiveModes.None;
             AutoWalker.WalkTo(closestSafePoint.Extend(AutoWalker.myNexus, 200).To3DWorld());
-            if (AutoWalker.p.HealthPercent < 10 ||
-                AutoWalker.p.HealthPercent < 20 && AutoWalker.Heal != null && AutoWalker.Heal.IsReady() &&
+            if (AutoWalker.p.HealthPercent() < 10 ||
+                AutoWalker.p.HealthPercent() < 20 && AutoWalker.Heal != null && AutoWalker.Heal.IsReady() &&
                 EntityManager.Heroes.Enemies.Any(en => en.IsVisible() && en.Distance(AutoWalker.p) < 600))
                 AutoWalker.Heal.Cast();
             if (AutoWalker.Ghost.IsReady() && dangerValue > 20000)
                 AutoWalker.Ghost.Cast();
-            if (ObjectManager.Player.HealthPercent < 35)
+            if (ObjectManager.Player.HealthPercent() < 35)
             {
                 var hppot = new Item(ItemId.Health_Potion);
                 if (hppot.IsOwned())

@@ -30,7 +30,7 @@ namespace AutoBuddy
         {
             myNexus = ObjectManager.Get<Obj_HQ>().First(n => n.IsAlly);
             enemyNexus = ObjectManager.Get<Obj_HQ>().First(n => n.IsEnemy);
-            enemyLazer = ObjectManager.Get<Obj_AI_Turret>().FirstOrDefault(tur => tur.IsEnemy && tur.GetLane() == Lane.Spawn);
+            enemyLazer = ObjectManager.Get<Obj_AI_Turret>().FirstOrDefault(tur => !tur.IsAlly && tur.GetLane() == Lane.Spawn);
             p = ObjectManager.Player;
 
             if (p.Spellbook.GetSpell(SpellSlot.Summoner1).Name == "summonerheal")
@@ -62,6 +62,7 @@ namespace AutoBuddy
 
         private static void Drawing_OnDraw(EventArgs args)
         {
+            Drawing.DrawCircle(enemyLazer.Position, 300, Color.Aqua);
             Drawing.DrawCircle(target, 30, Color.BlueViolet);
         }
 

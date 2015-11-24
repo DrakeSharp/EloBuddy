@@ -75,19 +75,28 @@ namespace AutoBuddy
         {
             return
                 ObjectManager.Get<Obj_AI_Turret>()
-                    .Where(tur => tur.Health > 0 && enemy ? tur.IsEnemy : tur.IsAlly)
+                .Where(tur => tur.Health > 0 && tur.IsAlly^enemy)
                     .OrderBy(tur => tur.Distance(pos))
                     .First();
         }
 
         public static Obj_AI_Turret GetNearestTurret(this Obj_AI_Base unit, bool enemy = true)
         {
-            return unit.Position.GetNearestTurret(enemy);
+            return unit.Position.GetNearestTurret(enemy); 
         }
 
         public static bool IsVisible(this Obj_AI_Base unit)
         {
-            return !unit.IsDead && unit.IsHPBarRendered;
+            return !unit.IsDead() && unit.IsHPBarRendered;
+        }
+
+        public static bool IsDead(this Obj_AI_Base unit)
+        {
+            return unit.Health <= 0;
+        }
+        public static float HealthPercent(this Obj_AI_Base unit)
+        {
+            return unit.Health/unit.MaxHealth*100f;
         }
     }
 }

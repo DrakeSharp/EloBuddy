@@ -8,6 +8,7 @@ namespace AutoBuddy.Utilities
         Top,
         Mid,
         Bot,
+        Jungle,
         HQ,
         Spawn
     }

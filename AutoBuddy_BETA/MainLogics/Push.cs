@@ -77,7 +77,7 @@ namespace AutoBuddy.MainLogics
         private void Game_OnUpdate(EventArgs args)
         {
             if (!active) return;
-            if (!AutoWalker.p.IsDead && (myTurret.Health <= 0 || enemyTurret.Health <= 0))
+            if (!AutoWalker.p.IsDead() && (myTurret.Health <= 0 || enemyTurret.Health <= 0))
             {
                 currentLogic.loadLogic.SetLane();
             }
@@ -92,10 +92,11 @@ namespace AutoBuddy.MainLogics
 
         private void Drawing_OnDraw(EventArgs args)
         {
+
             Drawing.DrawText(250, 40, Color.Gold,
                 "Push, active: " + active + "  wave num: " + CurrentWaveNum + " minions left: " + currentWave.Length);
 
-            Drawing.DrawCircle(currentWave.Length <= 0 ? AutoWalker.p.Position : AvgPos(currentWave), 100, Color.Aqua);
+            Drawing.DrawCircle(currentWave.Length <= 0 ? AutoWalker.p.Position : AvgPos(currentWave), 120, Color.Chocolate);
 
             if (myTurret != null)
                 Drawing.DrawCircle(myTurret.Position, 200, Color.DarkGreen);
@@ -107,14 +108,14 @@ namespace AutoBuddy.MainLogics
         {
             if (
                 ObjectManager.Get<Obj_AI_Minion>()
-                    .Count(min => min.IsAlly && min.HealthPercent > 30 && min.Distance(enemyTurret) < 850) < 2)
+                    .Count(min => min.IsAlly && min.HealthPercent() > 30 && min.Distance(enemyTurret) < 850) < 2)
             {
                 Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.None;
                 AutoWalker.WalkTo(enemyTurret.Position.Extend(AutoWalker.p, 1100).To3DWorld());
                 return;
             }
-            if (AutoWalker.p.Distance(enemyTurret) < AutoWalker.p.AttackRange + enemyTurret.BoundingRadius+10 &&
-                AutoWalker.p.Distance(enemyTurret) > AutoWalker.p.AttackRange + enemyTurret.BoundingRadius - 10)
+            if (AutoWalker.p.Distance(enemyTurret) < AutoWalker.p.AttackRange + enemyTurret.BoundingRadius+25.5f &&
+                AutoWalker.p.Distance(enemyTurret) > AutoWalker.p.AttackRange + enemyTurret.BoundingRadius - 25.5f)
             {
                 Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.None;
                 Player.IssueOrder(GameObjectOrder.AttackUnit, enemyTurret);
@@ -212,7 +213,7 @@ namespace AutoBuddy.MainLogics
             Core.DelayAction(SetWaveNumber, 500);
             Obj_AI_Minion closest =
                 ObjectManager.Get<Obj_AI_Minion>()
-                    .Where(min => min.IsAlly && min.Name.Length > 13 && min.GetLane() == lane && min.HealthPercent > 80)
+                    .Where(min => min.IsAlly && min.Name.Length > 13 && min.GetLane() == lane && min.HealthPercent() > 80)
                     .OrderBy(min => min.Distance(enemyTurret))
                     .FirstOrDefault();
             if (closest != null)
@@ -230,7 +231,7 @@ namespace AutoBuddy.MainLogics
             }
             currentWave =
                 currentWave.Where(
-                    min => !min.IsDead)
+                    min => min.Health>1)
                     .ToArray();
             if (currentWave.Length > 1)
             {

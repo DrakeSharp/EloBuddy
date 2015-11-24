@@ -48,7 +48,7 @@ namespace AutoBuddy.MainLogics
                 return;
             }
 
-            if (AutoWalker.p.Gold - lastRecallGold > (AutoWalker.p.Level + 1)*200 || AutoWalker.p.HealthPercent < 25)
+            if (AutoWalker.p.Gold - lastRecallGold > (AutoWalker.p.Level + 1)*200 || AutoWalker.p.HealthPercent() < 25)
             {
                 current.SetLogic(LogicSelector.MainLogics.RecallLogic);
             }
@@ -80,7 +80,7 @@ namespace AutoBuddy.MainLogics
         private void Game_OnUpdate(EventArgs args)
         {
             Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.Combo;
-            if (ObjectManager.Player.Distance(spawn) < 400 && ObjectManager.Player.HealthPercent > 85 &&
+            if (ObjectManager.Player.Distance(spawn) < 400 && ObjectManager.Player.HealthPercent() > 85 &&
                 (ObjectManager.Player.ManaPercent > 80||ObjectManager.Player.PARRegenRate<=.0001))
 
                 current.SetLogic(LogicSelector.MainLogics.PushLogic);
@@ -90,11 +90,11 @@ namespace AutoBuddy.MainLogics
             {
                 Obj_AI_Turret nearestTurret =
                     ObjectManager.Get<Obj_AI_Turret>()
-                        .Where(t => t.Team == ObjectManager.Player.Team && !t.IsDead)
+                        .Where(t => t.Team == ObjectManager.Player.Team && !t.IsDead())
                         .OrderBy(t => t.Distance(ObjectManager.Player))
                         .First();
                 Vector3 recallPos = nearestTurret.Position.Extend(spawn, 300).To3DWorld();
-                if (AutoWalker.p.HealthPercent > 35)
+                if (AutoWalker.p.HealthPercent() > 35)
                 {
                     if (g == null)
                     {

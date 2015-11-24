@@ -11,6 +11,8 @@ using EloBuddy.SDK;
 using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
+using SharpDX;
+using Color = System.Drawing.Color;
 using Version = System.Version;
 
 namespace AutoBuddy
@@ -50,8 +52,9 @@ namespace AutoBuddy
                           (v.Revision/100).ToString().PadLeft(2, '0') + ":" +
                           (v.Revision%100).ToString().PadLeft(2, '0')));
 
-
+            
         }
+
 
         private static void Start()
         {

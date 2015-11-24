@@ -50,7 +50,7 @@ namespace AutoBuddy.MyChampLogic
                     E.Cast(chaser);
                     return;
                 }
-                if (AutoWalker.p.HealthPercent < 15)
+                if (AutoWalker.p.HealthPercent() < 15)
                     E.Cast(AutoWalker.p.Position.Extend(AutoWalker.myNexus, -200).To3DWorld());
             }
         }
@@ -68,7 +68,7 @@ namespace AutoBuddy.MyChampLogic
                         en =>
                             en.HasBuff("caitlynyordletrapinternal") &&
                             en.Distance(AutoWalker.p) < AutoWalker.p.AttackRange*2 + en.BoundingRadius)
-                        .OrderBy(e => e.HealthPercent)
+                        .OrderBy(e => e.HealthPercent())
                         .FirstOrDefault();
                 if (toShoot != null)
                 {

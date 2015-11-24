@@ -48,18 +48,18 @@ namespace AutoBuddy.MainLogics
              * AIHeroClient victim =
                 EntityManager.Heroes.Enemies.Where(
                     vic => vic.Distance(AutoWalker.p) < vic.BoundingRadius + AutoWalker.p.AttackRange + 450 && vic.IsVisible() && vic.Health > 0
-                           && AutoWalker.p.HealthPercent/vic.HealthPercent > 1.3 &&
+                           && AutoWalker.p.HealthPercent()/vic.HealthPercent() > 1.3 &&
                            (AutoWalker.p.Distance(AutoWalker.p.GetNearestTurret()) > 1100 ||
-                            (AutoWalker.p.HealthPercent > 40 && vic.HealthPercent < 10)))
-                    .OrderBy(vic => vic.HealthPercent)
+                            (AutoWalker.p.HealthPercent() > 40 && vic.HealthPercent() < 10)))
+                    .OrderBy(vic => vic.HealthPercent())
                     .FirstOrDefault();
             if (victim != null &&(
                 EntityManager.Heroes.Enemies.Count(
                     def =>
                         def.NetworkId != victim.NetworkId &&
-                        def.HealthPercent > AutoWalker.p.HealthPercent && def.IsHPBarRendered && def.Distance(victim) < 600 &&
+                        def.HealthPercent() > AutoWalker.p.HealthPercent() && def.IsHPBarRendered && def.Distance(victim) < 600 &&
                         def.Distance(AutoWalker.p) < 600))>
-                EntityManager.Heroes.Allies.Count(ally => ally.HealthPercent > 5 && ally.IsVisible() && ally.Distance(AutoWalker.p) < 500 && ally.Distance(victim) < 500))
+                EntityManager.Heroes.Allies.Count(ally => ally.HealthPercent() > 5 && ally.IsVisible() && ally.Distance(AutoWalker.p) < 500 && ally.Distance(victim) < 500))
                 victim = null;*/
             AIHeroClient victim = null;
             if (current.surviLogic.dangerValue < -15000)
@@ -78,7 +78,7 @@ namespace AutoBuddy.MainLogics
                     EntityManager.Heroes.Enemies.Where(
                         h =>
                             h.Distance(AutoWalker.p) < AutoWalker.p.AttackRange + h.BoundingRadius + 50 && h.IsVisible() &&
-                            h.HealthPercent > 0).OrderBy(h => h.Distance(AutoWalker.p)).FirstOrDefault();
+                            h.HealthPercent() > 0).OrderBy(h => h.Distance(AutoWalker.p)).FirstOrDefault();
             }
 
 
@@ -125,7 +125,7 @@ namespace AutoBuddy.MainLogics
 
 
                 if (AutoWalker.Ghost != null && AutoWalker.Ghost.IsReady() &&
-                    AutoWalker.p.HealthPercent/victim.HealthPercent > 2 &&
+                    AutoWalker.p.HealthPercent()/victim.HealthPercent() > 2 &&
                     victim.Distance(AutoWalker.p) > AutoWalker.p.AttackRange + victim.BoundingRadius + 100 &&
                     victim.Distance(victim.Position.GetNearestTurret()) > 1500)
                     AutoWalker.Ghost.Cast();
@@ -136,10 +136,11 @@ namespace AutoBuddy.MainLogics
                 harPos=harPos.Extend(AutoWalker.p.Position, AutoWalker.p.AttackRange + har.BoundingRadius-20).To3D();
                 lastMode = "harass";
                 Obj_AI_Turret tu = harPos.GetNearestTurret();
-                
-                if (harPos.Distance(tu) < 1090)
+                Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.Harass;
+                if (harPos.Distance(tu) < 1000)
                 {
-
+                    if(harPos.Distance(tu) < 850+AutoWalker.p.BoundingRadius)
+                        Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.None;
                     harPos = tu.Position.Extend(harPos, 1090).To3DWorld();
                     lastMode = "harass under turret";
 
@@ -149,7 +150,7 @@ namespace AutoBuddy.MainLogics
                     
                 }
 
-                Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.Harass;
+                
                 current.myChamp.Harass(har);
                 
 

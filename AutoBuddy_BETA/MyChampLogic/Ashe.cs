@@ -44,7 +44,7 @@ namespace AutoBuddy.MyChampLogic
                         chase => chase.Distance(AutoWalker.p) < 600 && chase.IsVisible());
                 if (chaser != null)
                 {
-                    if (R.IsReady() && AutoWalker.p.HealthPercent > 18)
+                    if (R.IsReady() && AutoWalker.p.HealthPercent() > 18)
                         R.Cast(chaser);
                     if (W.IsReady())
                         W.Cast(chaser);
@@ -54,7 +54,7 @@ namespace AutoBuddy.MyChampLogic
 
         public void Combo(AIHeroClient target)
         {
-            if (R.IsReady() && target.HealthPercent < 25 && AutoWalker.p.Distance(target) > 600 &&
+            if (R.IsReady() && target.HealthPercent() < 25 && AutoWalker.p.Distance(target) > 600 &&
                 AutoWalker.p.Distance(target) < 1600 && target.IsVisible())
                 R.Cast(target);
         }
