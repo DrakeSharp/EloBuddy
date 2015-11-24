@@ -23,6 +23,7 @@ namespace AutoBuddy
         public static float holdRadius = 100;
         public static float movementDelay = .25f;
         public static Obj_AI_Turret enemyLazer;
+        private static Orbwalker.ActiveModes activeMode=Orbwalker.ActiveModes.None;
 
         private static float nextMove;
 
@@ -51,37 +52,59 @@ namespace AutoBuddy
             }
 
             target = ObjectManager.Player.Position;
-            Orbwalker.DisableMovement = true;
-            Orbwalker.OnPreAttack += Orbwalker_OnPreAttack;
-            Game.OnTick += OnTick;
+            Orbwalker.DisableMovement = false;
+
+            Orbwalker.DisableAttacking = false;
+            Game.OnUpdate += Game_OnUpdate;
+
+            if (Orbwalker.HoldRadius > 130 || Orbwalker.HoldRadius < 80)
+            {
+                Chat.Print("=================WARNING=================", Color.Red);
+                Chat.Print("Your hold radius value in orbwalker isn't optimal for AutoBuddy", Color.Aqua);
+                Chat.Print("Please set hold radius through menu=>Orbwalker");
+                Chat.Print("Recommended values: Hold radius: 80-130, Delay between movements: 100-250");
+            }
             if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
                 Drawing.OnDraw += Drawing_OnDraw;
         }
 
+        static void Game_OnUpdate(EventArgs args)
+        {
+            if (activeMode == Orbwalker.ActiveModes.LaneClear)
+            {
+                
+
+                    if (EntityManager.MinionsAndMonsters.EnemyMinions.Any(
+                        en => en.Distance(p) < p.AttackRange + en.BoundingRadius&&Prediction.Health.GetPrediction(en, 2000)<p.GetAutoAttackDamage(en)))
+                {
+                    Orbwalker.ActiveModesFlags=Orbwalker.ActiveModes.LastHit;
+                }else
+                {
+                    Orbwalker.ActiveModesFlags=Orbwalker.ActiveModes.LaneClear;
+                }
+            }
+            else
+                Orbwalker.ActiveModesFlags = activeMode;
+        }
+
+
         public static Vector3 target { get; private set; }
 
+        public static void SetMode(Orbwalker.ActiveModes mode)
+        {
+            activeMode = mode;
+        }
         private static void Drawing_OnDraw(EventArgs args)
         {
-            Drawing.DrawCircle(enemyLazer.Position, 300, Color.Aqua);
             Drawing.DrawCircle(target, 30, Color.BlueViolet);
         }
 
         public static void WalkTo(Vector3 tgt)
         {
+            
             target = tgt;
+            Orbwalker.OverrideOrbwalkPosition = () => target;
         }
 
-        private static void Orbwalker_OnPreAttack(AttackableUnit tgt, Orbwalker.PreAttackArgs args)
-        {
-            nextMove = Game.Time + ObjectManager.Player.AttackCastDelay +
-                       (Game.Ping + adjustAnimation + RandGen.r.Next(maxAdditionalTime))/1000f;
-        }
-
-        private static void OnTick(EventArgs args)
-        {
-            if (ObjectManager.Player.Position.Distance(target) < 50 || Game.Time < nextMove) return;
-            nextMove = Game.Time + movementDelay;
-            Player.IssueOrder(GameObjectOrder.MoveTo, target, true);
-        }
     }
 }

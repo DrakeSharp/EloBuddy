@@ -102,10 +102,18 @@ namespace AutoBuddy.MainLogics
                 current.myChamp.Combo(victim);
                 Vector3 vicPos=Prediction.Position.PredictUnitPosition(victim, 500).To3D();
                 Vector3 posToWalk =
-                    vicPos.Extend(AutoWalker.myNexus,
+                    vicPos.Extend(AutoWalker.p,
                         (victim.BoundingRadius + AutoWalker.p.AttackRange - 30)*
                         Math.Min(current.localAwareness.HeroStrength(victim)/current.localAwareness.MyStrength()*2f, 1))
                         .To3DWorld();
+                if (NavMesh.GetCollisionFlags(posToWalk).HasFlag(CollisionFlags.Wall))
+                {
+                    posToWalk =
+                        vicPos.Extend(current.pushLogic.myTurret,
+                            (victim.BoundingRadius + AutoWalker.p.AttackRange - 30) *
+                            Math.Min(current.localAwareness.HeroStrength(victim) / current.localAwareness.MyStrength() * 2f, 1))
+                            .To3DWorld();
+                }
 
                 Obj_AI_Turret nearestEnemyTurret = posToWalk.GetNearestTurret();
                 lastMode = "combo";
@@ -120,7 +128,7 @@ namespace AutoBuddy.MainLogics
                     }
                     lastMode = "combo under turret";
                 }
-                Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.Combo;
+                AutoWalker.SetMode(Orbwalker.ActiveModes.Combo);
                 AutoWalker.WalkTo(posToWalk);
 
 
@@ -136,11 +144,11 @@ namespace AutoBuddy.MainLogics
                 harPos=harPos.Extend(AutoWalker.p.Position, AutoWalker.p.AttackRange + har.BoundingRadius-20).To3D();
                 lastMode = "harass";
                 Obj_AI_Turret tu = harPos.GetNearestTurret();
-                Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.Harass;
+                 AutoWalker.SetMode(Orbwalker.ActiveModes.Harass);
                 if (harPos.Distance(tu) < 1000)
                 {
                     if(harPos.Distance(tu) < 850+AutoWalker.p.BoundingRadius)
-                        Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.None;
+                         AutoWalker.SetMode(Orbwalker.ActiveModes.Flee);
                     harPos = tu.Position.Extend(harPos, 1090).To3DWorld();
                     lastMode = "harass under turret";
 

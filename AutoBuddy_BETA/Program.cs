@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using AutoBuddy.Humanizers;
 using AutoBuddy.MainLogics;
@@ -11,8 +10,6 @@ using EloBuddy.SDK;
 using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
-using SharpDX;
-using Color = System.Drawing.Color;
 using Version = System.Version;
 
 namespace AutoBuddy

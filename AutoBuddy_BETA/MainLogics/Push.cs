@@ -18,7 +18,8 @@ namespace AutoBuddy.MainLogics
         private Obj_AI_Minion[] currentWave;
         private int CurrentWaveNum;
         private Lane lane;
-        private Obj_AI_Base myTurret, enemyTurret;
+        public Obj_AI_Base myTurret { get; private set; }
+        public Obj_AI_Base enemyTurret{ get; private set; }
 
         private float randomAngle;
         private float randomExtend;
@@ -110,26 +111,26 @@ namespace AutoBuddy.MainLogics
                 ObjectManager.Get<Obj_AI_Minion>()
                     .Count(min => min.IsAlly && min.HealthPercent() > 30 && min.Distance(enemyTurret) < 850) < 2)
             {
-                Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.None;
+                 AutoWalker.SetMode(Orbwalker.ActiveModes.Flee);
                 AutoWalker.WalkTo(enemyTurret.Position.Extend(AutoWalker.p, 1100).To3DWorld());
                 return;
             }
-            if (AutoWalker.p.Distance(enemyTurret) < AutoWalker.p.AttackRange + enemyTurret.BoundingRadius+25.5f &&
-                AutoWalker.p.Distance(enemyTurret) > AutoWalker.p.AttackRange + enemyTurret.BoundingRadius - 25.5f)
+            if (AutoWalker.p.Distance(enemyTurret) < AutoWalker.p.AttackRange + enemyTurret.BoundingRadius+Orbwalker.HoldRadius &&
+                AutoWalker.p.Distance(enemyTurret) > AutoWalker.p.AttackRange + enemyTurret.BoundingRadius-10)
             {
-                Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.None;
+                 AutoWalker.SetMode(Orbwalker.ActiveModes.Flee);
                 Player.IssueOrder(GameObjectOrder.AttackUnit, enemyTurret);
             }
             else
             {
-                Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.LastHit;
+                 AutoWalker.SetMode(Orbwalker.ActiveModes.LastHit);
                 AutoWalker.WalkTo(enemyTurret.Position.Extend(AutoWalker.p, AutoWalker.p.AttackRange + enemyTurret.BoundingRadius).To3DWorld());
             }
         }
 
         private void Between()
         {
-            Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.LaneClear;
+             AutoWalker.SetMode(Orbwalker.ActiveModes.LaneClear);
             Vector3 p = AvgPos(currentWave);
             if (p.Distance(AutoWalker.myNexus) > myTurret.Distance(AutoWalker.myNexus))
             {
@@ -141,16 +142,18 @@ namespace AutoBuddy.MainLogics
                               currentLogic.localAwareness.LocalDomination(al) < -15000)
                         .OrderBy(l => l.Distance(AutoWalker.p))
                         .FirstOrDefault();
-                if (AutoWalker.p.Gold > 550 && ally != null)
-                    p = ally.Position.Extend(myTurret, 160).To3DWorld() + randomVector;
-                if (Math.Abs(p.Distance(AutoWalker.enemyNexus) - AutoWalker.p.Distance(AutoWalker.enemyNexus)) < 200)
+                if (AutoWalker.p.Gold > 100 && ally != null)
                 {
-                    p =
-                        p.Extend(p.Extend(
-                            AutoWalker.p.Distance(myTurret) < AutoWalker.p.Distance(enemyTurret)
-                                ? myTurret
-                                : enemyTurret,
-                            400).To3D().RotatedAround(p, 1.57f), randomExtend).To3DWorld();
+                    p = ally.Position.Extend(myTurret, 160).To3DWorld() + randomVector;
+                    if (Math.Abs(p.Distance(AutoWalker.enemyNexus) - AutoWalker.p.Distance(AutoWalker.enemyNexus)) < 200)
+                    {
+                        p =
+                            p.Extend(p.Extend(
+                                AutoWalker.p.Distance(myTurret) < AutoWalker.p.Distance(enemyTurret)
+                                    ? myTurret
+                                    : enemyTurret,
+                                400).To3D().RotatedAround(p, 1.57f), randomExtend).To3DWorld();
+                    }
                 }
                 AutoWalker.WalkTo(p);
             }
@@ -168,16 +171,22 @@ namespace AutoBuddy.MainLogics
                           currentLogic.localAwareness.LocalDomination(al) < -15000)
                     .OrderBy(l => l.Distance(AutoWalker.p))
                     .FirstOrDefault();
-            if (ally != null)
+            if (AutoWalker.p.Gold > 100 && ally != null)
+            {
                 p = ally.Position.Extend(myTurret, 160).To3DWorld() + randomVector;
-            Orbwalker.ActiveModesFlags = AutoWalker.p.Distance(enemyTurret) < 900
-                ? Orbwalker.ActiveModes.LastHit
-                : Orbwalker.ActiveModes.LaneClear;
-            AutoWalker.WalkTo(ally == null
-                ? myTurret.Position.Extend(AutoWalker.p.Position, 350 + randomExtend/2)
+                AutoWalker.SetMode(AutoWalker.p.Distance(enemyTurret) < 900
+                    ? Orbwalker.ActiveModes.LastHit
+                    : Orbwalker.ActiveModes.LaneClear);
+                AutoWalker.WalkTo(p);
+            }
+            else
+            {
+                AutoWalker.WalkTo(myTurret.Position.Extend(AutoWalker.p.Position, 350 + randomExtend/2)
                     .To3D()
-                    .RotatedAround(myTurret.Position, randomAngle)
-                : p);
+                    .RotatedAround(myTurret.Position, randomAngle));
+
+            }
+
         }
 
         public Vector3 AvgPos(Obj_AI_Minion[] objects)

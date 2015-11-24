@@ -15,12 +15,11 @@ namespace AutoBuddy.MainLogics
         private readonly Obj_SpawnPoint spawn;
         private bool active;
         private GrassObject g;
-        private float lastRecallGold;
+        //private float lastRecallGold;
         private float lastRecallTime;
 
         public Recall(LogicSelector currentLogic)
         {
-            lastRecallGold = 30000;
             current = currentLogic;
             foreach (
                 Obj_SpawnPoint so in
@@ -36,7 +35,6 @@ namespace AutoBuddy.MainLogics
 
         private void ShouldRecall()
         {
-            if (Math.Abs(lastRecallGold - 30000) < 10) lastRecallGold = AutoWalker.p.Gold;
             if (active)
             {
                 Core.DelayAction(ShouldRecall, 500);
@@ -48,7 +46,7 @@ namespace AutoBuddy.MainLogics
                 return;
             }
 
-            if (AutoWalker.p.Gold - lastRecallGold > (AutoWalker.p.Level + 1)*200 || AutoWalker.p.HealthPercent() < 25)
+            if (AutoWalker.p.Gold  > (AutoWalker.p.Level + 1)*200 || AutoWalker.p.HealthPercent() < 25)
             {
                 current.SetLogic(LogicSelector.MainLogics.RecallLogic);
             }
@@ -58,7 +56,6 @@ namespace AutoBuddy.MainLogics
         public void Activate()
         {
             if (active) return;
-            lastRecallGold = AutoWalker.p.Gold;
             active = true;
             g = null;
             Game.OnUpdate += Game_OnUpdate;
@@ -74,12 +71,12 @@ namespace AutoBuddy.MainLogics
         private void Drawing_OnDraw(EventArgs args)
         {
             Drawing.DrawText(250, 55, System.Drawing.Color.Gold,
-                "Recall, active: " + active + " est.gold: " + (AutoWalker.p.Gold - lastRecallGold));
+                "Recall, active: " + active );
         }
 
         private void Game_OnUpdate(EventArgs args)
         {
-            Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.Combo;
+             AutoWalker.SetMode( Orbwalker.ActiveModes.Combo);
             if (ObjectManager.Player.Distance(spawn) < 400 && ObjectManager.Player.HealthPercent() > 85 &&
                 (ObjectManager.Player.ManaPercent > 80||ObjectManager.Player.PARRegenRate<=.0001))
 
@@ -104,13 +101,14 @@ namespace AutoBuddy.MainLogics
                     }
                     if (g != null && g.Distance(AutoWalker.p) < nearestTurret.Position.Distance(AutoWalker.p))
                     {
-                        Orbwalker.ActiveModesFlags = Orbwalker.ActiveModes.None;
+                         AutoWalker.SetMode(Orbwalker.ActiveModes.Flee);
                         recallPos = g.Position;
                     }
                 }
 
                 if (ObjectManager.Player.Distance(recallPos) < 70)
                 {
+                    AutoWalker.SetMode(Orbwalker.ActiveModes.None);
                     CastRecall();
                 }
                 else
@@ -120,7 +118,6 @@ namespace AutoBuddy.MainLogics
 
         private void CastRecall()
         {
-            lastRecallGold = AutoWalker.p.Gold;
             if (Game.Time < lastRecallTime) return;
             lastRecallTime = Game.Time + RandGen.r.NextFloat(9f, 11f);
             Core.DelayAction(() => ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall), 400);

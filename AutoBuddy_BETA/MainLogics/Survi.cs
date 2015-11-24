@@ -119,9 +119,9 @@ namespace AutoBuddy.MainLogics
                 }
             }
 
-            Orbwalker.ActiveModesFlags = AutoWalker.p.Distance(closestSafePoint) < 200
+             AutoWalker.SetMode(AutoWalker.p.Distance(closestSafePoint) < 200
                 ? Orbwalker.ActiveModes.Combo
-                : Orbwalker.ActiveModes.None;
+                : Orbwalker.ActiveModes.Flee);
             AutoWalker.WalkTo(closestSafePoint.Extend(AutoWalker.myNexus, 200).To3DWorld());
             if (AutoWalker.p.HealthPercent() < 10 ||
                 AutoWalker.p.HealthPercent() < 20 && AutoWalker.Heal != null && AutoWalker.Heal.IsReady() &&
