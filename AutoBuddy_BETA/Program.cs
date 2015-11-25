@@ -10,6 +10,7 @@ using EloBuddy.SDK;
 using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
+using IChampLogic = AutoBuddy.MyChampLogic.IChampLogic;
 using Version = System.Version;
 
 namespace AutoBuddy
@@ -57,18 +58,21 @@ namespace AutoBuddy
         {
             RandGen.Start();
             bool generic = false;
-            if (ObjectManager.Player.Hero == Champion.Ashe)
+            switch (ObjectManager.Player.Hero)
             {
-                _myChamp = new Ashe();
-            }
-            else if (ObjectManager.Player.Hero == Champion.Caitlyn)
-            {
-                _myChamp = new Caitlyn();
-            }
-            else
-            {
-                generic = true;
-                _myChamp = new Generic();
+                case Champion.Ashe:
+                    _myChamp = new Ashe();
+                    break;
+                case Champion.Caitlyn:
+                    _myChamp = new Caitlyn();
+                    break;
+                default:
+                    generic = true;
+                    _myChamp = new Generic();
+                    break;
+                case Champion.Ezreal:
+                    _myChamp = new Ezreal();
+                    break;
             }
             if (!generic)
                 _easyShop = new EasyShop(_myChamp.ShopSequence, _menu);

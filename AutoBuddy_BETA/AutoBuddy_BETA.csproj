@@ -54,9 +54,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MyChampLogic\Ezreal.cs" />
     <Compile Include="Humanizers\SafeShop.cs" />
     <Compile Include="AutoWalker.cs" />
     <Compile Include="BrutalExtensions.cs" />
+    <Compile Include="MyChampLogic\Generic.cs" />
     <Compile Include="Utilities\ChampLane.cs" />
     <Compile Include="Utilities\EasyShop.cs" />
     <Compile Include="Utilities\HeroInfo.cs" />
@@ -64,7 +66,6 @@
     <Compile Include="MainLogics\LogicSelector.cs" />
     <Compile Include="MainLogics\Load.cs" />
     <Compile Include="MyChampLogic\Caitlyn.cs" />
-    <Compile Include="MyChampLogic\Generic.cs" />
     <Compile Include="MyChampLogic\Ashe.cs" />
     <Compile Include="MyChampLogic\IChampLogic.cs" />
     <Compile Include="Program.cs" />
@@ -81,9 +82,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Champions\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
   </PropertyGroup>

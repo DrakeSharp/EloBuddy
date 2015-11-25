@@ -51,7 +51,7 @@ namespace AutoBuddy.MyChampLogic
                     return;
                 }
                 if (AutoWalker.p.HealthPercent() < 15)
-                    E.Cast(AutoWalker.p.Position.Extend(AutoWalker.myNexus, -200).To3DWorld());
+                    E.Cast(AutoWalker.p.Position.Extend(AutoWalker.MyNexus, -200).To3DWorld());
             }
         }
 

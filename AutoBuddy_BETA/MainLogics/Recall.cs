@@ -96,7 +96,7 @@ namespace AutoBuddy.MainLogics
                     if (g == null)
                     {
                         g = ObjectManager.Get<GrassObject>()
-                            .Where(gr => gr.Distance(AutoWalker.myNexus) < AutoWalker.p.Distance(AutoWalker.myNexus))
+                            .Where(gr => gr.Distance(AutoWalker.MyNexus) < AutoWalker.p.Distance(AutoWalker.MyNexus))
                             .OrderBy(gg => gg.Distance(AutoWalker.p)).ElementAt(3);
                     }
                     if (g != null && g.Distance(AutoWalker.p) < nearestTurret.Position.Distance(AutoWalker.p))
