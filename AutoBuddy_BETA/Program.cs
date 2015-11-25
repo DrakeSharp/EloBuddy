@@ -31,7 +31,7 @@ namespace AutoBuddy
 
         private static void Loading_OnLoadingComplete(EventArgs args)
         {
-            Chat.Print("AutoBuddy will start in 5 seconds.");
+            Chat.Print("AutoBuddy will start in 5 seconds. ");
             Core.DelayAction(Start, 5000);
             menu = MainMenu.AddMenu("AUTOBUDDY", "AB");
             menu.Add("autolvl", new CheckBox("Disable built-in skill leveler(press f5 after)", false));
