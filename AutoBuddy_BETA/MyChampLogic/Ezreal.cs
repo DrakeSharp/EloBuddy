@@ -24,7 +24,7 @@ namespace AutoBuddy.MyChampLogic
             //                     1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18
             skillSequence = new[] {1, 3, 1, 2, 1, 4, 1, 3, 1, 3, 4, 3, 3, 2, 2, 4, 2, 2};
             ShopSequence =
-                "1055:1, 3340:1, 3070:1, 1036:1, 2003:1, 3042:1, 3044:1, 3057:1, 3086:1, 3078:1, 3158:1, 1037:1, 3035:1, 3144:1, 1043:1, 3153:1 , 1036:1, 1038:1 , 1053:1, 3072:1";
+                "1055:1, 3340:1, 3070:1, 1036:1, 3042:1, 3044:1, 3057:1, 3086:1, 3078:1, 3158:1, 1037:1, 3035:1, 3144:1, 1043:1, 3153:1 , 1036:1, 1038:1 , 1053:1, 3072:1";
 
             Q = new Spell.Skillshot(SpellSlot.Q, 1160, SkillShotType.Linear, 350, 2000, 65)
             {
@@ -67,7 +67,8 @@ namespace AutoBuddy.MyChampLogic
 
         public void Combo(AIHeroClient target)
         {
-            if (E.IsReady() && Player.Instance.CountEnemiesInRange(800) <= 2 && Player.Instance.ManaPercent >= 60 || target.HealthPercent <= 20)
+            if (E.IsReady() && Player.Instance.CountEnemiesInRange(800) == 1 &&
+                target.HealthPercent < (Player.Instance.HealthPercent - 10))
             {
                 E.Cast(Player.Instance.Position.Extend(target.Position, E.Range).To3D());
             }
@@ -84,25 +85,13 @@ namespace AutoBuddy.MyChampLogic
 
             if (R.IsReady() && Player.Instance.CountEnemiesInRange(W.Range) <= 1)
             {
-                var heroes = EntityManager.Heroes.Enemies;
-                foreach (var hero in EntityManager.Heroes.Enemies.Where(hero => !hero.IsDead && hero.IsVisible && hero.IsInRange(Player.Instance, R.Range)))
-                {
-                    var collision = new List<AIHeroClient>();
-                    collision.Clear();
-                    var hero1 = hero;
-                    foreach (var colliHero in heroes.Where(colliHero => !colliHero.IsDead && colliHero.IsVisible && colliHero.IsInRange(hero1, 3000)))
-                    {
-                        if (Prediction.Position.Collision.LinearMissileCollision(colliHero, Player.Instance.Position.To2D(), Player.Instance.Position.Extend(hero.Position.To2D(), 1500),
-                            R.Speed, R.Width, R.CastDelay))
-                        {
-                            collision.Add(colliHero);
-                        }
-                        if (collision.Count >= 3)
-                        {
-                            R.Cast(hero);
-                        }
-                    }
-                }
+                var hero =
+                    EntityManager.Heroes.Enemies.OrderByDescending(e => e.Health)
+                        .FirstOrDefault(
+                            e => e.Health < Player.Instance.GetSpellDamage(e, SpellSlot.R) && e.IsValidTarget(2500));
+                if (hero == null) return;
+
+                R.Cast(hero);
             }
         }
 
