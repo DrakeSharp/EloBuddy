@@ -106,9 +106,9 @@ namespace AutoBuddy.MainLogics
                     }
                 }
 
-                if (ObjectManager.Player.Distance(recallPos) < 70)
+                if (ObjectManager.Player.Distance(recallPos) < Orbwalker.HoldRadius)
                 {
-                    AutoWalker.SetMode(Orbwalker.ActiveModes.None);
+                    
                     CastRecall();
                 }
                 else
@@ -120,6 +120,7 @@ namespace AutoBuddy.MainLogics
         {
             if (Game.Time < lastRecallTime) return;
             lastRecallTime = Game.Time + RandGen.r.NextFloat(9f, 11f);
+            AutoWalker.SetMode(Orbwalker.ActiveModes.None);
             Core.DelayAction(() => ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall), 400);
         }
     }

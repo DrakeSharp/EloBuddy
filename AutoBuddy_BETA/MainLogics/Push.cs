@@ -62,6 +62,7 @@ namespace AutoBuddy.MainLogics
 
         public void Activate()
         {
+            AutoWalker.SetMode(Orbwalker.ActiveModes.Harass);
             currentLogic.current = LogicSelector.MainLogics.PushLogic;
             if (active) return;
 
