@@ -17,14 +17,8 @@ namespace AutoBuddy
         public static readonly Obj_HQ MyNexus;
         public static readonly Obj_HQ EneMyNexus;
         public static readonly AIHeroClient p;
-        public static int MaxAdditionalTime = 50;
-        public static int AdjustAnimation = 20;
-        public static float HoldRadius = 100;
-        public static float MovementDelay = .25f;
         public static readonly Obj_AI_Turret EnemyLazer;
         private static Orbwalker.ActiveModes _activeMode = Orbwalker.ActiveModes.None;
-
-        private static float NextMove;
 
         static AutoWalker()
         {
