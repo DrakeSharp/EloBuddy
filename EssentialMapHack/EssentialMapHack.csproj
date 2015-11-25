@@ -33,16 +33,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EloBuddy">
-      <HintPath>..\..\..\..\Desktop\Hu3\EloBuddy\System\EloBuddy.dll</HintPath>
+      <HintPath>..\..\..\..\..\Program Files (x86)\EloBuddy\System\EloBuddy.dll</HintPath>
     </Reference>
     <Reference Include="EloBuddy.SDK">
-      <HintPath>..\..\..\..\Desktop\Hu3\EloBuddy\System\EloBuddy.SDK.dll</HintPath>
+      <HintPath>..\..\..\..\..\Program Files (x86)\EloBuddy\System\EloBuddy.SDK.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\..\Program Files (x86)\EloBuddy\System\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
-      <HintPath>..\..\..\..\Desktop\Hu3\EloBuddy\System\SharpDX.dll</HintPath>
+      <HintPath>..\..\..\..\..\Program Files (x86)\EloBuddy\System\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D9">
-      <HintPath>..\..\..\..\Desktop\Hu3\EloBuddy\System\SharpDX.Direct3D9.dll</HintPath>
+      <HintPath>..\..\..\..\..\Program Files (x86)\EloBuddy\System\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -54,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BrutalExtensions.cs" />
     <Compile Include="Champ.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -62,7 +66,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Utilities\ChampLane.cs" />
     <Compile Include="Utilities\Globals.cs" />
+    <Compile Include="Utilities\HeroInfo.cs" />
     <Compile Include="Utilities\MinimapCircleSegment.cs" />
     <Compile Include="Utilities\Util.cs" />
   </ItemGroup>
@@ -466,8 +472,14 @@
   <ItemGroup>
     <None Include="Resources\Kindred_Square_0.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Illaoi_Square_0.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>java -jar C:\SetVersionToDate.jar $(ProjectDir)\Properties\AssemblyInfo.cs</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

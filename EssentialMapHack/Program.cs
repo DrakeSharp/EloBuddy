@@ -10,24 +10,25 @@ using EssentialMapHack.Utilities;
 
 namespace EssentialMapHack
 {
-    class Program
+    internal class Program
     {
         private static Menu menu;
         private static float lastUpdate;
         private static List<Champ> champions;
-        static void Main()
+
+        private static void Main()
         {
             Loading.OnLoadingComplete += Loading_OnLoadingComplete;
         }
 
-        static void Game_OnUpdate(EventArgs args)
+        private static void Game_OnUpdate(EventArgs args)
         {
             float dt = Game.Time - lastUpdate;
             lastUpdate = Game.Time;
             int i = 0;
             foreach (Champ ch in champions.OrderBy(c => c.invisTime*c.hero.MoveSpeed))
             {
-                if (!ch.hero.IsDead&&!ch.visible&&ch.position.Distance(ch.spawn)<300)
+                if (!ch.hero.IsDead&&!ch.hero.IsVisible()&&ch.position.Distance(ch.spawn)<300)
                 {
                     ch.position = ch.spawn;
                     ch.place = i;
@@ -38,7 +39,7 @@ namespace EssentialMapHack
         }
 
 
-        static void Loading_OnLoadingComplete(EventArgs args)
+        private static void Loading_OnLoadingComplete(EventArgs args)
         {
             #region menu
             menu = MainMenu.AddMenu("Maphack", "mx");
@@ -87,18 +88,18 @@ namespace EssentialMapHack
             champions = new List<Champ>();
             foreach (Champ ch in ObjectManager.Get<AIHeroClient>().Where(hero => !hero.Team.Equals(ObjectManager.Player.Team)).Select(hero => new Champ(hero)))
                 champions.Add(ch);
-            Game.OnUpdate += Game_OnUpdate;
+            Game.OnTick += Game_OnUpdate;
             Drawing.OnEndScene += Drawing_OnEndScene;
         }
 
-        static void Drawing_OnEndScene(EventArgs args)
+        private static void Drawing_OnEndScene(EventArgs args)
         {
             foreach (Champ ch in champions.OrderBy(c => c.invisTime * c.hero.MoveSpeed))
                 ch.Draw();
         }
 
 
-        static void en_OnValueChange(ValueBase<bool> sender, ValueBase<bool>.ValueChangeArgs args)
+        private static void en_OnValueChange(ValueBase<bool> sender, ValueBase<bool>.ValueChangeArgs args)
         {
             if (args.NewValue == false)
             {

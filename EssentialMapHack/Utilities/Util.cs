@@ -280,5 +280,25 @@ namespace EssentialMapHack.Utilities
             return Color.FromArgb(a, g, r, 0);
 
         }
+
+        /// <summary>
+        /// Warning:changes "from" parameter
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="percent"></param>
+        /// <returns></returns>
+        public static Vector2 PosBetween(Vector2 from, Vector2 to, float percent)
+        {
+            from.X -= (to.X - from.X) * percent;
+            from.Y -= (to.Y - from.Y) * percent;
+            return from;
+        }
+        public static Vector3 PosBetween(Vector3 from, Vector3 to, float percent)
+        {
+            from.X += (to.X - from.X) * percent;
+            from.Y += (to.Y - from.Y) * percent;
+            return from;
+        }
     }
 }
