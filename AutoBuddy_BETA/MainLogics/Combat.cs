@@ -152,9 +152,9 @@ namespace AutoBuddy.MainLogics
                     harPos = tu.Position.Extend(harPos, 1090).To3DWorld();
                     lastMode = "harass under turret";
 
-                    if (harPos.Distance(AutoWalker.myNexus) > tu.Distance(AutoWalker.myNexus))
+                    if (harPos.Distance(AutoWalker.MyNexus) > tu.Distance(AutoWalker.MyNexus))
                         harPos =
-                            tu.Position.Extend(AutoWalker.myNexus, 1050 + AutoWalker.p.BoundingRadius).To3DWorld();
+                            tu.Position.Extend(AutoWalker.MyNexus, 1050 + AutoWalker.p.BoundingRadius).To3DWorld();
                     
                 }
 

@@ -48,7 +48,7 @@ namespace AutoBuddy.MainLogics
 
         public void Reset(Obj_AI_Base myTower, Obj_AI_Base enemyTower, Lane ln)
         {
-            Vector3 pingPos = AutoWalker.p.Distance(AutoWalker.myNexus) - 100 > myTower.Distance(AutoWalker.myNexus)
+            Vector3 pingPos = AutoWalker.p.Distance(AutoWalker.MyNexus) - 100 > myTower.Distance(AutoWalker.MyNexus)
                 ? enemyTower.Position
                 : myTower.Position;
             Core.DelayAction(() => SafeFunctions.Ping(PingCategory.OnMyWay, pingPos.Randomized()), RandGen.r.Next(3000));
@@ -133,7 +133,7 @@ namespace AutoBuddy.MainLogics
         {
              AutoWalker.SetMode(Orbwalker.ActiveModes.LaneClear);
             Vector3 p = AvgPos(currentWave);
-            if (p.Distance(AutoWalker.myNexus) > myTurret.Distance(AutoWalker.myNexus))
+            if (p.Distance(AutoWalker.MyNexus) > myTurret.Distance(AutoWalker.MyNexus))
             {
                 AIHeroClient ally =
                     EntityManager.Heroes.Allies.Where(
@@ -146,7 +146,7 @@ namespace AutoBuddy.MainLogics
                 if (AutoWalker.p.Gold > 100 && ally != null)
                 {
                     p = ally.Position.Extend(myTurret, 160).To3DWorld() + randomVector;
-                    if (Math.Abs(p.Distance(AutoWalker.enemyNexus) - AutoWalker.p.Distance(AutoWalker.enemyNexus)) < 200)
+                    if (Math.Abs(p.Distance(AutoWalker.EneMyNexus) - AutoWalker.p.Distance(AutoWalker.EneMyNexus)) < 200)
                     {
                         p =
                             p.Extend(p.Extend(
@@ -258,7 +258,7 @@ namespace AutoBuddy.MainLogics
                 wholeWave = true;
 
                 Core.DelayAction(SetCurrentWave,
-                    newMinions.Any(min => min.Distance(AutoWalker.myNexus) < 800) ? 3000 : 300);
+                    newMinions.Any(min => min.Distance(AutoWalker.MyNexus) < 800) ? 3000 : 300);
             }
             else
             {
