@@ -143,19 +143,14 @@ namespace AutoBuddy.MainLogics
                               currentLogic.localAwareness.LocalDomination(al) < -15000)
                         .OrderBy(l => l.Distance(AutoWalker.p))
                         .FirstOrDefault();
-                if (AutoWalker.p.Gold > 100 && ally != null)
-                {
+                if (AutoWalker.p.Gold > 100 && ally != null&&Math.Abs(p.Distance(AutoWalker.EneMyNexus) - AutoWalker.p.Distance(AutoWalker.EneMyNexus)) < 200)
                     p = ally.Position.Extend(myTurret, 160).To3DWorld() + randomVector;
-                    if (Math.Abs(p.Distance(AutoWalker.EneMyNexus) - AutoWalker.p.Distance(AutoWalker.EneMyNexus)) < 200)
-                    {
-                        p =
-                            p.Extend(p.Extend(
-                                AutoWalker.p.Distance(myTurret) < AutoWalker.p.Distance(enemyTurret)
-                                    ? myTurret
-                                    : enemyTurret,
-                                400).To3D().RotatedAround(p, 1.57f), randomExtend).To3DWorld();
-                    }
-                }
+                p =
+    p.Extend(p.Extend(
+        AutoWalker.p.Distance(myTurret) < AutoWalker.p.Distance(enemyTurret)
+            ? myTurret
+            : enemyTurret,
+        400).To3D().RotatedAround(p, 1.57f), randomExtend).To3DWorld();
                 AutoWalker.WalkTo(p);
             }
             else
