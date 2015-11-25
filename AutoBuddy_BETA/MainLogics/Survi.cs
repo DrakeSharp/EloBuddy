@@ -129,7 +129,7 @@ namespace AutoBuddy.MainLogics
                 AutoWalker.Heal.Cast();
             if (AutoWalker.Ghost.IsReady() && dangerValue > 20000)
                 AutoWalker.Ghost.Cast();
-            if (ObjectManager.Player.HealthPercent() < 35)
+            if (ObjectManager.Player.HealthPercent() < 43)
             {
                 var hppot = new Item(ItemId.Health_Potion);
                 if (hppot.IsOwned())

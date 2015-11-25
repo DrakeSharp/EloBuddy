@@ -62,7 +62,7 @@ namespace AutoBuddy.MainLogics
 
         public void Activate()
         {
-            AutoWalker.SetMode(Orbwalker.ActiveModes.Harass);
+            AutoWalker.SetMode(Orbwalker.ActiveModes.LaneClear);
             currentLogic.current = LogicSelector.MainLogics.PushLogic;
             if (active) return;
 
@@ -112,14 +112,14 @@ namespace AutoBuddy.MainLogics
                 ObjectManager.Get<Obj_AI_Minion>()
                     .Count(min => min.IsAlly && min.HealthPercent() > 30 && min.Distance(enemyTurret) < 850) < 2)
             {
-                 AutoWalker.SetMode(Orbwalker.ActiveModes.Flee);
+                 AutoWalker.SetMode(Orbwalker.ActiveModes.LaneClear);
                 AutoWalker.WalkTo(enemyTurret.Position.Extend(AutoWalker.p, 1100).To3DWorld());
                 return;
             }
             if (AutoWalker.p.Distance(enemyTurret) < AutoWalker.p.AttackRange + enemyTurret.BoundingRadius+Orbwalker.HoldRadius &&
                 AutoWalker.p.Distance(enemyTurret) > AutoWalker.p.AttackRange + enemyTurret.BoundingRadius-10)
             {
-                 AutoWalker.SetMode(Orbwalker.ActiveModes.Flee);
+                 AutoWalker.SetMode(Orbwalker.ActiveModes.None);
                 Player.IssueOrder(GameObjectOrder.AttackUnit, enemyTurret);
             }
             else

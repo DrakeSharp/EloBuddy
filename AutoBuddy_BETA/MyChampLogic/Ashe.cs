@@ -14,7 +14,7 @@ namespace AutoBuddy.MyChampLogic
         public Ashe()
         {
             skillSequence = new[] {2, 1, 3, 2, 2, 4, 2, 1, 2, 1, 4, 1, 1, 3, 3, 4, 3, 3};
-            ShopSequence = "3340:1, 1055:1, 1:3, 1036:1, 1053:1, 1001:1, 1042:1, 3006:1, 1036:1, 1038:1, 3072:1, 1042:1, 2015:1, 1042:1, 3086:1, 3094:1, 1038:1, 3031:1, 0:4, 1042:1, 3086:1, 3085:1, 1055:2, 1037:1, 3035:1, 3036:1";
+            ShopSequence = "3340:1, 1055:1, 1:3, 1036:1, 1053:1, 1001:1, 1042:1, 3006:1, 1036:1, 1038:1, 3072:1, 1042:1, 2015:1, 1042:1, 0:4, 3086:1, 3094:1, 1038:1, 3031:1, 1042:1, 3086:1, 3085:1, 1055:2, 1037:1, 3035:1, 3036:1";
             Q = new Spell.Active(SpellSlot.Q);
             W = new Spell.Skillshot(SpellSlot.W, 1200, SkillShotType.Cone);
             E = new Spell.Skillshot(SpellSlot.E, 2500, SkillShotType.Linear);

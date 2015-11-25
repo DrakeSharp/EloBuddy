@@ -46,7 +46,7 @@ namespace AutoBuddy.MainLogics
                 return;
             }
 
-            if ((AutoWalker.p.Gold > (AutoWalker.p.Level + 2) * 150&&AutoWalker.p.InventoryItems.Length<7) || AutoWalker.p.HealthPercent() < 25)
+            if ((AutoWalker.p.Gold > (AutoWalker.p.Level + 2) * 150&&AutoWalker.p.InventoryItems.Length<8) || AutoWalker.p.HealthPercent() < 25)
             {
                 current.SetLogic(LogicSelector.MainLogics.RecallLogic);
             }
