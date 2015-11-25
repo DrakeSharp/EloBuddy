@@ -33,10 +33,18 @@ namespace AutoBuddy.MainLogics
             if (sender == null || args.Target == null) return;
             if (!args.Target.IsMe) return;
             if (sender.IsAlly) return;
-            if (sender.Type == GameObjectType.obj_AI_Turret)
-                SetSpierdalanko((1100 - AutoWalker.p.Distance(sender))/AutoWalker.p.MoveSpeed);
-            else if (sender.Type == GameObjectType.obj_AI_Minion) hits++;
-            else if (sender.Type == GameObjectType.AIHeroClient) hits += 2;
+            switch (sender.Type)
+            {
+                case GameObjectType.obj_AI_Turret:
+                    SetSpierdalanko((1100 - AutoWalker.p.Distance(sender))/AutoWalker.p.MoveSpeed);
+                    break;
+                case GameObjectType.obj_AI_Minion:
+                    hits++;
+                    break;
+                case GameObjectType.AIHeroClient:
+                    hits += 2;
+                    break;
+            }
         }
 
 
@@ -81,7 +89,7 @@ namespace AutoBuddy.MainLogics
                 SetSpierdalanko(.5f);
             }
             dangerValue = current.localAwareness.LocalDomination(AutoWalker.p);
-            if (dangerValue > -2000||AutoWalker.p.Distance(AutoWalker.enemyLazer)<1600)
+            if (dangerValue > -2000||AutoWalker.p.Distance(AutoWalker.EnemyLazer)<1600)
             {
                 
                 SetSpierdalankoUnc(1.8f);
@@ -115,14 +123,14 @@ namespace AutoBuddy.MainLogics
                         .FirstOrDefault(en => en.Health > 0 && en.Distance(closestSafePoint) < 300);
                 if (ene != null)
                 {
-                    closestSafePoint = AutoWalker.myNexus.Position;
+                    closestSafePoint = AutoWalker.MyNexus.Position;
                 }
             }
 
              AutoWalker.SetMode(AutoWalker.p.Distance(closestSafePoint) < 200
                 ? Orbwalker.ActiveModes.Combo
                 : Orbwalker.ActiveModes.Flee);
-            AutoWalker.WalkTo(closestSafePoint.Extend(AutoWalker.myNexus, 200).To3DWorld());
+            AutoWalker.WalkTo(closestSafePoint.Extend(AutoWalker.MyNexus, 200).To3DWorld());
             if (AutoWalker.p.HealthPercent() < 10 ||
                 AutoWalker.p.HealthPercent() < 20 && AutoWalker.Heal != null && AutoWalker.Heal.IsReady() &&
                 EntityManager.Heroes.Enemies.Any(en => en.IsVisible() && en.Distance(AutoWalker.p) < 600))

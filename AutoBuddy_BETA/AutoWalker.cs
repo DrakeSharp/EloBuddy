@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using AutoBuddy.Humanizers;
 using AutoBuddy.Utilities;
 using EloBuddy;
 using EloBuddy.SDK;
@@ -13,25 +12,26 @@ namespace AutoBuddy
 {
     internal static class AutoWalker
     {
-        public static Spell.Active Heal;
-        public static Spell.Active Ghost;
-        public static Obj_HQ myNexus;
-        public static Obj_HQ enemyNexus;
-        public static AIHeroClient p;
-        public static int maxAdditionalTime = 50;
-        public static int adjustAnimation = 20;
-        public static float holdRadius = 100;
-        public static float movementDelay = .25f;
-        public static Obj_AI_Turret enemyLazer;
-        private static Orbwalker.ActiveModes activeMode=Orbwalker.ActiveModes.None;
+        public static readonly Spell.Active Heal;
+        public static readonly Spell.Active Ghost;
+        public static readonly Obj_HQ MyNexus;
+        public static readonly Obj_HQ EneMyNexus;
+        public static readonly AIHeroClient p;
+        public static int MaxAdditionalTime = 50;
+        public static int AdjustAnimation = 20;
+        public static float HoldRadius = 100;
+        public static float MovementDelay = .25f;
+        public static readonly Obj_AI_Turret EnemyLazer;
+        private static Orbwalker.ActiveModes _activeMode = Orbwalker.ActiveModes.None;
 
-        private static float nextMove;
+        private static float NextMove;
 
         static AutoWalker()
         {
-            myNexus = ObjectManager.Get<Obj_HQ>().First(n => n.IsAlly);
-            enemyNexus = ObjectManager.Get<Obj_HQ>().First(n => n.IsEnemy);
-            enemyLazer = ObjectManager.Get<Obj_AI_Turret>().FirstOrDefault(tur => !tur.IsAlly && tur.GetLane() == Lane.Spawn);
+            MyNexus = ObjectManager.Get<Obj_HQ>().First(n => n.IsAlly);
+            EneMyNexus = ObjectManager.Get<Obj_HQ>().First(n => n.IsEnemy);
+            EnemyLazer =
+                ObjectManager.Get<Obj_AI_Turret>().FirstOrDefault(tur => !tur.IsAlly && tur.GetLane() == Lane.Spawn);
             p = ObjectManager.Player;
 
             if (p.Spellbook.GetSpell(SpellSlot.Summoner1).Name == "summonerheal")
@@ -51,7 +51,7 @@ namespace AutoBuddy
                 Ghost = new Spell.Active(SpellSlot.Summoner2);
             }
 
-            target = ObjectManager.Player.Position;
+            Target = ObjectManager.Player.Position;
             Orbwalker.DisableMovement = false;
 
             Orbwalker.DisableAttacking = false;
@@ -70,40 +70,38 @@ namespace AutoBuddy
 
         static void Game_OnUpdate(EventArgs args)
         {
-            if (activeMode == Orbwalker.ActiveModes.LaneClear)
+            if (_activeMode == Orbwalker.ActiveModes.LaneClear)
             {
-                
-
-                    if (EntityManager.MinionsAndMonsters.EnemyMinions.Any(
-                        en => en.Distance(p) < p.AttackRange + en.BoundingRadius&&Prediction.Health.GetPrediction(en, 2000)<p.GetAutoAttackDamage(en)))
-                {
-                    Orbwalker.ActiveModesFlags=Orbwalker.ActiveModes.LastHit;
-                }else
-                {
-                    Orbwalker.ActiveModesFlags=Orbwalker.ActiveModes.LaneClear;
-                }
+                Orbwalker.ActiveModesFlags =
+                    EntityManager.MinionsAndMonsters.EnemyMinions.Any(
+                        en =>
+                            en.Distance(p) < p.AttackRange + en.BoundingRadius &&
+                            Prediction.Health.GetPrediction(en, 2000) < p.GetAutoAttackDamage(en))
+                        ? Orbwalker.ActiveModes.LastHit
+                        : Orbwalker.ActiveModes.LaneClear;
             }
             else
-                Orbwalker.ActiveModesFlags = activeMode;
+                Orbwalker.ActiveModesFlags = _activeMode;
         }
 
 
-        public static Vector3 target { get; private set; }
+        public static Vector3 Target { get; private set; }
 
         public static void SetMode(Orbwalker.ActiveModes mode)
         {
-            activeMode = mode;
+            _activeMode = mode;
         }
+
         private static void Drawing_OnDraw(EventArgs args)
         {
-            Drawing.DrawCircle(target, 30, Color.BlueViolet);
+            Drawing.DrawCircle(Target, 30, Color.BlueViolet);
         }
 
         public static void WalkTo(Vector3 tgt)
         {
-            
-            target = tgt;
-            Orbwalker.OverrideOrbwalkPosition = () => target;
+
+            Target = tgt;
+            Orbwalker.OverrideOrbwalkPosition = () => Target;
         }
 
     }
