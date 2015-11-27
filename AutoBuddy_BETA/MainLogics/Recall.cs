@@ -17,6 +17,7 @@ namespace AutoBuddy.MainLogics
         private GrassObject g;
         //private float lastRecallGold;
         private float lastRecallTime;
+        private int recallsWithGold = 0;//TODO repair shop and remove this tempfix
 
         public Recall(LogicSelector currentLogic)
         {
@@ -46,8 +47,11 @@ namespace AutoBuddy.MainLogics
                 return;
             }
 
-            if ((AutoWalker.p.Gold > (AutoWalker.p.Level + 2) * 150&&AutoWalker.p.InventoryItems.Length<8) || AutoWalker.p.HealthPercent() < 25)
+            if ((AutoWalker.p.Gold > (AutoWalker.p.Level + 2) * 150&&AutoWalker.p.InventoryItems.Length<8&&recallsWithGold<=10) || AutoWalker.p.HealthPercent() < 25)
             {
+                if (AutoWalker.p.Gold > (AutoWalker.p.Level + 2)*150 && AutoWalker.p.InventoryItems.Length < 8 &&
+                    recallsWithGold <= 10)
+                    recallsWithGold++;
                 current.SetLogic(LogicSelector.MainLogics.RecallLogic);
             }
             Core.DelayAction(ShouldRecall, 500);
