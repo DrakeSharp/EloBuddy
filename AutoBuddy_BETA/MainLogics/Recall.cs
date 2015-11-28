@@ -25,7 +25,7 @@ namespace AutoBuddy.MainLogics
             current = currentLogic;
             foreach (
                 Obj_SpawnPoint so in
-                    ObjectManager.Get<Obj_SpawnPoint>().Where(so => so.Team == ObjectManager.Player.Team))
+                    ObjectManager.Get<Obj_SpawnPoint>().Where(so => so.Team == ObjectManager.Player.Team&&so.ise))
             {
                 spawn = so;
             }
