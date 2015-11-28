@@ -18,14 +18,13 @@ namespace AutoBuddy.MainLogics
         //private float lastRecallGold;
         private float lastRecallTime;
         private int recallsWithGold = 0;//TODO repair shop and remove this tempfix
-        private bool delayedSwitch = true;
 
         public Recall(LogicSelector currentLogic)
         {
             current = currentLogic;
             foreach (
                 Obj_SpawnPoint so in
-                    ObjectManager.Get<Obj_SpawnPoint>().Where(so => so.Team == ObjectManager.Player.Team&&so.ise))
+                    ObjectManager.Get<Obj_SpawnPoint>().Where(so => so.Team == ObjectManager.Player.Team))
             {
                 spawn = so;
             }
@@ -48,7 +47,7 @@ namespace AutoBuddy.MainLogics
                 return;
             }
 
-            if ((AutoWalker.p.Gold > (AutoWalker.p.Level + 3) * 150&&AutoWalker.p.InventoryItems.Length<8&&recallsWithGold<=10) || AutoWalker.p.HealthPercent() < 25)
+            if ((AutoWalker.p.Gold > (AutoWalker.p.Level + 2) * 150&&AutoWalker.p.InventoryItems.Length<8&&recallsWithGold<=10) || AutoWalker.p.HealthPercent() < 25)
             {
                 if (AutoWalker.p.Gold > (AutoWalker.p.Level + 2)*150 && AutoWalker.p.InventoryItems.Length < 8 &&
                     recallsWithGold <= 10)
@@ -79,22 +78,13 @@ namespace AutoBuddy.MainLogics
                 "Recall, active: " + active);
         }
 
-        private void Exit()
-        {
-            delayedSwitch = true;
-            current.SetLogic(LogicSelector.MainLogics.PushLogic);
-        }
-
         private void Game_OnUpdate(EventArgs args)
         {
             AutoWalker.SetMode(Orbwalker.ActiveModes.Combo);
-            if (ObjectManager.Player.Distance(spawn) < 400 && ObjectManager.Player.HealthPercent() > 70 &&
-                (ObjectManager.Player.ManaPercent > 70 || ObjectManager.Player.PARRegenRate <= .0001) && delayedSwitch)
-            {
-                delayedSwitch = false;
-                Core.DelayAction(Exit, 2000);
-            }
+            if (ObjectManager.Player.Distance(spawn) < 400 && ObjectManager.Player.HealthPercent() > 85 &&
+                (ObjectManager.Player.ManaPercent > 80 || ObjectManager.Player.PARRegenRate <= .0001))
 
+                current.SetLogic(LogicSelector.MainLogics.PushLogic);
             else if (ObjectManager.Player.Distance(spawn) < 1000)
                 AutoWalker.WalkTo(spawn.Position);
             else if (!ObjectManager.Player.IsRecalling() && Game.Time > lastRecallTime)
