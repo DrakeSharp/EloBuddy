@@ -13,7 +13,6 @@ using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 using SharpDX;
-using IChampLogic = AutoBuddy.MyChampLogic.IChampLogic;
 using Version = System.Version;
 
 namespace AutoBuddy
@@ -41,21 +40,26 @@ namespace AutoBuddy
             menu = MainMenu.AddMenu("AUTOBUDDY", "AB");
             menu.Add("autolvl", new CheckBox("Disable built-in skill leveler(press f5 after)", false));
             menu.Add("sep1", new Separator(1));
-            CheckBox c =new CheckBox("Try to go mid, will leave if other player stays on mid(works only with auto lane)", true);
+            CheckBox c =
+                new CheckBox("Try to go mid, will leave if other player stays on mid(works only with auto lane)", true);
 
-            PropertyInfo property2 = typeof(CheckBox).GetProperty("Size");
+            PropertyInfo property2 = typeof (CheckBox).GetProperty("Size");
 
-            property2.GetSetMethod(true).Invoke(c, new object[] { new Vector2(500, 20) });
+            property2.GetSetMethod(true).Invoke(c, new object[] {new Vector2(500, 20)});
             menu.Add("mid", c);
 
             Slider s = menu.Add("lane", new Slider(" ", 1, 1, 4));
-            string[] lanes = {"", "Selected lane: Auto", "Selected lane: Top", "Selected lane: Mid", "Selected lane: Bot" };
+            string[] lanes =
+            {
+                "", "Selected lane: Auto", "Selected lane: Top", "Selected lane: Mid",
+                "Selected lane: Bot"
+            };
             s.DisplayName = lanes[s.CurrentValue];
             s.OnValueChange +=
-            delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
-            {
-                sender.DisplayName = lanes[changeArgs.NewValue];
-            };
+                delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
+                {
+                    sender.DisplayName = lanes[changeArgs.NewValue];
+                };
 
 
             menu.Add("sep2", new Separator(250));
@@ -68,8 +72,6 @@ namespace AutoBuddy
                           CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(v.Build/100) + " " +
                           (v.Revision/100).ToString().PadLeft(2, '0') + ":" +
                           (v.Revision%100).ToString().PadLeft(2, '0')));
-            
-            
         }
 
 
@@ -96,27 +98,30 @@ namespace AutoBuddy
             if (!generic)
             {
                 BuildCreator bc = new BuildCreator(menu, Path.Combine(Environment.GetFolderPath(
-    Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Builds"), myChamp.ShopSequence);
+                    Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Builds"), myChamp.ShopSequence);
             }
-                
-                
+
+
             else
             {
                 myChamp = new Generic();
-                if (MainMenu.GetMenu("AB_" + ObjectManager.Player.ChampionName)!=null&&MainMenu.GetMenu("AB_" + ObjectManager.Player.ChampionName).Get<Label>("shopSequence") != null)
+                if (MainMenu.GetMenu("AB_" + ObjectManager.Player.ChampionName) != null &&
+                    MainMenu.GetMenu("AB_" + ObjectManager.Player.ChampionName).Get<Label>("shopSequence") != null)
                 {
                     Chat.Print("Autobuddy: Loaded shop plugin for " + ObjectManager.Player.ChampionName);
                     //easyShop = new EasyShop(
-                        //
+                    //
                     BuildCreator bc = new BuildCreator(menu, Path.Combine(Environment.GetFolderPath(
-    Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Builds"), MainMenu.GetMenu("AB_" + ObjectManager.Player.ChampionName).Get<Label>("shopSequence").DisplayName);
+                        Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Builds"),
+                        MainMenu.GetMenu("AB_" + ObjectManager.Player.ChampionName)
+                            .Get<Label>("shopSequence")
+                            .DisplayName);
                 }
                 else
                 {
                     BuildCreator bc = new BuildCreator(menu, Path.Combine(Environment.GetFolderPath(
                         Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Builds"), myChamp.ShopSequence);
                 }
-                
             }
             if (!menu.Get<CheckBox>("autolvl").CurrentValue)
                 LevelUp = new SkillLevelUp(myChamp);
@@ -126,9 +131,9 @@ namespace AutoBuddy
         private static void createFS()
         {
             Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(
-Environment.SpecialFolder.ApplicationData), "AutoBuddy"));
+                Environment.SpecialFolder.ApplicationData), "AutoBuddy"));
             Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(
-    Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Builds"));
+                Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Builds"));
         }
     }
 }

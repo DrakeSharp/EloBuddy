@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using AutoBuddy.Utilities;
 using EloBuddy;
 using EloBuddy.SDK;
@@ -54,8 +53,6 @@ namespace AutoBuddy
 
             if (Orbwalker.HoldRadius > 130 || Orbwalker.HoldRadius < 80)
             {
-
-
                 Chat.Print("=================WARNING=================", Color.Red);
                 Chat.Print("Your hold radius value in orbwalker isn't optimal for AutoBuddy", Color.Aqua);
                 Chat.Print("Please set hold radius through menu=>Orbwalker");
@@ -69,7 +66,10 @@ namespace AutoBuddy
                 Drawing.OnDraw += Drawing_OnDraw;
         }
 
-        static void Game_OnUpdate(EventArgs args)
+
+        public static Vector3 Target { get; private set; }
+
+        private static void Game_OnUpdate(EventArgs args)
         {
             if (_activeMode == Orbwalker.ActiveModes.LaneClear)
             {
@@ -85,9 +85,6 @@ namespace AutoBuddy
                 Orbwalker.ActiveModesFlags = _activeMode;
         }
 
-
-        public static Vector3 Target { get; private set; }
-
         public static void SetMode(Orbwalker.ActiveModes mode)
         {
             _activeMode = mode;
@@ -100,10 +97,8 @@ namespace AutoBuddy
 
         public static void WalkTo(Vector3 tgt)
         {
-
             Target = tgt;
             Orbwalker.OverrideOrbwalkPosition = () => Target;
         }
-
     }
 }

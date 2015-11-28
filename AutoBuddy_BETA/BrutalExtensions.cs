@@ -21,7 +21,10 @@ namespace AutoBuddy
                 if (min.Name[12] == '1') return Lane.Mid;
                 if (min.Name[12] == '2') return Lane.Top;
             }
-            catch (Exception e) {Console.WriteLine("GetLane:"+e.Message); }
+            catch (Exception e)
+            {
+                Console.WriteLine("GetLane:" + e.Message);
+            }
             return Lane.Unknown;
         }
 
@@ -77,14 +80,14 @@ namespace AutoBuddy
         {
             return
                 ObjectManager.Get<Obj_AI_Turret>()
-                .Where(tur => tur.Health > 0 && tur.IsAlly^enemy)
+                    .Where(tur => tur.Health > 0 && tur.IsAlly ^ enemy)
                     .OrderBy(tur => tur.Distance(pos))
                     .First();
         }
 
         public static Obj_AI_Turret GetNearestTurret(this Obj_AI_Base unit, bool enemy = true)
         {
-            return unit.Position.GetNearestTurret(enemy); 
+            return unit.Position.GetNearestTurret(enemy);
         }
 
         public static bool IsVisible(this Obj_AI_Base unit)
@@ -96,10 +99,12 @@ namespace AutoBuddy
         {
             return unit.Health <= 0;
         }
+
         public static float HealthPercent(this Obj_AI_Base unit)
         {
             return unit.Health/unit.MaxHealth*100f;
         }
+
         public static string Concatenate<T>(this IEnumerable<T> source, string delimiter)
         {
             var s = new StringBuilder();

@@ -34,7 +34,7 @@ namespace AutoBuddy.MainLogics
             if (!args.Target.IsMe) return;
             if (sender.IsAlly) return;
             if (sender.Type == GameObjectType.obj_AI_Turret)
-                SetSpierdalanko((1100 - AutoWalker.p.Distance(sender)) / AutoWalker.p.MoveSpeed);
+                SetSpierdalanko((1100 - AutoWalker.p.Distance(sender))/AutoWalker.p.MoveSpeed);
             else if (sender.Type == GameObjectType.obj_AI_Minion) hits++;
             else if (sender.Type == GameObjectType.AIHeroClient) hits += 2;
         }
@@ -76,14 +76,13 @@ namespace AutoBuddy.MainLogics
 
         private void Game_OnUpdate(EventArgs args)
         {
-            if (hits * 20 > AutoWalker.p.HealthPercent())
+            if (hits*20 > AutoWalker.p.HealthPercent())
             {
                 SetSpierdalanko(.5f);
             }
             dangerValue = current.localAwareness.LocalDomination(AutoWalker.p);
             if (dangerValue > -2000 || AutoWalker.p.Distance(AutoWalker.EnemyLazer) < 1600)
             {
-
                 SetSpierdalankoUnc(1.8f);
                 current.saveMylife = true;
             }
@@ -120,8 +119,8 @@ namespace AutoBuddy.MainLogics
             }
 
             AutoWalker.SetMode(AutoWalker.p.Distance(closestSafePoint) < 200
-               ? Orbwalker.ActiveModes.Combo
-               : Orbwalker.ActiveModes.Flee);
+                ? Orbwalker.ActiveModes.Combo
+                : Orbwalker.ActiveModes.Flee);
             AutoWalker.WalkTo(closestSafePoint.Extend(AutoWalker.MyNexus, 200).To3DWorld());
             if (AutoWalker.p.HealthPercent() < 10 ||
                 AutoWalker.p.HealthPercent() < 20 && AutoWalker.Heal != null && AutoWalker.Heal.IsReady() &&

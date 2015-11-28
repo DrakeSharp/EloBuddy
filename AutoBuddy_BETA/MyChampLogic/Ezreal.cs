@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using AutoBuddy.MainLogics;
 using EloBuddy;
 using EloBuddy.SDK;
@@ -9,15 +8,11 @@ namespace AutoBuddy.MyChampLogic
 {
     internal class Ezreal : IChampLogic
     {
-        /* Made By: MarioGK */
-        public int[] skillSequence { get; private set; }
-        public LogicSelector Logic { get; set; }
-        public string ShopSequence { get; private set; }
+        private readonly Spell.Skillshot E;
 
         private readonly Spell.Skillshot Q;
-        private readonly Spell.Skillshot W;
-        private readonly Spell.Skillshot E;
         private readonly Spell.Skillshot R;
+        private readonly Spell.Skillshot W;
 
         public Ezreal()
         {
@@ -44,6 +39,11 @@ namespace AutoBuddy.MyChampLogic
             Game.OnTick += Game_OnTick;
         }
 
+        /* Made By: MarioGK */
+        public int[] skillSequence { get; private set; }
+        public LogicSelector Logic { get; set; }
+        public string ShopSequence { get; private set; }
+
         public void Harass(AIHeroClient target)
         {
             if (Q.IsReady() && target.IsValidTarget(Q.Range) && 20 <= Player.Instance.ManaPercent)
@@ -68,7 +68,7 @@ namespace AutoBuddy.MyChampLogic
         public void Combo(AIHeroClient target)
         {
             if (E.IsReady() && Player.Instance.CountEnemiesInRange(800) == 1 &&
-                target.HealthPercent < (Player.Instance.HealthPercent - 10))
+                target.HealthPercent < Player.Instance.HealthPercent - 10)
             {
                 E.Cast(Player.Instance.Position.Extend(target.Position, E.Range).To3D());
             }
@@ -95,7 +95,7 @@ namespace AutoBuddy.MyChampLogic
             }
         }
 
-        void Game_OnTick(System.EventArgs args)
+        private void Game_OnTick(System.EventArgs args)
         {
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
             {
@@ -120,7 +120,10 @@ namespace AutoBuddy.MyChampLogic
                         EntityManager.MinionsAndMonsters.GetLaneMinions()
                             .OrderByDescending(m => m.Health)
                             .FirstOrDefault(
-                                m => m.IsValidTarget(Q.Range) && !m.IsInRange(Player.Instance, Player.Instance.GetAutoAttackRange()) && m.Health <= Player.Instance.GetSpellDamage(m, SpellSlot.Q));
+                                m =>
+                                    m.IsValidTarget(Q.Range) &&
+                                    !m.IsInRange(Player.Instance, Player.Instance.GetAutoAttackRange()) &&
+                                    m.Health <= Player.Instance.GetSpellDamage(m, SpellSlot.Q));
                     if (lastMinion == null) return;
 
                     if (Q.IsReady() && 20 <= Player.Instance.ManaPercent)

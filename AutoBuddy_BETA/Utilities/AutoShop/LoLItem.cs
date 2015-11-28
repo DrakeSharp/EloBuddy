@@ -1,33 +1,33 @@
-﻿
-namespace AutoBuddy.Utilities.AutoShop
+﻿namespace AutoBuddy.Utilities.AutoShop
 {
     internal class LoLItem
     {
-        public readonly string name;
-        public readonly string description;
-        public readonly string sanitizedDescription;
-        public readonly string plaintext;
-        public readonly string[] tags;
+        public readonly int baseGold;
         public readonly string cq;
+        public readonly int depth;
+        public readonly string description;
+
+        public readonly int[] fromItems;
         public readonly string groups;
 
         public readonly int id;
+        public readonly int[] intoItems;
 
-        public readonly int baseGold;
-        public readonly int totalGold;
-        public readonly int sellGold;
+        public readonly int[] maps;
+        public readonly string name;
+        public readonly string plaintext;
 
         public readonly bool purchasable;
         public readonly string requiredChampion;
+        public readonly string sanitizedDescription;
+        public readonly int sellGold;
+        public readonly string[] tags;
+        public readonly int totalGold;
 
-        public readonly int[] maps;
-
-        public readonly int[] fromItems;
-        public readonly int[] intoItems;
-        public readonly int depth;
-
-        public LoLItem(string name, string description, string sanitizedDescription, string plaintext, int id, int baseGold, int totalGold, int sellGold, bool purchasable
-            , string requiredChampion, int[] maps, int[] fromItems, int[] intoItems, int depth, string[] tags, string cq, string groups)
+        public LoLItem(string name, string description, string sanitizedDescription, string plaintext, int id,
+            int baseGold, int totalGold, int sellGold, bool purchasable
+            , string requiredChampion, int[] maps, int[] fromItems, int[] intoItems, int depth, string[] tags, string cq,
+            string groups)
         {
             this.name = name;
             this.description = description;
@@ -52,6 +52,5 @@ namespace AutoBuddy.Utilities.AutoShop
         {
             return name;
         }
-
     }
 }

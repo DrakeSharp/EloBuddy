@@ -21,13 +21,13 @@ namespace AutoBuddy.Utilities.AutoShop
     {
         private readonly List<BuildElement> buildElements;
         private readonly CheckBox enabled;
+
         public EasyShopV2(List<BuildElement> elements, CheckBox en)
         {
             enabled = en;
             buildElements = elements;
             Shopping();
         }
-
 
 
         private void Shopping()
@@ -47,15 +47,16 @@ namespace AutoBuddy.Utilities.AutoShop
                 return;
             }
 
-            if(buildElements.First(b => b.position == currentPos+2).action!=ShopActionType.Buy)
-                foreach (BuildElement buildElement in buildElements.Where(b=>b.position>currentPos+1).OrderBy(b=>b.position).ToList())
+            if (buildElements.First(b => b.position == currentPos + 2).action != ShopActionType.Buy)
+                foreach (
+                    BuildElement buildElement in
+                        buildElements.Where(b => b.position > currentPos + 1).OrderBy(b => b.position).ToList())
                 {
                     if (buildElement.action == ShopActionType.Buy) break;
-                    
+
                     currentPos++;
                     if (currentPos + 2 > buildElements.Count)
                     {
-                        
                         Core.DelayAction(Shopping, RandGen.r.Next(400, 800));
                         return;
                     }
@@ -71,7 +72,7 @@ namespace AutoBuddy.Utilities.AutoShop
             else if (currentPos < buildElements.Count - 1)
             {
                 BuildElement b = buildElements.First(el => el.position == currentPos + 2);
-                if(b.action==ShopActionType.Buy)
+                if (b.action == ShopActionType.Buy)
                     Shop.BuyItem(buildElements.First(el => el.position == currentPos + 2).item.id);
             }
 
@@ -79,29 +80,20 @@ namespace AutoBuddy.Utilities.AutoShop
             Core.DelayAction(() =>
             {
                 List<BuildElement> cur = buildElements.Where(b => b.position < currentPos + 2).ToList();
- 
-                    int hp = cur.Count(e => e.action == ShopActionType.StartHpPot) -
-                             cur.Count(e => e.action == ShopActionType.StopHpPot);
-                
-                    int mp = cur.Count(e => e.action == ShopActionType.StartMpPot) -
-                             cur.Count(e => e.action == ShopActionType.StopMpPot);
-                    if(hp>0&&!AutoWalker.p.InventoryItems.Any(it=>it.Id==ItemId.Health_Potion))
-                        Shop.BuyItem(ItemId.Health_Potion);
-                    if (mp > 0 && !AutoWalker.p.InventoryItems.Any(it => it.Id == ItemId.Mana_Potion))
-                        Shop.BuyItem(ItemId.Mana_Potion);
 
+                int hp = cur.Count(e => e.action == ShopActionType.StartHpPot) -
+                         cur.Count(e => e.action == ShopActionType.StopHpPot);
 
+                int mp = cur.Count(e => e.action == ShopActionType.StartMpPot) -
+                         cur.Count(e => e.action == ShopActionType.StopMpPot);
+                if (hp > 0 && !AutoWalker.p.InventoryItems.Any(it => it.Id == ItemId.Health_Potion))
+                    Shop.BuyItem(ItemId.Health_Potion);
+                if (mp > 0 && !AutoWalker.p.InventoryItems.Any(it => it.Id == ItemId.Mana_Potion))
+                    Shop.BuyItem(ItemId.Mana_Potion);
             }
-                
-                ,150);
+                , 150);
 
             Core.DelayAction(Shopping, RandGen.r.Next(600, 1000));
-
-
-
         }
-
-
-
     }
 }

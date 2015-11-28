@@ -33,13 +33,13 @@ namespace AutoBuddy.MainLogics
             loadLogic = new Load(this);
             combatLogic = new Combat(this);
             surrender = new Surrender();
-            
+
             Core.DelayAction(() => loadLogic.SetLane(), 1000);
             localAwareness = new LocalAwareness();
             if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
                 Drawing.OnEndScene += Drawing_OnDraw;
             myChamp.Logic = this;
-            
+
             Core.DelayAction(Watchdog, 3000);
         }
 

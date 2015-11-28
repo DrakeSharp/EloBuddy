@@ -75,7 +75,6 @@
     <Compile Include="Utilities\ChampLane.cs" />
     <Compile Include="Utilities\AutoShop\BuildCreator.cs" />
     <Compile Include="Utilities\AutoShop\BuildElement.cs" />
-    <Compile Include="Utilities\AutoShop\EasyShop.cs" />
     <Compile Include="Utilities\HeroInfo.cs" />
     <Compile Include="Utilities\LocalAwareness.cs" />
     <Compile Include="MainLogics\LogicSelector.cs" />

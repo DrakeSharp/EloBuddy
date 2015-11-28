@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace AutoBuddy.Utilities.AutoShop
@@ -16,7 +14,7 @@ namespace AutoBuddy.Utilities.AutoShop
             _secondWord = _secondWord.Replace("\'", string.Empty).Replace(" ", string.Empty).ToLower();
             if (_firstWord == _secondWord)
                 return defaultMatchScore;
-            int halfLength = Math.Min(_firstWord.Length, _secondWord.Length) / 2 + 1;
+            int halfLength = Math.Min(_firstWord.Length, _secondWord.Length)/2 + 1;
 
             StringBuilder common1 = GetCommonCharacters(_firstWord, _secondWord, halfLength);
             int commonMatches = common1.Length;
@@ -36,7 +34,8 @@ namespace AutoBuddy.Utilities.AutoShop
             }
 
             transpositions /= 2;
-            double jaroMetric = commonMatches / (3.0 * _firstWord.Length) + commonMatches / (3.0 * _secondWord.Length) + (commonMatches - transpositions) / (3.0 * commonMatches);
+            double jaroMetric = commonMatches/(3.0*_firstWord.Length) + commonMatches/(3.0*_secondWord.Length) +
+                                (commonMatches - transpositions)/(3.0*commonMatches);
             return jaroMetric;
         }
 
@@ -53,7 +52,9 @@ namespace AutoBuddy.Utilities.AutoShop
                 char character = firstWord[i];
                 bool found = false;
 
-                for (int j = Math.Max(0, i - separationDistance); !found && j < Math.Min(i + separationDistance, secondWordLength); j++)
+                for (int j = Math.Max(0, i - separationDistance);
+                    !found && j < Math.Min(i + separationDistance, secondWordLength);
+                    j++)
                 {
                     if (copy[j] == character)
                     {

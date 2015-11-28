@@ -18,8 +18,6 @@ namespace AutoBuddy.MainLogics
         private Obj_AI_Minion[] currentWave;
         private int CurrentWaveNum;
         private Lane lane;
-        public Obj_AI_Base myTurret { get; private set; }
-        public Obj_AI_Base enemyTurret{ get; private set; }
 
         private float randomAngle;
         private float randomExtend;
@@ -38,6 +36,9 @@ namespace AutoBuddy.MainLogics
             if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
                 Drawing.OnDraw += Drawing_OnDraw;
         }
+
+        public Obj_AI_Base myTurret { get; private set; }
+        public Obj_AI_Base enemyTurret { get; private set; }
 
         private void SetRandVector()
         {
@@ -85,7 +86,7 @@ namespace AutoBuddy.MainLogics
             }
             if (currentWave.Length == 0)
                 UnderMyTurret();
-            else if (AutoWalker.p.Distance(enemyTurret) < 970+AutoWalker.p.BoundingRadius)
+            else if (AutoWalker.p.Distance(enemyTurret) < 970 + AutoWalker.p.BoundingRadius)
                 UnderEnemyTurret();
             else
                 Between();
@@ -94,11 +95,11 @@ namespace AutoBuddy.MainLogics
 
         private void Drawing_OnDraw(EventArgs args)
         {
-
             Drawing.DrawText(250, 40, Color.Gold,
                 "Push, active: " + active + "  wave num: " + CurrentWaveNum + " minions left: " + currentWave.Length);
 
-            Drawing.DrawCircle(currentWave.Length <= 0 ? AutoWalker.p.Position : AvgPos(currentWave), 120, Color.Chocolate);
+            Drawing.DrawCircle(currentWave.Length <= 0 ? AutoWalker.p.Position : AvgPos(currentWave), 120,
+                Color.Chocolate);
 
             if (myTurret != null)
                 Drawing.DrawCircle(myTurret.Position, 200, Color.DarkGreen);
@@ -112,26 +113,29 @@ namespace AutoBuddy.MainLogics
                 ObjectManager.Get<Obj_AI_Minion>()
                     .Count(min => min.IsAlly && min.HealthPercent() > 30 && min.Distance(enemyTurret) < 850) < 2)
             {
-                 AutoWalker.SetMode(Orbwalker.ActiveModes.LaneClear);
+                AutoWalker.SetMode(Orbwalker.ActiveModes.LaneClear);
                 AutoWalker.WalkTo(enemyTurret.Position.Extend(AutoWalker.p, 1100).To3DWorld());
                 return;
             }
-            if (AutoWalker.p.Distance(enemyTurret) < AutoWalker.p.AttackRange + enemyTurret.BoundingRadius+Orbwalker.HoldRadius &&
-                AutoWalker.p.Distance(enemyTurret) > AutoWalker.p.AttackRange + enemyTurret.BoundingRadius-10)
+            if (AutoWalker.p.Distance(enemyTurret) <
+                AutoWalker.p.AttackRange + enemyTurret.BoundingRadius + Orbwalker.HoldRadius &&
+                AutoWalker.p.Distance(enemyTurret) > AutoWalker.p.AttackRange + enemyTurret.BoundingRadius - 10)
             {
-                 AutoWalker.SetMode(Orbwalker.ActiveModes.None);
+                AutoWalker.SetMode(Orbwalker.ActiveModes.None);
                 Player.IssueOrder(GameObjectOrder.AttackUnit, enemyTurret);
             }
             else
             {
-                 AutoWalker.SetMode(Orbwalker.ActiveModes.LastHit);
-                AutoWalker.WalkTo(enemyTurret.Position.Extend(AutoWalker.p, AutoWalker.p.AttackRange + enemyTurret.BoundingRadius).To3DWorld());
+                AutoWalker.SetMode(Orbwalker.ActiveModes.LastHit);
+                AutoWalker.WalkTo(
+                    enemyTurret.Position.Extend(AutoWalker.p, AutoWalker.p.AttackRange + enemyTurret.BoundingRadius)
+                        .To3DWorld());
             }
         }
 
         private void Between()
         {
-             AutoWalker.SetMode(Orbwalker.ActiveModes.LaneClear);
+            AutoWalker.SetMode(Orbwalker.ActiveModes.LaneClear);
             Vector3 p = AvgPos(currentWave);
             if (p.Distance(AutoWalker.MyNexus) > myTurret.Distance(AutoWalker.MyNexus))
             {
@@ -143,14 +147,15 @@ namespace AutoBuddy.MainLogics
                               currentLogic.localAwareness.LocalDomination(al) < -15000)
                         .OrderBy(l => l.Distance(AutoWalker.p))
                         .FirstOrDefault();
-                if (AutoWalker.p.Gold > 100 && ally != null&&Math.Abs(p.Distance(AutoWalker.EneMyNexus) - AutoWalker.p.Distance(AutoWalker.EneMyNexus)) < 200)
+                if (AutoWalker.p.Gold > 100 && ally != null &&
+                    Math.Abs(p.Distance(AutoWalker.EneMyNexus) - AutoWalker.p.Distance(AutoWalker.EneMyNexus)) < 200)
                     p = ally.Position.Extend(myTurret, 160).To3DWorld() + randomVector;
                 p =
-    p.Extend(p.Extend(
-        AutoWalker.p.Distance(myTurret) < AutoWalker.p.Distance(enemyTurret)
-            ? myTurret
-            : enemyTurret,
-        400).To3D().RotatedAround(p, 1.57f), randomExtend).To3DWorld();
+                    p.Extend(p.Extend(
+                        AutoWalker.p.Distance(myTurret) < AutoWalker.p.Distance(enemyTurret)
+                            ? myTurret
+                            : enemyTurret,
+                        400).To3D().RotatedAround(p, 1.57f), randomExtend).To3DWorld();
                 AutoWalker.WalkTo(p);
             }
             else
@@ -180,9 +185,7 @@ namespace AutoBuddy.MainLogics
                 AutoWalker.WalkTo(myTurret.Position.Extend(AutoWalker.p.Position, 350 + randomExtend/2)
                     .To3D()
                     .RotatedAround(myTurret.Position, randomAngle));
-
             }
-
         }
 
         public Vector3 AvgPos(Obj_AI_Minion[] objects)
@@ -218,7 +221,8 @@ namespace AutoBuddy.MainLogics
             Core.DelayAction(SetWaveNumber, 500);
             Obj_AI_Minion closest =
                 ObjectManager.Get<Obj_AI_Minion>()
-                    .Where(min => min.IsAlly && min.Name.Length > 13 && min.GetLane() == lane && min.HealthPercent() > 80)
+                    .Where(
+                        min => min.IsAlly && min.Name.Length > 13 && min.GetLane() == lane && min.HealthPercent() > 80)
                     .OrderBy(min => min.Distance(enemyTurret))
                     .FirstOrDefault();
             if (closest != null)
@@ -236,7 +240,7 @@ namespace AutoBuddy.MainLogics
             }
             currentWave =
                 currentWave.Where(
-                    min => min.Health>1)
+                    min => min.Health > 1)
                     .ToArray();
             if (currentWave.Length > 1)
             {

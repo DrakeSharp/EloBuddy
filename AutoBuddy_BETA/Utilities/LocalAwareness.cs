@@ -27,15 +27,16 @@ namespace AutoBuddy.Utilities
         }
 
 
-
         public float LocalDomination(Vector3 pos)
         {
             float danger = 0;
-            foreach (HeroInfo h in heroTable.Where(hh=>hh.hero.IsVisible()&&!hh.hero.IsDead()&&hh.hero.Position.Distance(pos)< 900))
+            foreach (
+                HeroInfo h in
+                    heroTable.Where(
+                        hh => hh.hero.IsVisible() && !hh.hero.IsDead() && hh.hero.Position.Distance(pos) < 900))
             {
-                danger += (-0.0042857142857143f * (h.hero.Distance(pos) + 100) + 4.4285714285714f) * HeroStrength(h) *
+                danger += (-0.0042857142857143f*(h.hero.Distance(pos) + 100) + 4.4285714285714f)*HeroStrength(h)*
                           (h.hero.IsEnemy ? 1 : -1);
-
             }
             foreach (
                 Obj_AI_Minion tt in
@@ -44,7 +45,7 @@ namespace AutoBuddy.Utilities
             {
                 danger += 10000*(tt.IsAlly ? -1 : 1);
             }
-            if (AutoWalker.p.GetNearestTurret().Distance(pos) < 1000+AutoWalker.p.BoundingRadius) danger += 35000;
+            if (AutoWalker.p.GetNearestTurret().Distance(pos) < 1000 + AutoWalker.p.BoundingRadius) danger += 35000;
             if (AutoWalker.p.GetNearestTurret(false).Distance(pos) < 400) danger -= 35000;
             return danger;
         }
