@@ -1,13 +1,22 @@
 ﻿using System.Collections.Generic;
+using System.Drawing.Text;
 using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 
-namespace AutoBuddy.Utilities.AutoShop
+namespace AutoBuddy.Utilities
 {
-
+    internal enum ShopActionType
+    {
+        Buy=1,
+        Sell=2,
+        BuyHpPots=3,
+        SellHpPots=4,
+        BuyMpPots=5,
+        SellMpPots=6
+    }
 
     internal struct ShopAction
     {
@@ -17,7 +26,6 @@ namespace AutoBuddy.Utilities.AutoShop
 
     internal class EasyShop
     {
-/*
         private int hppots;
         private int mppots;
         private readonly Slider shoppointer;
@@ -85,7 +93,7 @@ namespace AutoBuddy.Utilities.AutoShop
                 /*
                 Chat.Print(hp == null ? hppots : hppots - hp.Stacks);
                 for (int i = 0; i <= (hp == null ? hppots : hppots - hp.Stacks); i++)
-                    Core.DelayAction(() => Shop.BuyItemSim(ItemId.Health_Potion), i*100);
+                    Core.DelayAction(() => Shop.BuyItem(ItemId.Health_Potion), i*100);*/
                 if (mppots > 0)
                 {
                     InventorySlot mp =
@@ -95,7 +103,7 @@ namespace AutoBuddy.Utilities.AutoShop
                 }
                 /*
                 for (int i = 0; i <= (mp == null ? mppots : mppots - mp.Stacks); i++)
-                    Core.DelayAction(() => Shop.BuyItemSim(ItemId.Mana_Potion), i*100);
+                    Core.DelayAction(() => Shop.BuyItem(ItemId.Mana_Potion), i*100);*/
             }, 300);
             switch (shopActions[shoppointer.CurrentValue].type)
             {
@@ -151,7 +159,5 @@ namespace AutoBuddy.Utilities.AutoShop
 
 
 
-    }
-                 * */
     }
 }

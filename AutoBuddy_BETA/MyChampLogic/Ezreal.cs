@@ -24,7 +24,7 @@ namespace AutoBuddy.MyChampLogic
             //                     1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18
             skillSequence = new[] {1, 3, 1, 2, 1, 4, 1, 3, 1, 3, 4, 3, 3, 2, 2, 4, 2, 2};
             ShopSequence =
-                "3340:Buy,1036:Buy,2003:StartHpPot,1053:Buy,1042:Buy,1001:Buy,3006:Buy,1036:Buy,1038:Buy,3072:Buy,2003:StopHpPot,1042:Buy,1051:Buy,3086:Buy,1042:Buy,1042:Buy,1043:Buy,3085:Buy,2015:Buy,3086:Buy,3094:Buy,1018:Buy,1038:Buy,3031:Buy,1037:Buy,3035:Buy,3033:Buy";
+                "1055:1, 3340:1, 3070:1, 1036:1, 3042:1, 3044:1, 3057:1, 3086:1, 3078:1, 3158:1, 1037:1, 3035:1, 3144:1, 1043:1, 3153:1 , 1036:1, 1038:1 , 1053:1, 3072:1";
 
             Q = new Spell.Skillshot(SpellSlot.Q, 1160, SkillShotType.Linear, 350, 2000, 65)
             {

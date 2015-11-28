@@ -38,10 +38,6 @@
     <Reference Include="EloBuddy.SDK">
       <HintPath>..\..\..\..\..\Program Files (x86)\EloBuddy\System\EloBuddy.SDK.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Program Files (x86)\EloBuddy\System\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="SharpDX">
       <HintPath>..\..\..\..\..\Program Files (x86)\EloBuddy\System\SharpDX.dll</HintPath>
     </Reference>
@@ -63,19 +59,8 @@
     <Compile Include="AutoWalker.cs" />
     <Compile Include="BrutalExtensions.cs" />
     <Compile Include="MyChampLogic\Generic.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Utilities\AutoShop\EasyShopV2.cs" />
-    <Compile Include="Utilities\AutoShop\ItemInfo.cs" />
-    <Compile Include="Utilities\AutoShop\LoLItem.cs" />
-    <Compile Include="Utilities\AutoShop\StringDistance.cs" />
     <Compile Include="Utilities\ChampLane.cs" />
-    <Compile Include="Utilities\AutoShop\BuildCreator.cs" />
-    <Compile Include="Utilities\AutoShop\BuildElement.cs" />
-    <Compile Include="Utilities\AutoShop\EasyShop.cs" />
+    <Compile Include="Utilities\EasyShop.cs" />
     <Compile Include="Utilities\HeroInfo.cs" />
     <Compile Include="Utilities\LocalAwareness.cs" />
     <Compile Include="MainLogics\LogicSelector.cs" />
@@ -96,14 +81,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Resources\item" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
   </PropertyGroup>

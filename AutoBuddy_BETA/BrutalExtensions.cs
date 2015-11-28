@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using AutoBuddy.Humanizers;
 using AutoBuddy.Utilities;
 using EloBuddy;
@@ -99,24 +97,6 @@ namespace AutoBuddy
         public static float HealthPercent(this Obj_AI_Base unit)
         {
             return unit.Health/unit.MaxHealth*100f;
-        }
-        public static string Concatenate<T>(this IEnumerable<T> source, string delimiter)
-        {
-            var s = new StringBuilder();
-            bool first = true;
-            foreach (T t in source)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    s.Append(delimiter);
-                }
-                s.Append(t);
-            }
-            return s.ToString();
         }
     }
 }
