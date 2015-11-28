@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using AutoBuddy.Utilities;
 using EloBuddy;
 using EloBuddy.SDK;
@@ -53,11 +54,17 @@ namespace AutoBuddy
 
             if (Orbwalker.HoldRadius > 130 || Orbwalker.HoldRadius < 80)
             {
+
+
                 Chat.Print("=================WARNING=================", Color.Red);
                 Chat.Print("Your hold radius value in orbwalker isn't optimal for AutoBuddy", Color.Aqua);
                 Chat.Print("Please set hold radius through menu=>Orbwalker");
                 Chat.Print("Recommended values: Hold radius: 80-130, Delay between movements: 100-250");
             }
+
+            //PropertyInfo property2 = typeof(Orbwalker).GetProperty("HoldRadius");
+
+            //property2.GetSetMethod(true).Invoke(null, new object[] { 20 });
             if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
                 Drawing.OnDraw += Drawing_OnDraw;
         }
