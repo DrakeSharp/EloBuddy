@@ -4,50 +4,21 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using AutoBuddy.Humanizers;
-using AutoBuddy.Utilities;
 using EloBuddy;
 using EloBuddy.SDK;
 using SharpDX;
 
-namespace AutoBuddy
+namespace EssentialLvlUp
 {
     internal static class BrutalExtensions
     {
-        public static Lane GetLane(this Obj_AI_Minion min)
-        {
-            try
-            {
-                if (min.Name == null || min.Name.Length < 13) return Lane.Unknown;
-                if (min.Name[12] == '0') return Lane.Bot;
-                if (min.Name[12] == '1') return Lane.Mid;
-                if (min.Name[12] == '2') return Lane.Top;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("GetLane:" + e.Message);
-            }
-            return Lane.Unknown;
-        }
-
-        public static Lane GetLane(this Obj_AI_Turret tur)
-        {
-            if (tur.Name.EndsWith("Shrine_A")) return Lane.Spawn;
-            if (tur.Name.EndsWith("C_02_A") || tur.Name.EndsWith("C_01_A")) return Lane.HQ;
-            if (tur.Name == null || tur.Name.Length < 12) return Lane.Unknown;
-            if (tur.Name[10] == 'R') return Lane.Bot;
-            if (tur.Name[10] == 'C') return Lane.Mid;
-            if (tur.Name[10] == 'L') return Lane.Top;
-            return Lane.Unknown;
-        }
-
         public static int GetWave(this Obj_AI_Minion min)
         {
             if (min.Name == null || min.Name.Length < 17) return 0;
             int result;
             try
             {
-                result = Int32.Parse(min.Name.Substring(14, 2));
+                result = int.Parse(min.Name.Substring(14, 2));
             }
             catch (FormatException)
             {
@@ -131,7 +102,7 @@ namespace AutoBuddy
             if (string.IsNullOrEmpty(value))
                 throw new ArgumentException("the string to find may not be empty", "value");
             List<int> indexes = new List<int>();
-            for (int index = 0; ; index += value.Length)
+            for (int index = 0;; index += value.Length)
             {
                 index = str.IndexOf(value, index);
                 if (index == -1)
@@ -139,11 +110,12 @@ namespace AutoBuddy
                 indexes.Add(index);
             }
         }
+
         public static string GetResponseText(this string address)
         {
-            var request = (HttpWebRequest)WebRequest.Create(address);
+            var request = (HttpWebRequest) WebRequest.Create(address);
             request.Proxy = null;
-            using (var response = (HttpWebResponse)request.GetResponse())
+            using (var response = (HttpWebResponse) request.GetResponse())
             {
                 var encoding = Encoding.GetEncoding(response.CharacterSet);
 

@@ -127,6 +127,7 @@ namespace EssentialMapHack
             if (sender.NetworkId != hero.NetworkId) return;
             if (args.Status == TeleportStatus.Start && args.Type != TeleportType.Unknown)
             {
+                
                 teleStart = Game.Time;
                 teleDuration = args.Duration / 1000f;
                 teleporting = true;

@@ -6,6 +6,7 @@ using AutoBuddy.Humanizers;
 using AutoBuddy.MainLogics;
 using AutoBuddy.MyChampLogic;
 using AutoBuddy.Utilities;
+using AutoBuddy.Utilities.AutoLvl;
 using AutoBuddy.Utilities.AutoShop;
 using EloBuddy;
 using EloBuddy.SDK;
@@ -21,8 +22,6 @@ namespace AutoBuddy
     {
         private static Menu menu;
         private static IChampLogic myChamp;
-        public static SkillLevelUp LevelUp { get; private set; }
-        //private static EasyShop easyShop;
         public static LogicSelector Logic { get; private set; }
 
         public static void Main()
@@ -31,21 +30,20 @@ namespace AutoBuddy
             Loading.OnLoadingComplete += Loading_OnLoadingComplete;
         }
 
-
         private static void Loading_OnLoadingComplete(EventArgs args)
         {
+
             createFS();
             Chat.Print("AutoBuddy will start in 5 seconds. ");
             Core.DelayAction(Start, 5000);
             menu = MainMenu.AddMenu("AUTOBUDDY", "AB");
-            menu.Add("autolvl", new CheckBox("Disable built-in skill leveler(press f5 after)", false));
             menu.Add("sep1", new Separator(1));
             CheckBox c =
                 new CheckBox("Try to go mid, will leave if other player stays on mid(works only with auto lane)", true);
 
-            PropertyInfo property2 = typeof (CheckBox).GetProperty("Size");
+            PropertyInfo property2 = typeof(CheckBox).GetProperty("Size");
 
-            property2.GetSetMethod(true).Invoke(c, new object[] {new Vector2(500, 20)});
+            property2.GetSetMethod(true).Invoke(c, new object[] { new Vector2(500, 20) });
             menu.Add("mid", c);
 
             Slider s = menu.Add("lane", new Slider(" ", 1, 1, 4));
@@ -68,11 +66,13 @@ namespace AutoBuddy
             menu.Add("l1", new Label("By Christian Brutal Sniper"));
             Version v = Assembly.GetExecutingAssembly().GetName().Version;
             menu.Add("l2",
-                new Label("Version " + v.Major + "." + v.Minor + " Build time: " + v.Build%100 + " " +
-                          CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(v.Build/100) + " " +
-                          (v.Revision/100).ToString().PadLeft(2, '0') + ":" +
-                          (v.Revision%100).ToString().PadLeft(2, '0')));
+                new Label("Version " + v.Major + "." + v.Minor + " Build time: " + v.Build % 100 + " " +
+                          CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(v.Build / 100) + " " +
+                          (v.Revision / 100).ToString().PadLeft(2, '0') + ":" +
+                          (v.Revision % 100).ToString().PadLeft(2, '0')));
+
         }
+
 
 
         private static void Start()
@@ -95,6 +95,8 @@ namespace AutoBuddy
                     myChamp = new Ezreal();
                     break;
             }
+            CustomLvlSeq cl = new CustomLvlSeq(menu, AutoWalker.p, Path.Combine(Environment.GetFolderPath(
+            Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Skills"));
             if (!generic)
             {
                 BuildCreator bc = new BuildCreator(menu, Path.Combine(Environment.GetFolderPath(
@@ -123,8 +125,6 @@ namespace AutoBuddy
                         Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Builds"), myChamp.ShopSequence);
                 }
             }
-            if (!menu.Get<CheckBox>("autolvl").CurrentValue)
-                LevelUp = new SkillLevelUp(myChamp);
             Logic = new LogicSelector(myChamp);
         }
 
@@ -134,6 +134,8 @@ namespace AutoBuddy
                 Environment.SpecialFolder.ApplicationData), "AutoBuddy"));
             Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(
                 Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Builds"));
+            Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(
+                Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Skills"));
         }
     }
 }

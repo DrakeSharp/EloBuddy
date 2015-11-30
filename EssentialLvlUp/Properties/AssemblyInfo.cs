@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("AutoBuddy BETA")]
+[assembly: AssemblyTitle("EssentialLvlUp")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("AutoBuddy BETA")]
-[assembly: AssemblyCopyright("Copyright Christian Brutal Sniper@Elobuddy  2015")]
+[assembly: AssemblyProduct("EssentialLvlUp")]
+[assembly: AssemblyCopyright("Copyright ?  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 
-[assembly: Guid("f25996f7-946a-41b8-9c63-e03704401838")]
+[assembly: Guid("a57afbf2-554d-429a-a2fb-ece6d3c3e85f")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -34,5 +34,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.1130.2258")]
-[assembly: AssemblyFileVersion("1.0.1130.2258")]
+[assembly: AssemblyVersion("1.0.1130.2321")]
+[assembly: AssemblyFileVersion("1.0.1130.2321")]

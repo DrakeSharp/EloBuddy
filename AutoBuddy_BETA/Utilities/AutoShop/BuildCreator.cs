@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.Text;
 using EloBuddy;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
@@ -57,6 +59,7 @@ namespace AutoBuddy.Utilities.AutoShop
             shop = new EasyShopV2(myBuild, enabled);
             Chat.OnInput += Chat_OnInput;
             Drawing.OnEndScene += Drawing_OnEndScene;
+
         }
 
 

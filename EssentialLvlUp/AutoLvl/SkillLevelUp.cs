@@ -1,50 +1,61 @@
-﻿using AutoBuddy.Humanizers;
-using AutoBuddy.MyChampLogic;
-using EloBuddy;
+﻿using EloBuddy;
 using EloBuddy.SDK;
+using EloBuddy.SDK.Menu.Values;
 
-namespace AutoBuddy.Utilities
+namespace EssentialLvlUp.AutoLvl
 {
     internal class SkillLevelUp
     {
-        private readonly IChampLogic champ;
         private readonly SpellDataInst e = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E);
+        private readonly CheckBox enabled;
         private readonly SpellDataInst q = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q);
         private readonly SpellDataInst r = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R);
+        private readonly SkillToLvl[] skills;
         private readonly SpellDataInst w = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W);
+        public int maxTime = 0;
+        public int minTime = 0;
 
-        public SkillLevelUp(IChampLogic myChamp)
+        public SkillLevelUp(SkillToLvl[] skills, CheckBox enabled, int delay = 0)
         {
-            champ = myChamp;
-            Core.DelayAction(() => OnLvLUp(ObjectManager.Player.Level), RandGen.r.Next(900, 3000));
+            this.enabled = enabled;
+            enabled.OnValueChange += enabled_OnValueChange;
+            this.skills = skills;
+            Core.DelayAction(() => OnLvLUp(ObjectManager.Player.Level), delay*1000 + RandGen.r.Next(minTime, maxTime));
             Obj_AI_Base.OnLevelUp += Player_OnLevelUp;
+        }
+
+        private void enabled_OnValueChange(ValueBase<bool> sender, ValueBase<bool>.ValueChangeArgs args)
+        {
+            if (args.NewValue)
+                OnLvLUp(ObjectManager.Player.Level, true);
         }
 
         private void Player_OnLevelUp(Obj_AI_Base sender, Obj_AI_BaseLevelUpEventArgs args)
         {
             if (sender != ObjectManager.Player) return;
-            Core.DelayAction(() => OnLvLUp(args.Level), RandGen.r.Next(300, 2000));
+            Core.DelayAction(() => OnLvLUp(args.Level), RandGen.r.Next(minTime, maxTime));
         }
 
-        private void OnLvLUp(int level)
+        private void OnLvLUp(int level, bool overrid = false)
         {
+            if (!enabled.CurrentValue && !overrid) return;
             for (int z = 0; z < level; z++)
             {
                 int qDesired = 0, wDesired = 0, eDesired = 0, rDesired = 0;
                 for (int i = 0; i < ObjectManager.Player.Level; i++)
                 {
-                    switch (champ.skillSequence[i])
+                    switch (skills[i])
                     {
-                        case 1:
+                        case SkillToLvl.Q:
                             qDesired++;
                             break;
-                        case 2:
+                        case SkillToLvl.W:
                             wDesired++;
                             break;
-                        case 3:
+                        case SkillToLvl.E:
                             eDesired++;
                             break;
-                        case 4:
+                        case SkillToLvl.R:
                             rDesired++;
                             break;
                     }

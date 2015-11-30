@@ -73,12 +73,12 @@ namespace AutoBuddy
         {
             if (_activeMode == Orbwalker.ActiveModes.LaneClear)
             {
-                Orbwalker.ActiveModesFlags =
+                Orbwalker.ActiveModesFlags =(p.TotalAttackDamage<150&&
                     EntityManager.MinionsAndMonsters.EnemyMinions.Any(
                         en =>
                             en.Distance(p) < p.AttackRange + en.BoundingRadius &&
                             Prediction.Health.GetPrediction(en, 2000) < p.GetAutoAttackDamage(en))
-                        ? Orbwalker.ActiveModes.LastHit
+                        )? Orbwalker.ActiveModes.LastHit
                         : Orbwalker.ActiveModes.LaneClear;
             }
             else
