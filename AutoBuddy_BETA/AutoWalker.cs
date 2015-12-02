@@ -18,7 +18,7 @@ namespace AutoBuddy
         public static readonly Obj_HQ EneMyNexus;
         public static readonly AIHeroClient p;
         public static readonly Obj_AI_Turret EnemyLazer;
-        private static Orbwalker.ActiveModes _activeMode = Orbwalker.ActiveModes.None;
+        private static Orbwalker.ActiveModes activeMode = Orbwalker.ActiveModes.None;
 
         static AutoWalker()
         {
@@ -71,23 +71,29 @@ namespace AutoBuddy
 
         private static void Game_OnUpdate(EventArgs args)
         {
-            if (_activeMode == Orbwalker.ActiveModes.LaneClear)
+            if (activeMode == Orbwalker.ActiveModes.LaneClear)
             {
                 Orbwalker.ActiveModesFlags =(p.TotalAttackDamage<150&&
                     EntityManager.MinionsAndMonsters.EnemyMinions.Any(
                         en =>
                             en.Distance(p) < p.AttackRange + en.BoundingRadius &&
                             Prediction.Health.GetPrediction(en, 2000) < p.GetAutoAttackDamage(en))
-                        )? Orbwalker.ActiveModes.LastHit
+                        )? Orbwalker.ActiveModes.Harass
                         : Orbwalker.ActiveModes.LaneClear;
             }
             else
-                Orbwalker.ActiveModesFlags = _activeMode;
+                Orbwalker.ActiveModesFlags = activeMode;
         }
 
         public static void SetMode(Orbwalker.ActiveModes mode)
         {
-            _activeMode = mode;
+            /*if(mode==Orbwalker.ActiveModes.Harass)
+                activeMode = Orbwalker.ActiveModes.Combo;
+            else
+            {
+                activeMode = mode;
+            }*/
+            activeMode = mode;
         }
 
         private static void Drawing_OnDraw(EventArgs args)

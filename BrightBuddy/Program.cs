@@ -7,7 +7,7 @@ using EloBuddy.SDK.Menu.Values;
 
 namespace BrightBuddy
 {
-    internal class Program
+    internal static class Program
     {
         private static ManagementClass mclass;
         private static ManagementObjectCollection instances;

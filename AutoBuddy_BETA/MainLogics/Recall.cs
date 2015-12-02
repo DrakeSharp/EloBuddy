@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using AutoBuddy.Humanizers;
+using AutoBuddy.Utilities.AutoShop;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Menu;
@@ -47,8 +48,8 @@ namespace AutoBuddy.MainLogics
                 return;
             }
 
-            if ((AutoWalker.p.Gold > (AutoWalker.p.Level + 2)*150 && AutoWalker.p.InventoryItems.Length < 8 &&
-                 recallsWithGold <= 10) || AutoWalker.p.HealthPercent() < 25)
+            if (((AutoWalker.p.Gold > (AutoWalker.p.Level + 2) * 100&&AutoWalker.p.Gold>ShopGlobals.GoldForNextItem) && AutoWalker.p.InventoryItems.Length < 8 &&
+                 recallsWithGold <= 20) || AutoWalker.p.HealthPercent() < 25)
             {
                 if (AutoWalker.p.Gold > (AutoWalker.p.Level + 2)*150 && AutoWalker.p.InventoryItems.Length < 8 &&
                     recallsWithGold <= 10)

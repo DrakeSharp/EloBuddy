@@ -15,6 +15,11 @@ namespace AutoBuddy.Utilities.AutoShop
         StopHpPot = 4
     }
 
+    public static class ShopGlobals
+    {
+        public static int GoldForNextItem=999999;
+    }
+
     internal class EasyShopV2
     {
         private readonly List<BuildElement> buildElements;
@@ -37,7 +42,7 @@ namespace AutoBuddy.Utilities.AutoShop
                 return;
             }
 
-
+            ShopGlobals.GoldForNextItem = 9999999;
             int currentPos = ItemInfo.GetNum(buildElements);
 
             if (currentPos == 0)
@@ -60,7 +65,7 @@ namespace AutoBuddy.Utilities.AutoShop
                     BuildElement buildElement in
                         buildElements.Where(b => b.position > currentPos + 1).OrderBy(b => b.position).ToList())
                 {
-                    if (buildElement.action == ShopActionType.Buy) break;
+                    if (buildElement.action == ShopActionType.Buy || buildElement.action == ShopActionType.Sell) break;
 
                     currentPos++;
                     if (currentPos + 2 > buildElements.Count)
@@ -69,13 +74,31 @@ namespace AutoBuddy.Utilities.AutoShop
                         return;
                     }
                 }
-
+            
 
             if (currentPos < buildElements.Count - 1)
             {
                 BuildElement b = buildElements.First(el => el.position == currentPos + 2);
+                if (b.action == ShopActionType.Sell)
+                {
+                    int slot = ItemInfo.GetItemSlot(buildElements.First(el => el.position == currentPos + 2).item.id);
+                    if (slot != -1)
+                    {
+                        Shop.SellItem(slot);
+                        
+                    }
+                    else
+                    {
+                        b = buildElements.First(el => el.position == currentPos + 3);
+                    }
+                }
+
                 if (b.action == ShopActionType.Buy)
-                    Shop.BuyItem(buildElements.First(el => el.position == currentPos + 2).item.id);
+                {
+                    ShopGlobals.GoldForNextItem = ItemInfo.BuyItemSim(myit, b.item);
+                    Shop.BuyItem(b.item.id);
+                }
+
             }
 
 

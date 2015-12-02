@@ -17,11 +17,11 @@ using Version = System.Version;
 
 namespace AutoBuddy
 {
-    internal class Program
+    internal static class Program
     {
         private static Menu menu;
         private static IChampLogic myChamp;
-        public static LogicSelector Logic { get; private set; }
+        private static LogicSelector Logic { get; set; }
 
         public static void Main()
         {
@@ -92,6 +92,9 @@ namespace AutoBuddy
                     break;
                 case Champion.Ezreal:
                     myChamp = new Ezreal();
+                    break;
+                case Champion.Cassiopeia:
+                    myChamp = new Cassiopeia();
                     break;
             }
             CustomLvlSeq cl = new CustomLvlSeq(menu, AutoWalker.p, Path.Combine(Environment.GetFolderPath(

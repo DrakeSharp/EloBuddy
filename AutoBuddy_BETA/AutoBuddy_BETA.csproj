@@ -63,6 +63,7 @@
     <Compile Include="Humanizers\SafeShop.cs" />
     <Compile Include="AutoWalker.cs" />
     <Compile Include="BrutalExtensions.cs" />
+    <Compile Include="MyChampLogic\Cassiopeia.cs" />
     <Compile Include="MyChampLogic\Generic.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

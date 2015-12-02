@@ -60,11 +60,16 @@ namespace AutoBuddy.Utilities.AutoShop
                 @"
 Commands(type them in the chat):
 
-/b itemName :buy an item, you don't need to type exact name for the item, just few first
+/b itemName  :buy an item, you don't need to type exact name for the item, just few first
 characters, for example for BT its enough: /b thebloodt
 
+/s itemName : sell an item
+
 /buyhp:keep buying 1 hp potion(if not in champ's inventory already)
-/stophp :stop buying hp potion and sell if any is owned
+/stophp : stop buying hp potion and sell if any is owned.
+
+AUTOSHOP WILL STOP WORKING IF FINDS ANY ITEMS IN INVENTORY THAT AREN'T
+IN THE SEQUENCE.
 
 Don't add to the list items that you can't buy, for example jungle items without smite.
 
@@ -110,7 +115,7 @@ you can copy/share them.
 
         private void AddElement(LoLItem it, ShopActionType ty)
         {
-            if (ty != ShopActionType.Buy)
+            if (ty != ShopActionType.Buy || ty != ShopActionType.Sell)
             {
                 int hp = myBuild.Count(e => e.action == ShopActionType.StartHpPot) -
                          myBuild.Count(e => e.action == ShopActionType.StopHpPot);

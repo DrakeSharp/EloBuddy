@@ -67,7 +67,7 @@ namespace AutoBuddy.Utilities.AutoShop
 
         public void updateText()
         {
-            if (action == ShopActionType.Buy)
+            if (action == ShopActionType.Buy || action == ShopActionType.Sell)
             {
                 itemName.CurrentValue = p.ToString().PadLeft(2, ' ') + ")" + action.ToString().PadLeft(6, ' ') + "    " +
                                         item.name;

@@ -118,7 +118,7 @@ namespace AutoBuddy.MainLogics
                 return;
             }
             if (AutoWalker.p.Distance(enemyTurret) <
-                AutoWalker.p.AttackRange + enemyTurret.BoundingRadius + Orbwalker.HoldRadius &&
+                AutoWalker.p.AttackRange + enemyTurret.BoundingRadius + Orbwalker.HoldRadius+50 &&
                 AutoWalker.p.Distance(enemyTurret) > AutoWalker.p.AttackRange + enemyTurret.BoundingRadius - 10)
             {
                 AutoWalker.SetMode(Orbwalker.ActiveModes.None);
