@@ -6,6 +6,7 @@ using System.Net;
 using System.Text;
 using AutoBuddy.Humanizers;
 using AutoBuddy.Utilities;
+using AutoBuddy.Utilities.AutoShop;
 using EloBuddy;
 using EloBuddy.SDK;
 using SharpDX;
@@ -152,5 +153,25 @@ namespace AutoBuddy
                     return reader.ReadToEnd();
             }
         }
+
+        public static bool IsHealthlyConsumable(this ItemId i)
+        {
+            
+            return (int)i == 2003 || (int)i == 2009 || (int)i == 2010;
+        }
+
+        public static bool IsHPotion(this ItemId i)
+        {
+
+            return (int)i == 2003 || (int)i == 2009 || (int)i == 2010||(int)i==2031;
+        }
+
+
+        public static int GetItemSlot(this LoLItem it)
+        {
+            ItemInfo.GetItemSlot(it.id);
+            return -1;
+        }
+
     }
 }

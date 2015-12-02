@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using AutoBuddy.Utilities.AutoShop;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Menu;
@@ -130,9 +131,9 @@ namespace AutoBuddy.MainLogics
                 AutoWalker.Ghost.Cast();
             if (ObjectManager.Player.HealthPercent() < 43)
             {
-                var hppot = new Item(ItemId.Health_Potion);
-                if (hppot.IsOwned())
-                    hppot.Cast();
+                int potion = ItemInfo.GetHPotionSlot();
+                if (potion>=0)
+                    AutoWalker.p.InventoryItems[potion].Cast();
             }
             current.myChamp.Survi();
         }

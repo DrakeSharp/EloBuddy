@@ -6,6 +6,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using EloBuddy;
+using EloBuddy.SDK;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 using SharpDX;
@@ -24,44 +25,88 @@ namespace AutoBuddy.Utilities.AutoShop
         private readonly EasyShopV2 shop;
         private readonly string sugBuild;
 
+        private readonly CheckBox toDefault;
 
-        public BuildCreator(Menu menu, string dir)
-        {
-            sugBuild = string.Empty;
-            property = typeof (CheckBox).GetProperty("Position");
-            buildFile = Path.Combine(dir + "\\" + AutoWalker.p.ChampionName + "-" + Game.MapId + ".txt");
-            l = new Label("Shopping list for " + Game.MapId);
-            enabled = new CheckBox("Auto buy enabled", true);
-            myBuild = new List<BuildElement>();
-
-            this.menu = menu.AddSubMenu("AutoShop: " + AutoWalker.p.ChampionName, "AB_SHOP_" + AutoWalker.p.ChampionName);
-            this.menu.Add("eeewgrververv", l);
-            this.menu.Add(AutoWalker.p.ChampionName + "enabled", enabled);
-            LoadBuild();
-            shop = new EasyShopV2(myBuild, enabled);
-            Chat.OnInput += Chat_OnInput;
-            Drawing.OnEndScene += Drawing_OnEndScene;
-        }
-
-        public BuildCreator(Menu menu, string dir, string build)
+        public BuildCreator(Menu parentMenu, string dir, string build="")
         {
             sugBuild = build;
-            property = typeof (CheckBox).GetProperty("Position");
+            property = typeof(CheckBox).GetProperty("Position");
             buildFile = Path.Combine(dir + "\\" + AutoWalker.p.ChampionName + "-" + Game.MapId + ".txt");
             l = new Label("Shopping list for " + Game.MapId);
             enabled = new CheckBox("Auto buy enabled", true);
             myBuild = new List<BuildElement>();
 
-            this.menu = menu.AddSubMenu("AutoShop: " + AutoWalker.p.ChampionName, "AB_SHOP_" + AutoWalker.p.ChampionName);
-            this.menu.Add("eeewgrververv", l);
-            this.menu.Add(AutoWalker.p.ChampionName + "enabled", enabled);
+            menu = parentMenu.AddSubMenu("AutoShop: " + AutoWalker.p.ChampionName, "AB_SHOP_" + AutoWalker.p.ChampionName);
+            menu.Add("eeewgrververv", l);
+            menu.Add(AutoWalker.p.ChampionName + "enabled", enabled);
             LoadBuild();
             shop = new EasyShopV2(myBuild, enabled);
+
+
+
+
+
+
+
+            Menu info = parentMenu.AddSubMenu("Shop-instructions");
+            toDefault=new CheckBox("Delete custom build and set default ADC build", false);
+
+            PropertyInfo property2 = typeof(CheckBox).GetProperty("Size");
+
+            property2.GetSetMethod(true).Invoke(toDefault, new object[] { new Vector2(400, 25) });
+            info.Add("defbuild", toDefault);
+            info.AddSeparator(150);
+            info.AddLabel(
+                @"
+Commands(type them in the chat):
+
+/b itemName :buy an item, you don't need to type exact name for the item, just few first
+characters, for example for BT its enough: /b thebloodt
+
+/buyhp:keep buying 1 hp potion(if not in champ's inventory already)
+/stophp :stop buying hp potion and sell if any is owned
+
+Don't add to the list items that you can't buy, for example jungle items without smite.
+
+Autoshop will stop if you have items that are not listed, so it's recommended
+to sell whole inventory after changing list.
+
+Builds are saved in C:\Users\Username\AppData\Roaming\AutoBuddy\Builds
+you can copy/share them.
+
+            ");
+
+
+
+
+
+
+            toDefault.OnValueChange += toDefault_OnValueChange;
             Chat.OnInput += Chat_OnInput;
             Drawing.OnEndScene += Drawing_OnEndScene;
 
         }
 
+        private void toDefault_OnValueChange(ValueBase<bool> sender, ValueBase<bool>.ValueChangeArgs args)
+        {
+            if (!args.NewValue) return;
+
+            
+            Core.DelayAction(() => { toDefault.CurrentValue = false; }, 200);
+            Reset();
+            LoadBuild();
+        }
+
+        private void Reset()
+        {
+            if(File.Exists(buildFile))
+                File.Delete(buildFile);
+            foreach (BuildElement buildElement in myBuild)
+            {
+                buildElement.Remove(menu);
+            }
+            myBuild.Clear();
+        }
 
         private void AddElement(LoLItem it, ShopActionType ty)
         {
@@ -69,19 +114,15 @@ namespace AutoBuddy.Utilities.AutoShop
             {
                 int hp = myBuild.Count(e => e.action == ShopActionType.StartHpPot) -
                          myBuild.Count(e => e.action == ShopActionType.StopHpPot);
-                int mp = myBuild.Count(e => e.action == ShopActionType.StartMpPot) -
-                         myBuild.Count(e => e.action == ShopActionType.StopMpPot);
                 if (ty == ShopActionType.StartHpPot && hp != 0) return;
-                if (ty == ShopActionType.StartMpPot && mp != 0) return;
                 if (ty == ShopActionType.StopHpPot && hp == 0) return;
-                if (ty == ShopActionType.StopMpPot && mp == 0) return;
             }
 
             BuildElement b = new BuildElement(this, menu, it, myBuild.Any() ? myBuild.Max(a => a.position) + 1 : 1, ty);
 
             List<LoLItem> c = new List<LoLItem>();
             ItemInfo.InventorySimulator(myBuild, c);
-            b.cost = ItemInfo.InventorySimulator(new List<BuildElement> {b}, c);
+            b.cost = ItemInfo.InventorySimulator(new List<BuildElement> { b }, c);
             b.freeSlots = 7 - c.Count;
             b.updateText();
             if (b.freeSlots == -1)
@@ -167,13 +208,13 @@ namespace AutoBuddy.Utilities.AutoShop
             List<ItemAction> b = new List<ItemAction>();
             foreach (string s in serialized.Split(','))
             {
-                ItemAction ac = new ItemAction {item = -1};
+                ItemAction ac = new ItemAction { item = -1 };
                 foreach (string s2 in s.Split(':'))
                 {
                     if (ac.item == -1)
                         ac.item = int.Parse(s2);
                     else
-                        ac.t = (ShopActionType) Enum.Parse(typeof (ShopActionType), s2, true);
+                        ac.t = (ShopActionType)Enum.Parse(typeof(ShopActionType), s2, true);
                 }
                 b.Add(ac);
             }
@@ -183,7 +224,7 @@ namespace AutoBuddy.Utilities.AutoShop
         private void Drawing_OnEndScene(EventArgs args)
         {
             if (!MainMenu.IsVisible) return;
-            property.GetSetMethod(true).Invoke(enabled, new object[] {l.Position + new Vector2(433, 0)});
+            property.GetSetMethod(true).Invoke(enabled, new object[] { l.Position + new Vector2(433, 0) });
             foreach (BuildElement ele in myBuild)
             {
                 ele.UpdatePos(new Vector2(l.Position.X, l.Position.Y + 10));
@@ -202,7 +243,7 @@ namespace AutoBuddy.Utilities.AutoShop
             {
                 List<LoLItem> c = new List<LoLItem>();
                 ItemInfo.InventorySimulator(myBuild, c, el.position - 1);
-                el.cost = ItemInfo.InventorySimulator(new List<BuildElement> {el}, c);
+                el.cost = ItemInfo.InventorySimulator(new List<BuildElement> { el }, c);
                 el.freeSlots = 7 - c.Count;
                 el.updateText();
             }
@@ -233,7 +274,7 @@ namespace AutoBuddy.Utilities.AutoShop
 
                 List<LoLItem> c = new List<LoLItem>();
                 ItemInfo.InventorySimulator(myBuild, c, el.position - 1);
-                el.cost = ItemInfo.InventorySimulator(new List<BuildElement> {el}, c);
+                el.cost = ItemInfo.InventorySimulator(new List<BuildElement> { el }, c);
                 el.freeSlots = 7 - c.Count;
                 el.updateText();
             }
@@ -260,6 +301,16 @@ namespace AutoBuddy.Utilities.AutoShop
                 AddElement(i, ShopActionType.Buy);
                 SaveBuild();
             }
+            else if (args.Input.ToLower().StartsWith("/s "))
+            {
+                args.Process = false;
+                string itemName = args.Input.Substring(2);
+                LoLItem i = ItemInfo.FindBestItemAll(itemName);
+                Chat.Print("Sell " + i.name);
+
+                AddElement(i, ShopActionType.Sell);
+                SaveBuild();
+            }
             else if (args.Input.ToLower().Equals("/buyhp"))
             {
                 if (myBuild.Count == 0)
@@ -271,17 +322,6 @@ namespace AutoBuddy.Utilities.AutoShop
                 SaveBuild();
                 args.Process = false;
             }
-            else if (args.Input.ToLower().Equals("/buymp"))
-            {
-                if (myBuild.Count == 0)
-                {
-                    AddElement(ItemInfo.GetItemByID(3340), ShopActionType.Buy);
-                    Chat.Print("Added also warding totem.");
-                }
-                AddElement(ItemInfo.GetItemByID(2004), ShopActionType.StartMpPot);
-                SaveBuild();
-                args.Process = false;
-            }
             else if (args.Input.ToLower().Equals("/stophp"))
             {
                 if (myBuild.Count == 0)
@@ -290,17 +330,6 @@ namespace AutoBuddy.Utilities.AutoShop
                     Chat.Print("Added also warding totem.");
                 }
                 AddElement(ItemInfo.GetItemByID(2003), ShopActionType.StopHpPot);
-                SaveBuild();
-                args.Process = false;
-            }
-            else if (args.Input.ToLower().Equals("/stopmp"))
-            {
-                if (myBuild.Count == 0)
-                {
-                    AddElement(ItemInfo.GetItemByID(3340), ShopActionType.Buy);
-                    Chat.Print("Added also warding totem.");
-                }
-                AddElement(ItemInfo.GetItemByID(2004), ShopActionType.StopMpPot);
                 SaveBuild();
                 args.Process = false;
             }

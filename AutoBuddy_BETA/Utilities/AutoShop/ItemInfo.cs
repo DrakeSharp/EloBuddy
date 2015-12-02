@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AutoBuddy.Properties;
 using EloBuddy;
@@ -18,8 +19,8 @@ namespace AutoBuddy.Utilities.AutoShop
             foreach (LoLItem loLItem in ParseItems())
             {
                 all.Add(loLItem);
-                if (loLItem.purchasable && loLItem.maps.Contains((int) Game.MapId) &&
-                    (loLItem.requiredChampion == string.Empty || loLItem.requiredChampion == AutoWalker.p.ChampionName))
+                if (loLItem.purchasable && loLItem.maps.Contains((int)Game.MapId) &&
+                    (loLItem.requiredChampion == String.Empty || loLItem.requiredChampion == AutoWalker.p.ChampionName))
                     av.Add(loLItem);
             }
             itemDB = all.ToArray();
@@ -41,6 +42,11 @@ namespace AutoBuddy.Utilities.AutoShop
             return avItemDB.OrderByDescending(it => it.name.Match(name)).First();
         }
 
+        public static LoLItem FindBestItemAll(string name)
+        {
+            return itemDB.OrderByDescending(it => it.name.Match(name)).First();
+        }
+
         public static LoLItem FindItemByID(this LoLItem[] items, int id)
         {
             return items.OrderByDescending(it => it.id == id).First();
@@ -53,7 +59,7 @@ namespace AutoBuddy.Utilities.AutoShop
 
         public static List<LoLItem> MyItems()
         {
-            List<LoLItem> l = AutoWalker.p.InventoryItems.Select(s => itemDB.FindItemByID((int) s.Id)).ToList();
+            List<LoLItem> l = AutoWalker.p.InventoryItems.Select(s => itemDB.FindItemByID((int)s.Id)).ToList();
             l.Remove(l.FirstOrDefault(le => le.id == 1411)); //TODO !! Remove this when eb or rito will fix it
             return l;
         }
@@ -73,20 +79,20 @@ namespace AutoBuddy.Utilities.AutoShop
                 JToken t = token.First;
 
                 List<int> maps = new List<int>();
-                if ((bool) t["maps"]["1"]) maps.Add(1);
-                if ((bool) t["maps"]["8"]) maps.Add(8);
-                if ((bool) t["maps"]["10"]) maps.Add(10);
-                if ((bool) t["maps"]["11"]) maps.Add(11);
-                if ((bool) t["maps"]["12"]) maps.Add(12);
-                if ((bool) t["maps"]["14"]) maps.Add(14);
+                if ((bool)t["maps"]["1"]) maps.Add(1);
+                if ((bool)t["maps"]["8"]) maps.Add(8);
+                if ((bool)t["maps"]["10"]) maps.Add(10);
+                if ((bool)t["maps"]["11"]) maps.Add(11);
+                if ((bool)t["maps"]["12"]) maps.Add(12);
+                if ((bool)t["maps"]["14"]) maps.Add(14);
 
                 List<int> fromItems = new List<int>();
                 if (t["from"] != null)
-                    fromItems.AddRange(t["from"].Select(tok => (int) tok));
+                    fromItems.AddRange(t["from"].Select(tok => (int)tok));
 
                 List<int> toItems = new List<int>();
                 if (t["to"] != null)
-                    toItems.AddRange(t["to"].Select(tok => (int) tok));
+                    toItems.AddRange(t["to"].Select(tok => (int)tok));
 
                 List<string> tags = new List<string>();
                 if (t["tags"] != null)
@@ -94,19 +100,19 @@ namespace AutoBuddy.Utilities.AutoShop
 
                 loLItems.Add(new LoLItem(t["name"].ToString(), t["description"].ToString(),
                     t["sanitizedDescription"].ToString(),
-                    t["plaintext"] == null ? string.Empty : t["plaintext"].ToString(),
-                    (int) t["id"], (int) t["gold"]["base"], (int) t["gold"]["total"], (int) t["gold"]["sell"],
-                    (bool) t["gold"]["purchasable"],
-                    t["requiredChampion"] == null ? string.Empty : t["requiredChampion"].ToString(), maps.ToArray(),
-                    fromItems.ToArray(), toItems.ToArray(), t["depth"] == null ? -1 : (int) t["depth"], tags.ToArray(),
-                    t["colloq"] == null ? string.Empty : t["colloq"].ToString(),
-                    t["group"] == null ? string.Empty : t["group"].ToString()));
+                    t["plaintext"] == null ? String.Empty : t["plaintext"].ToString(),
+                    (int)t["id"], (int)t["gold"]["base"], (int)t["gold"]["total"], (int)t["gold"]["sell"],
+                    (bool)t["gold"]["purchasable"],
+                    t["requiredChampion"] == null ? String.Empty : t["requiredChampion"].ToString(), maps.ToArray(),
+                    fromItems.ToArray(), toItems.ToArray(), t["depth"] == null ? -1 : (int)t["depth"], tags.ToArray(),
+                    t["cq"] == null ? String.Empty : t["cq"].ToString(),
+                    t["group"] == null ? String.Empty : t["group"].ToString()));
             }
             return loLItems;
         }
 
         public static int InventorySimulator(List<BuildElement> elements, List<LoLItem> playerInv,
-            int num = int.MaxValue)
+            int num = Int32.MaxValue)
         {
             int n = 0;
             int gold = 0;
@@ -120,22 +126,15 @@ namespace AutoBuddy.Utilities.AutoShop
                     gold += BuyItemSim(playerInv, el.item);
                     playerInv.Add(el.item);
                 }
+                else if (el.action == ShopActionType.Sell)
+                {
+                    gold -= SellItemSim(playerInv, el.item);
+                }
                 else if (el.action == ShopActionType.StartHpPot)
                 {
                     gold += BuyItemSim(playerInv, el.item);
-                    if (playerInv.FirstOrDefault(ii => ii.id == (int) ItemId.Health_Potion) == null)
+                    if (playerInv.FirstOrDefault(ii => ii.id == (int)ItemId.Health_Potion) == null)
                         playerInv.Add(el.item);
-                }
-                else if (el.action == ShopActionType.StartMpPot)
-                {
-                    gold += BuyItemSim(playerInv, el.item);
-                    if (playerInv.FirstOrDefault(ii => ii.id == (int) ItemId.Mana_Potion) == null)
-                        playerInv.Add(el.item);
-                }
-                else if (el.action == ShopActionType.StopMpPot)
-                {
-                    gold += BuyItemSim(playerInv, el.item);
-                    playerInv.Remove(el.item);
                 }
                 else if (el.action == ShopActionType.StopHpPot)
                 {
@@ -164,19 +163,18 @@ namespace AutoBuddy.Utilities.AutoShop
             return -1;
         }
 
-        public static bool Equal(this List<LoLItem> listOne, List<LoLItem> listTwo, bool ignorePotions = true)
+        /*public static bool Equal(this List<LoLItem> virtInv, List<LoLItem> charInv, bool ignorePotions = true)
         {
-            if (!listOne.Any() && !listTwo.Any()) return true;
-            List<LoLItem> lTwo = new List<LoLItem>(listTwo);
-            foreach (LoLItem itOne in listOne)
+            if (!virtInv.Any() && !charInv.Any()) return true;
+            List<LoLItem> lTwo = new List<LoLItem>(charInv);
+            foreach (LoLItem itOne in virtInv)
             {
                 bool cont = false;
-                if (itOne.id == (int) ItemId.Health_Potion || itOne.id == (int) ItemId.Mana_Potion) continue;
+                if (itOne.IsHealthlyConsumable()) continue;
                 foreach (LoLItem itTwo in lTwo)
                 {
-                    if (itOne.id == (int) ItemId.Health_Potion || itOne.id == (int) ItemId.Mana_Potion) continue;
-
-                    if (itOne.id == itTwo.id)
+                    Chat.Print(itTwo.IsHealthlyConsumable());
+                    if (itOne.id == itTwo.id || itTwo.IsHealthlyConsumable() || !itTwo.purchasable)
                     {
                         lTwo.Remove(itTwo);
                         cont = true;
@@ -186,9 +184,46 @@ namespace AutoBuddy.Utilities.AutoShop
                 if (!cont) return false;
             }
 
-            return !lTwo.Any(l => l.id != (int) ItemId.Health_Potion && l.id != (int) ItemId.Mana_Potion);
+            return !lTwo.Any();
+        }*/
+
+        private static bool Equal(this List<LoLItem> virtInv, List<LoLItem> charInv, bool ignorePotions = true)
+        {
+            if (!virtInv.Any() && !charInv.Any())
+                return true;
+            List<LoLItem> inv1 = virtInv.Where(it => !it.IsHealthlyConsumable()&&it.id!=3599).ToList();
+            List<LoLItem> inv2 = charInv.Where(it => !it.IsHealthlyConsumable() && it.id != 3599).ToList();
+
+            foreach (LoLItem item1 in inv1)
+            {
+                
+                foreach (LoLItem item2 in inv2.ToList())
+                {
+                    if (SameItems(item1.id, item2.id))
+                    {
+                        inv2.Remove(item2);
+                        break;
+                    }
+                }
+            }
+
+            if (inv2.Any())
+                //Chat.Print("1: " + inv1.OrderBy(it => it.name).Concatenate(", "));
+            //Chat.Print("2: " + inv2.OrderBy(it => it.name).Concatenate(", "));
+            {
+
+            }
+            return !inv2.Any();
         }
 
+        public static bool SameItems(int id1, int id2)
+        {
+            if (id1 == id2) return true;
+            if ((id1 == 3003 && id2 == 3040) || (id2 == 3003 && id1 == 3040)) return true;//seraphs
+            if ((id1 == 3004 && id2 == 3043) || (id2 == 3004 && id1 == 3043)) return true;//muramana
+
+            return false;
+        }
 
         public static int BuyItemSim(List<LoLItem> inventory, LoLItem item, bool root = true)
         {
@@ -205,6 +240,46 @@ namespace AutoBuddy.Utilities.AutoShop
                        item.fromItems.Sum(
                            fromItemID => BuyItemSim(inventory, itemDB.First(it => it.id == fromItemID), false));
             return gold;
+        }
+
+        public static int SellItemSim(List<LoLItem> inventory, LoLItem item)
+        {
+            if (inventory.Contains(item))
+            {
+                inventory.Remove(item);
+                return -item.sellGold;
+            }
+            return -1;
+        }
+
+        public static int GetItemSlot(int id)
+        {
+            for (int i = 0; i < ObjectManager.Player.InventoryItems.Length; i++)
+            {
+                if ((int)ObjectManager.Player.InventoryItems[i].Id == id)
+                    return i;
+            }
+            return -1;
+        }
+
+        public static int GetHealtlyConsumableSlot()
+        {
+            for (int i = 0; i < ObjectManager.Player.InventoryItems.Length; i++)
+            {
+                if (ObjectManager.Player.InventoryItems[i].Id.IsHealthlyConsumable())
+                    return i;
+            }
+            return -1;
+        }
+
+        public static int GetHPotionSlot()
+        {
+            for (int i = 0; i < ObjectManager.Player.InventoryItems.Length; i++)
+            {
+                if (ObjectManager.Player.InventoryItems[i].Id.IsHPotion())
+                    return i;
+            }
+            return -1;
         }
     }
 }

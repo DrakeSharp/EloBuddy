@@ -5,7 +5,6 @@ using System.Reflection;
 using AutoBuddy.Humanizers;
 using AutoBuddy.MainLogics;
 using AutoBuddy.MyChampLogic;
-using AutoBuddy.Utilities;
 using AutoBuddy.Utilities.AutoLvl;
 using AutoBuddy.Utilities.AutoShop;
 using EloBuddy;

@@ -111,6 +111,7 @@ namespace EssentialLvlUp
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         public static string GetResponseText(this string address)
         {
             var request = (HttpWebRequest) WebRequest.Create(address);

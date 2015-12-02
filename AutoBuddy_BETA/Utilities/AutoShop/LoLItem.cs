@@ -52,5 +52,10 @@
         {
             return name;
         }
+
+        public bool IsHealthlyConsumable()
+        {
+            return id == 2003 || id == 2009 || id == 2010;
+        }
     }
 }

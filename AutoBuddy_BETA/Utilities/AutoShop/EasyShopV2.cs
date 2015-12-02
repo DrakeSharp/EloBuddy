@@ -12,9 +12,7 @@ namespace AutoBuddy.Utilities.AutoShop
         Buy = 1,
         Sell = 2,
         StartHpPot = 3,
-        StopHpPot = 4,
-        StartMpPot = 5,
-        StopMpPot = 6
+        StopHpPot = 4
     }
 
     internal class EasyShopV2
@@ -41,6 +39,16 @@ namespace AutoBuddy.Utilities.AutoShop
 
 
             int currentPos = ItemInfo.GetNum(buildElements);
+
+            if (currentPos == 0)
+            {
+                if (!myit.Any())
+                {
+                    Shop.BuyItem(buildElements.First(el => el.position == 1).item.id);
+                    Core.DelayAction(Shopping, 800);
+                    return;
+                }
+            }
             if (currentPos + 2 > buildElements.Count)
             {
                 Core.DelayAction(Shopping, RandGen.r.Next(400, 800));
@@ -62,14 +70,8 @@ namespace AutoBuddy.Utilities.AutoShop
                     }
                 }
 
-            if (currentPos == -1)
-            {
-                if (!myit.Any())
-                {
-                    Shop.BuyItem(buildElements.First(el => el.position == 1).item.id);
-                }
-            }
-            else if (currentPos < buildElements.Count - 1)
+
+            if (currentPos < buildElements.Count - 1)
             {
                 BuildElement b = buildElements.First(el => el.position == currentPos + 2);
                 if (b.action == ShopActionType.Buy)
@@ -79,17 +81,19 @@ namespace AutoBuddy.Utilities.AutoShop
 
             Core.DelayAction(() =>
             {
-                List<BuildElement> cur = buildElements.Where(b => b.position < currentPos + 2).ToList();
+                if (currentPos == -1) return;
+                List<BuildElement> cur = buildElements.Where(b => b.position < currentPos+2).ToList();
 
                 int hp = cur.Count(e => e.action == ShopActionType.StartHpPot) -
                          cur.Count(e => e.action == ShopActionType.StopHpPot);
-
-                int mp = cur.Count(e => e.action == ShopActionType.StartMpPot) -
-                         cur.Count(e => e.action == ShopActionType.StopMpPot);
-                if (hp > 0 && !AutoWalker.p.InventoryItems.Any(it => it.Id == ItemId.Health_Potion))
+                if (hp > 0 && !AutoWalker.p.InventoryItems.Any(it => it.Id.IsHealthlyConsumable()))
                     Shop.BuyItem(ItemId.Health_Potion);
-                if (mp > 0 && !AutoWalker.p.InventoryItems.Any(it => it.Id == ItemId.Mana_Potion))
-                    Shop.BuyItem(ItemId.Mana_Potion);
+                else if (hp <= 0)
+                {
+                    int slot = ItemInfo.GetHealtlyConsumableSlot();
+                    if (slot != -1)
+                       Shop.SellItem(slot);
+                }
             }
                 , 150);
 

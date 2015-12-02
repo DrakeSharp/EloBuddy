@@ -46,7 +46,7 @@ namespace AutoBuddy
             }
 
             Target = ObjectManager.Player.Position;
-            Orbwalker.DisableMovement = false;
+            Orbwalker.DisableMovement =false;
 
             Orbwalker.DisableAttacking = false;
             Game.OnUpdate += Game_OnUpdate;

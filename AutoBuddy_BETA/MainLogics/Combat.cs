@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using AutoBuddy.Utilities.AutoShop;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Menu;
@@ -45,23 +46,6 @@ namespace AutoBuddy.MainLogics
         {
             if (current.current == LogicSelector.MainLogics.SurviLogic) return;
             AIHeroClient har = null;
-            /*  TODO Remove old logic if worse
-             * AIHeroClient victim =
-                EntityManager.Heroes.Enemies.Where(
-                    vic => vic.Distance(AutoWalker.p) < vic.BoundingRadius + AutoWalker.p.AttackRange + 450 && vic.IsVisible() && vic.Health > 0
-                           && AutoWalker.p.HealthPercent()/vic.HealthPercent() > 1.3 &&
-                           (AutoWalker.p.Distance(AutoWalker.p.GetNearestTurret()) > 1100 ||
-                            (AutoWalker.p.HealthPercent() > 40 && vic.HealthPercent() < 10)))
-                    .OrderBy(vic => vic.HealthPercent())
-                    .FirstOrDefault();
-            if (victim != null &&(
-                EntityManager.Heroes.Enemies.Count(
-                    def =>
-                        def.NetworkId != victim.NetworkId &&
-                        def.HealthPercent() > AutoWalker.p.HealthPercent() && def.IsHPBarRendered && def.Distance(victim) < 600 &&
-                        def.Distance(AutoWalker.p) < 600))>
-                EntityManager.Heroes.Allies.Count(ally => ally.HealthPercent() > 5 && ally.IsVisible() && ally.Distance(AutoWalker.p) < 500 && ally.Distance(victim) < 500))
-                victim = null;*/
             AIHeroClient victim = null;
             if (current.surviLogic.dangerValue < -15000)
                 victim = EntityManager.Heroes.Enemies.Where(
@@ -139,6 +123,13 @@ namespace AutoBuddy.MainLogics
                     victim.Distance(AutoWalker.p) > AutoWalker.p.AttackRange + victim.BoundingRadius + 100 &&
                     victim.Distance(victim.Position.GetNearestTurret()) > 1500)
                     AutoWalker.Ghost.Cast();
+
+                if (ObjectManager.Player.HealthPercent() < 30)
+                {
+                    int potion = ItemInfo.GetHPotionSlot();
+                    if (potion >= 0)
+                        AutoWalker.p.InventoryItems[potion].Cast();
+                }
             }
             else
             {
