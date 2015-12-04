@@ -8,6 +8,11 @@ namespace AutoBuddy.MyChampLogic
 {
     internal class Ashe : IChampLogic
     {
+        public float MaxDistanceForAA { get { return int.MaxValue; } }
+        public float OptimalMaxComboDistance { get { return AutoWalker.p.AttackRange; } }
+        public float HarassDistance { get { return AutoWalker.p.AttackRange; } }
+
+
         public Spell.Active Q;
         public Spell.Skillshot W, E, R;
 

@@ -18,6 +18,7 @@ namespace AutoBuddy.MainLogics
         private string status = " ";
         public bool waiting;
         private float lastSliderSwitch;
+        private bool waitingSlider = false;
 
         public Load(LogicSelector c)
         {
@@ -36,13 +37,17 @@ namespace AutoBuddy.MainLogics
             handleSlider();
         }
 
-        private void handleSlider()
+        private void handleSlider(bool x=true)
         {
-            if (lastSliderSwitch < Game.Time)
-                Core.DelayAction(handleSlider, (int)((lastSliderSwitch-Game.Time)*1000)+50);
+            if(waitingSlider&&x) return;
+            if (lastSliderSwitch > Game.Time)
+            {
+                waitingSlider = true;
+                Core.DelayAction(()=>handleSlider(false), (int) ((lastSliderSwitch - Game.Time)*1000) + 50);
+            }
             else
                 ReselectLane();
-            
+
         }
 
         private void Checkbox_OnValueChange(ValueBase<bool> sender, ValueBase<bool>.ValueChangeArgs args)
@@ -53,6 +58,7 @@ namespace AutoBuddy.MainLogics
         private void ReselectLane()
         {
             SetLane();
+            waitingSlider = false;
             Chat.Print("Reselecting lane");
         }
 

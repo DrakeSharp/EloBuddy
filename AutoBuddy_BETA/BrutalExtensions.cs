@@ -173,5 +173,10 @@ namespace AutoBuddy
             return -1;
         }
 
+        public static float GetDmg(this SpellSlot slot)
+        {
+            return 1;
+        }
+
     }
 }

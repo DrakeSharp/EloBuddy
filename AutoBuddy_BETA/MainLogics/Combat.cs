@@ -49,7 +49,7 @@ namespace AutoBuddy.MainLogics
             AIHeroClient victim = null;
             if (current.surviLogic.dangerValue < -15000)
                 victim = EntityManager.Heroes.Enemies.Where(
-                    vic =>
+                    vic => !vic.IsZombie &&
                         vic.Distance(AutoWalker.p) < vic.BoundingRadius + AutoWalker.p.AttackRange + 450 &&
                         vic.IsVisible() && vic.Health > 0 &&
                         current.localAwareness.MyStrength()/current.localAwareness.HeroStrength(vic) > 1.5)
@@ -61,7 +61,7 @@ namespace AutoBuddy.MainLogics
             {
                 har =
                     EntityManager.Heroes.Enemies.Where(
-                        h =>
+                        h => !h.IsZombie &&
                             h.Distance(AutoWalker.p) < AutoWalker.p.AttackRange + h.BoundingRadius + 50 && h.IsVisible() &&
                             h.HealthPercent() > 0).OrderBy(h => h.Distance(AutoWalker.p)).FirstOrDefault();
             }
@@ -85,9 +85,10 @@ namespace AutoBuddy.MainLogics
             {
                 current.myChamp.Combo(victim);
                 Vector3 vicPos = Prediction.Position.PredictUnitPosition(victim, 500).To3D();
+
                 Vector3 posToWalk =
                     vicPos.Extend(AutoWalker.p,
-                        (victim.BoundingRadius + AutoWalker.p.AttackRange - 30)*
+                        (victim.BoundingRadius + current.myChamp.OptimalMaxComboDistance - 30) *
                         Math.Min(current.localAwareness.HeroStrength(victim)/current.localAwareness.MyStrength()*2f, 1))
                         .To3DWorld();
                 if (NavMesh.GetCollisionFlags(posToWalk).HasFlag(CollisionFlags.Wall))
@@ -101,31 +102,42 @@ namespace AutoBuddy.MainLogics
                 }
 
                 Obj_AI_Turret nearestEnemyTurret = posToWalk.GetNearestTurret();
+                if (victim.Health < 10 + 4 * AutoWalker.p.Level && EntityManager.Heroes.Allies.Any(al=>al.Distance(vicPos)<550))
+                    AutoWalker.UseIgnite(victim);
+                if (victim.Health + victim.HPRegenRate * 2.5f < 50 + 20 * AutoWalker.p.Level && vicPos.Distance(nearestEnemyTurret)<1350)
+                    AutoWalker.UseIgnite(victim);
                 lastMode = "combo";
-                if (
-                    AutoWalker.p.Distance(nearestEnemyTurret) < 950 + AutoWalker.p.BoundingRadius)
+                if (AutoWalker.p.Distance(nearestEnemyTurret) < 950 + AutoWalker.p.BoundingRadius)
                 {
+
                     if (victim.Health > AutoWalker.p.GetAutoAttackDamage(victim) + 15 ||
                         victim.Distance(AutoWalker.p) > AutoWalker.p.AttackRange + victim.BoundingRadius - 20)
                     {
+
+
                         lastMode = "enemy under turret, ignoring";
                         current.SetLogic(returnTo);
                         return;
                     }
                     lastMode = "combo under turret";
                 }
+                Orbwalker.DisableAttacking = current.myChamp.MaxDistanceForAA <
+                                             AutoWalker.p.Distance(victim) + victim.BoundingRadius+10;
                 AutoWalker.SetMode(Orbwalker.ActiveModes.Combo);
                 AutoWalker.WalkTo(posToWalk);
 
 
                 if (AutoWalker.Ghost != null && AutoWalker.Ghost.IsReady() &&
                     AutoWalker.p.HealthPercent()/victim.HealthPercent() > 2 &&
-                    victim.Distance(AutoWalker.p) > AutoWalker.p.AttackRange + victim.BoundingRadius + 100 &&
+                    victim.Distance(AutoWalker.p) > AutoWalker.p.AttackRange + victim.BoundingRadius + 150 &&
                     victim.Distance(victim.Position.GetNearestTurret()) > 1500)
                     AutoWalker.Ghost.Cast();
 
                 if (ObjectManager.Player.HealthPercent() < 30)
                 {
+                        AutoWalker.UseSeraphs();
+                    if (AutoWalker.p.HealthPercent < 20)
+                        AutoWalker.UseBarrier();
                     int potion = ItemInfo.GetHPotionSlot();
                     if (potion >= 0)
                         AutoWalker.p.InventoryItems[potion].Cast();
@@ -134,7 +146,7 @@ namespace AutoBuddy.MainLogics
             else
             {
                 Vector3 harPos = Prediction.Position.PredictUnitPosition(har, 500).To3D();
-                harPos = harPos.Extend(AutoWalker.p.Position, AutoWalker.p.AttackRange + har.BoundingRadius - 20).To3D();
+                harPos = harPos.Extend(AutoWalker.p.Position, current.myChamp.HarassDistance + har.BoundingRadius - 20).To3D();
                 lastMode = "harass";
                 Obj_AI_Turret tu = harPos.GetNearestTurret();
                 AutoWalker.SetMode(Orbwalker.ActiveModes.Harass);

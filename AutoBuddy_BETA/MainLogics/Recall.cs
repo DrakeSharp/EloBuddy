@@ -12,6 +12,7 @@ namespace AutoBuddy.MainLogics
 {
     internal class Recall
     {
+        private readonly Slider flatGold, goldPerLevel;
         private readonly LogicSelector current;
         private readonly Obj_SpawnPoint spawn;
         private bool active;
@@ -20,8 +21,24 @@ namespace AutoBuddy.MainLogics
         private float lastRecallTime;
         private int recallsWithGold; //TODO repair shop and remove this tempfix
 
-        public Recall(LogicSelector currentLogic)
+        public Recall(LogicSelector currentLogic, Menu parMenu)
         {
+            Menu menu = parMenu.AddSubMenu("Recall settings", "ergtrh");
+            flatGold=new Slider("Minimum base gold to recall", 560, 0, 4000);
+            goldPerLevel = new Slider("Minmum gold per level to recall", 70, 0, 300);
+            menu.Add("mingold", flatGold);
+            menu.Add("goldper", goldPerLevel);
+            menu.AddSeparator(100);
+            menu.AddLabel(
+    @"
+Example: Your champ has lvl 10
+Base gold = 560
+Gold per level = 70
+Minimum gold = 560+70*10 = 1260
+
+AutoBuddy won't recall if you have less gold than needed for next item.
+
+            ");
             current = currentLogic;
             foreach (
                 Obj_SpawnPoint so in
@@ -48,8 +65,8 @@ namespace AutoBuddy.MainLogics
                 return;
             }
 
-            if (((AutoWalker.p.Gold > (AutoWalker.p.Level + 2) * 100&&AutoWalker.p.Gold>ShopGlobals.GoldForNextItem) && AutoWalker.p.InventoryItems.Length < 8 &&
-                 recallsWithGold <= 20) || AutoWalker.p.HealthPercent() < 25)
+            if (((AutoWalker.p.Gold > flatGold.CurrentValue+AutoWalker.p.Level*goldPerLevel.CurrentValue&&AutoWalker.p.Gold>ShopGlobals.GoldForNextItem) && AutoWalker.p.InventoryItems.Length < 8 &&
+                 recallsWithGold <= 30) || AutoWalker.p.HealthPercent() < 25)
             {
                 if (AutoWalker.p.Gold > (AutoWalker.p.Level + 2)*150 && AutoWalker.p.InventoryItems.Length < 8 &&
                     recallsWithGold <= 10)
@@ -77,7 +94,7 @@ namespace AutoBuddy.MainLogics
         private void Drawing_OnDraw(EventArgs args)
         {
             Drawing.DrawText(250, 55, System.Drawing.Color.Gold,
-                "Recall, active: " + active);
+                "Recall, active: " + active+" next item: "+ShopGlobals.Next+" gold needed:"+ShopGlobals.GoldForNextItem);
         }
 
         private void Game_OnUpdate(EventArgs args)
@@ -87,7 +104,7 @@ namespace AutoBuddy.MainLogics
                 (ObjectManager.Player.ManaPercent > 80 || ObjectManager.Player.PARRegenRate <= .0001))
 
                 current.SetLogic(LogicSelector.MainLogics.PushLogic);
-            else if (ObjectManager.Player.Distance(spawn) < 1000)
+            else if (ObjectManager.Player.Distance(spawn) < 2000)
                 AutoWalker.WalkTo(spawn.Position);
             else if (!ObjectManager.Player.IsRecalling() && Game.Time > lastRecallTime)
             {
@@ -101,9 +118,10 @@ namespace AutoBuddy.MainLogics
                 {
                     if (g == null)
                     {
+
                         g = ObjectManager.Get<GrassObject>()
-                            .Where(gr => gr.Distance(AutoWalker.MyNexus) < AutoWalker.p.Distance(AutoWalker.MyNexus))
-                            .OrderBy(gg => gg.Distance(AutoWalker.p)).ElementAt(3);
+                            .Where(gr => gr.Distance(AutoWalker.MyNexus) < AutoWalker.p.Distance(AutoWalker.MyNexus)&&gr.Distance(AutoWalker.p)>Orbwalker.HoldRadius)
+                            .OrderBy(gg => gg.Distance(AutoWalker.p)).FirstOrDefault(gr => ObjectManager.Get<GrassObject>().Count(gr2=>gr.Distance(gr2)<60)>4);
                     }
                     if (g != null && g.Distance(AutoWalker.p) < nearestTurret.Position.Distance(AutoWalker.p))
                     {
@@ -123,10 +141,16 @@ namespace AutoBuddy.MainLogics
 
         private void CastRecall()
         {
-            if (Game.Time < lastRecallTime) return;
-            lastRecallTime = Game.Time + RandGen.r.NextFloat(9f, 11f);
+            if (Game.Time < lastRecallTime || AutoWalker.p.IsRecalling() || ObjectManager.Player.Distance(spawn) < 500) return;
+            lastRecallTime = Game.Time + 1f;
+            Core.DelayAction(CastRecall2, 300);
+        }
+        private void CastRecall2()//Kappa
+        {
+            if (AutoWalker.p.IsRecalling() || ObjectManager.Player.Distance(spawn) < 500) return;
+            lastRecallTime = Game.Time + 1f;
             AutoWalker.SetMode(Orbwalker.ActiveModes.None);
-            Core.DelayAction(() => ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall), 400);
+            ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall);
         }
     }
 }

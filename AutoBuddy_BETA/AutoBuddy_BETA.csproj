@@ -60,7 +60,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MyChampLogic\Ezreal.cs" />
-    <Compile Include="Humanizers\SafeShop.cs" />
     <Compile Include="AutoWalker.cs" />
     <Compile Include="BrutalExtensions.cs" />
     <Compile Include="MyChampLogic\Cassiopeia.cs" />

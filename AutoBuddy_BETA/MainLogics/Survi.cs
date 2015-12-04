@@ -35,7 +35,7 @@ namespace AutoBuddy.MainLogics
             if (!args.Target.IsMe) return;
             if (sender.IsAlly) return;
             if (sender.Type == GameObjectType.obj_AI_Turret)
-                SetSpierdalanko((1100 - AutoWalker.p.Distance(sender))/AutoWalker.p.MoveSpeed);
+                SetSpierdalanko((1100 - AutoWalker.p.Distance(sender)) / AutoWalker.p.MoveSpeed);
             else if (sender.Type == GameObjectType.obj_AI_Minion) hits++;
             else if (sender.Type == GameObjectType.AIHeroClient) hits += 2;
         }
@@ -77,14 +77,14 @@ namespace AutoBuddy.MainLogics
 
         private void Game_OnUpdate(EventArgs args)
         {
-            if (hits*20 > AutoWalker.p.HealthPercent())
+            if (hits * 20 > AutoWalker.p.HealthPercent())
             {
                 SetSpierdalanko(.5f);
             }
             dangerValue = current.localAwareness.LocalDomination(AutoWalker.p);
-            if (dangerValue > -2000 || AutoWalker.p.Distance(AutoWalker.EnemyLazer) < 1600)
+            if (dangerValue > -2000 || AutoWalker.p.Distance(AutoWalker.EnemyLazer) < 1500)
             {
-                SetSpierdalankoUnc(1.8f);
+                SetSpierdalankoUnc(.5f);
                 current.saveMylife = true;
             }
             if (!active)
@@ -123,16 +123,39 @@ namespace AutoBuddy.MainLogics
                 ? Orbwalker.ActiveModes.Combo
                 : Orbwalker.ActiveModes.Flee);
             AutoWalker.WalkTo(closestSafePoint.Extend(AutoWalker.MyNexus, 200).To3DWorld());
-            if (AutoWalker.p.HealthPercent() < 10 ||
-                AutoWalker.p.HealthPercent() < 20 && AutoWalker.Heal != null && AutoWalker.Heal.IsReady() &&
-                EntityManager.Heroes.Enemies.Any(en => en.IsVisible() && en.Distance(AutoWalker.p) < 600))
-                AutoWalker.Heal.Cast();
+            if (AutoWalker.p.HealthPercent < 10)
+            {
+                if (AutoWalker.p.HealthPercent < 5)
+                {
+                    AutoWalker.UseBarrier();
+                    AutoWalker.UseSeraphs();
+                }
+                AutoWalker.UseHeal();
+            }
+
+            if (EntityManager.Heroes.Enemies.Any(en => en.IsVisible() && en.Distance(AutoWalker.p) < 600))
+            {
+                if (AutoWalker.p.HealthPercent < 30)
+                    AutoWalker.UseSeraphs();
+                if (AutoWalker.p.HealthPercent < 25)
+                    AutoWalker.UseBarrier();
+                if (AutoWalker.p.HealthPercent < 18)
+                    AutoWalker.UseHeal();
+            }
+
             if (AutoWalker.Ghost.IsReady() && dangerValue > 20000)
                 AutoWalker.Ghost.Cast();
+            if (dangerValue > 15000)
+            {
+                if (AutoWalker.p.HealthPercent < 45)
+                    AutoWalker.UseSeraphs();
+                if (AutoWalker.p.HealthPercent < 30)
+                    AutoWalker.UseBarrier();
+            }
             if (ObjectManager.Player.HealthPercent() < 43)
             {
                 int potion = ItemInfo.GetHPotionSlot();
-                if (potion>=0)
+                if (potion >= 0)
                     AutoWalker.p.InventoryItems[potion].Cast();
             }
             current.myChamp.Survi();
@@ -140,11 +163,11 @@ namespace AutoBuddy.MainLogics
 
         private void DecHits()
         {
-            if (hits > 4)
-                hits = 4;
+            if (hits > 3)
+                hits = 3;
             if (hits > 0)
                 hits--;
-            Core.DelayAction(DecHits, 700);
+            Core.DelayAction(DecHits, 600);
         }
     }
 }

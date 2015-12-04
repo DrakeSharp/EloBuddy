@@ -1,59 +1,124 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
+using AutoBuddy.Humanizers;
 using AutoBuddy.MainLogics;
+using AutoBuddy.Utilities;
+using AutoBuddy.Utilities.AutoShop;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Enumerations;
+using EloBuddy.SDK.Events;
+using Microsoft.SqlServer.Server;
+using SharpDX;
+using Color = System.Drawing.Color;
 
 namespace AutoBuddy.MyChampLogic
 {
     internal class Cassiopeia : IChampLogic
     {
+        public float MaxDistanceForAA { get{ return 500; } }
+        public float OptimalMaxComboDistance { get { return 500; } }
+        public float HarassDistance { get { return 500; } }
         private Spell.Skillshot Q, W, R;
         private Spell.Targeted E;
         private int minManaHarass = 35;
-        private float hitchance = 0;
+        private int ticks = 0;
+        private int tick = 0;
+        private bool isTearOwned = false;
         public Cassiopeia()
         {
             ShopSequence =
                 "3340:Buy,2003:StartHpPot,1056:Buy,1027:Buy,3070:Buy,1001:Buy,1058:Buy,3003:Buy,3020:Buy,1028:Buy,1011:Buy,1058:Buy,2003:StopHpPot,3116:Buy,1004:Buy,1004:Buy,3114:Buy,1052:Buy,3108:Buy,3165:Buy,1056:Sell,1058:Buy,3089:Buy,1028:Buy,3136:Buy,3151:Buy";
-            Q=new Spell.Skillshot(SpellSlot.Q, 850, SkillShotType.Circular, 750, int.MaxValue, 40);
+            Q = new Spell.Skillshot(SpellSlot.Q, 850, SkillShotType.Circular, 670, int.MaxValue, 40);
             W = new Spell.Skillshot(SpellSlot.W, 850, SkillShotType.Circular, 600, 2500, 90);
-            R=new Spell.Skillshot(SpellSlot.R, 500, SkillShotType.Cone, 650, int.MaxValue, 75);
-            E=new Spell.Targeted(SpellSlot.E, 700);
+            R = new Spell.Skillshot(SpellSlot.R, 500, SkillShotType.Cone, 650, int.MaxValue, 75);
+            E = new Spell.Targeted(SpellSlot.E, 700);
+            updateTearStatus();
             Game.OnTick += Game_OnTick;
             Drawing.OnDraw += Drawing_OnDraw;
         }
 
+        private void updateTearStatus()
+        {
+            isTearOwned = ItemInfo.GetItemSlot(3070) != -1 || ItemInfo.GetItemSlot(3003) != -1;
+            Core.DelayAction (updateTearStatus,5000);
+        }
+
+
+
         void Drawing_OnDraw(EventArgs args)
         {
-            Drawing.DrawText(900, 10, Color.Chocolate, "Last hitchance:"+hitchance, 10);
+            //Drawing.DrawText(900, 10, Color.Chocolate, "Last hitchance:" + hitchance + "  ticks " + ticks + " hit enemies " + hitenemies, 10);
+            
+            AIHeroClient t=EntityManager.Heroes.Enemies.FirstOrDefault(en=>en.Distance(Game.CursorPos)<600);
+            if (t != null)
+            {
+                Vector2 pos = Game.CursorPos.WorldToScreen();
+                pos.Y -= 200;
+                /*int offset = 0;
+                foreach (BuffInstance buff in t.Buffs)
+                {
+                    Drawing.DrawText(pos.X, pos.Y+offset, Color.Aqua, buff.Name+" "+(buff.EndTime-Game.Time));
+                    offset += 20;
+                }*/
+                
+                float ti = TimeForAttack(t, 600);
+                Drawing.DrawText(pos.X, pos.Y + 60, Color.Aqua, ti + " " + EstDmg(t, ti) + "  " + (t.Health - EstDmg(t, ti)));
+            }
         }
 
         private void Game_OnTick(EventArgs args)
         {
+            if(isTearOwned&&Q.IsReady()&&AutoWalker.p.ManaPercent>95&&!AutoWalker.p.IsRecalling()&&!EntityManager.Heroes.Enemies.Any(en=>en.Distance(AutoWalker.p)<2000)&&!EntityManager.MinionsAndMonsters.EnemyMinions.Any(min=>min.Distance(AutoWalker.p)<1000))
+            {
+                Q.Cast((Prediction.Position.PredictUnitPosition(AutoWalker.p, 2000) +
+                       new Vector2(RandGen.r.NextFloat(-200, 200), RandGen.r.NextFloat(-200, 200))).To3D());
+            }
+
+
+
             if (Orbwalker.ActiveModesFlags == Orbwalker.ActiveModes.Harass || Orbwalker.ActiveModesFlags == Orbwalker.ActiveModes.LaneClear)
             {
-                if (Orbwalker.ActiveModesFlags == Orbwalker.ActiveModes.LaneClear && AutoWalker.p.ManaPercent < 80 && !EntityManager.Heroes.Enemies.Any(en => en.Distance(AutoWalker.p) < 850))
+                if (!EntityManager.Heroes.Enemies.Any(en => en.Distance(AutoWalker.p) < 650 + en.BoundingRadius))
                 {
+                    if (Q.IsReady() && AutoWalker.p.MaxMana>750&&AutoWalker.p.ManaPercent > 65)
+                    {
+                        tick++;
+                        if (tick % 5 != 0) return;
+                        EntityManager.MinionsAndMonsters.FarmLocation f =
+                            EntityManager.MinionsAndMonsters.GetCircularFarmLocation(EntityManager.MinionsAndMonsters.GetLaneMinions(radius: 850), 250, 700);
+                        if (f.HitNumber >= 4 || (f.HitNumber == 3 && AutoWalker.p.ManaPercent > 80))
+                            Q.Cast(f.CastPosition);
+
+                    }
                     
+                    if (E.IsReady())
+                    {
+                        Obj_AI_Minion minionToE = EntityManager.MinionsAndMonsters.GetLaneMinions(radius: 850).FirstOrDefault(min => min.HasBuffOfType(BuffType.Poison) && min.Distance(AutoWalker.p) < min.BoundingRadius + E.Range && Prediction.Health.GetPrediction(min, 100) < AutoWalker.p.GetSpellDamage(min, SpellSlot.E) && Prediction.Health.GetPrediction(min, 100) > 0);
+                        if (minionToE != null)
+                            E.Cast(minionToE);
+                        else if (!EntityManager.Heroes.Enemies.Any(en => en.IsVisible() && en.Distance(AutoWalker.p) < 1200))
+                        {
+                            minionToE = EntityManager.MinionsAndMonsters.GetLaneMinions(radius: 850).FirstOrDefault(min => min.Distance(AutoWalker.p) < min.BoundingRadius + E.Range && Prediction.Health.GetPrediction(min, 100) < AutoWalker.p.GetSpellDamage(min, SpellSlot.E) && Prediction.Health.GetPrediction(min, 100) > 0);
+                            if (minionToE != null)
+                                E.Cast(minionToE);
+                        }
+                    }
                 }
 
 
-                if(AutoWalker.p.ManaPercent<35)return;
+                if (AutoWalker.p.ManaPercent < 15) return;
                 AIHeroClient poorVictim = TargetSelector.GetTarget(850, DamageType.Magical, addBoundingRadius: true);
                 if (poorVictim != null && minManaHarass < AutoWalker.p.HealthPercent)
                 {
                     if (Q.IsReady())
                     {
                         PredictionResult pr = Q.GetPrediction(poorVictim);
-                        hitchance = pr.HitChancePercent;
-                        float x = AutoWalker.p.HealthPercent;
-                        if (pr.HitChancePercent >
-                            -0.00084981684 * x*x*x + 0.1654212454 * x*x - 10.74139194 * x + 309.7435897)
+                        if (pr.HitChancePercent > 35)
+                        {
                             Q.Cast(pr.CastPosition);
+                        }
                     }
                     if (E.IsReady())
                     {
@@ -62,14 +127,15 @@ namespace AutoBuddy.MyChampLogic
                                 en.HasBuffOfType(BuffType.Poison) && en.IsTargetable &&
                                 !en.HasBuffOfType(BuffType.SpellImmunity) && !en.HasBuffOfType(BuffType.Invulnerability) &&
                                 en.Distance(AutoWalker.p) < en.BoundingRadius + E.Range && !en.IsDead())
-                            .OrderBy(en => en.Health/AutoWalker.p.GetSpellDamage(en, SpellSlot.E))
+                            .OrderBy(en => en.Health / AutoWalker.p.GetSpellDamage(en, SpellSlot.E))
                             .FirstOrDefault();
                         if (candidateForE != null)
                             E.Cast(candidateForE);
+
                     }
                 }
             }
-            else if (Orbwalker.ActiveModesFlags == Orbwalker.ActiveModes.Combo)
+            else if (Orbwalker.ActiveModesFlags == Orbwalker.ActiveModes.Combo || Orbwalker.ActiveModesFlags == Orbwalker.ActiveModes.Flee)
             {
                 AIHeroClient poorVictim = TargetSelector.GetTarget(700, DamageType.Magical, addBoundingRadius: true) ??
                                           TargetSelector.GetTarget(850, DamageType.Magical, addBoundingRadius: true);
@@ -79,21 +145,70 @@ namespace AutoBuddy.MyChampLogic
                     if (Q.IsReady())
                     {
                         PredictionResult pr = Q.GetPrediction(poorVictim);
-                        hitchance = pr.HitChancePercent;
-                        if (pr.HitChancePercent >
-                            -0.003 * AutoWalker.p.HealthPercent * AutoWalker.p.HealthPercent + 0.65 * AutoWalker.p.HealthPercent + 35)
+                        if (pr.HitChancePercent > 30)
+                        {
                             Q.Cast(pr.CastPosition);
+                        }
+
                     }
-                    if (E.IsReady() && (poorVictim.HasBuffOfType(BuffType.Poison) || AutoWalker.p.GetSpellDamage(poorVictim, SpellSlot.E)>poorVictim.Health))
+                    if (E.IsReady() && (poorVictim.HasBuffOfType(BuffType.Poison) || AutoWalker.p.GetSpellDamage(poorVictim, SpellSlot.E) > poorVictim.Health))
                         E.Cast(poorVictim);
-                    
+                    else if (E.IsReady())
+                    {
+                        AIHeroClient an = EntityManager.Heroes.Enemies.Where(en => en.HasBuffOfType(BuffType.Poison) && AutoWalker.p.Distance(en) < E.Range + en.BoundingRadius).OrderBy(en => en.Health / AutoWalker.p.GetSpellDamage(en, SpellSlot.E))
+                            .FirstOrDefault();
+                        if (an != null)
+                            E.Cast(an);
+                    }
+                    if (!poorVictim.HasBuffOfType(BuffType.Poison) && W.IsReady() || poorVictim.Distance(AutoWalker.p) > 650)
+                    {
+                        PredictionResult pr = W.GetPrediction(poorVictim);
+                        if (pr.HitChance >= HitChance.Medium)
+                        {
+                            W.Cast(pr.CastPosition);
+                        }
+                    }
+                    if (R.IsReady() && poorVictim.HasBuffOfType(BuffType.Poison) && AutoWalker.p.ManaPercent > 35 && poorVictim.Distance(AutoWalker.p) > 200 && poorVictim.Distance(AutoWalker.p) < 600 + poorVictim.BoundingRadius && poorVictim.IsFacing(AutoWalker.p) && poorVictim.HealthPercent > 30 && poorVictim.HealthPercent < 60)
+                        R.Cast(Prediction.Position.PredictUnitPosition(poorVictim, 300).To3D());
+                    if (R.IsReady() && poorVictim.Distance(AutoWalker.p) < 500&&EntityManager.Heroes.Enemies.Count(en=>en.IsVisible()&&!en.IsDead()&&en.Distance(AutoWalker.p)<600)>=2)
+                        R.Cast(Prediction.Position.PredictUnitPosition(poorVictim, 400).To3D());
+
+                    if (Orbwalker.ActiveModesFlags == Orbwalker.ActiveModes.Flee)
+                    {
+                        if (R.IsReady() && Logic.surviLogic.dangerValue > 10000 && AutoWalker.p.HealthPercent < 20)
+                        {
+                            AIHeroClient champToUlt =
+                                EntityManager.Heroes.Enemies.FirstOrDefault(
+                                    en =>
+                                        en.HealthPercent > 5 && en.Distance(AutoWalker.p) < 600 &&
+                                        en.Distance(AutoWalker.p) > 100);
+                            if (champToUlt != null)
+                            {
+                                R.Cast(Prediction.Position.PredictUnitPosition(champToUlt, 500).To3D());
+                            }
+                        }
+                    }
                 }
+            }
+
+
+
+                if (R.IsReady()&& AutoWalker.p.HealthPercent < 15)
+                {
+                    AIHeroClient champToUlt =
+    EntityManager.Heroes.Enemies.FirstOrDefault(
+        en =>en.Distance(AutoWalker.p) < 700);
+                    if (champToUlt != null)
+                    {
+                        R.Cast(champToUlt);
+                    }
+               
             }
         }
 
         public int[] skillSequence { get; private set; }
         public LogicSelector Logic { get; set; }
-        
+
 
         public string ShopSequence { get; private set; }
 
@@ -103,11 +218,29 @@ namespace AutoBuddy.MyChampLogic
 
         public void Survi()
         {
+
         }
 
         public void Combo(AIHeroClient target)
         {
 
+        }
+
+        private static float TimeForAttack(Obj_AI_Base o, float range)
+        {
+            float time=(range-AutoWalker.p.Distance(o))/(o.MoveSpeed+100-AutoWalker.p.MoveSpeed);
+            float time2 = (AutoWalker.p.Distance(o.GetNearestTurret())-950) / (o.MoveSpeed + 100 - AutoWalker.p.MoveSpeed);
+            return time < time2 ? time : time2;
+        }
+        private float EstDmg(Obj_AI_Base o, float time)
+        {
+
+            float eCD = E.Handle.CooldownExpires - Game.Time < 0 ? 0 : E.Handle.CooldownExpires - Game.Time;
+            float qCD = Q.Handle.CooldownExpires - Game.Time < 0 ? 0 : Q.Handle.CooldownExpires - Game.Time;
+            float damage = AutoWalker.p.GetSpellDamage(o, SpellSlot.E)*(float)Math.Floor((time - eCD)/.5f);
+            damage += AutoWalker.p.GetSpellDamage(o, SpellSlot.Q)*(float)Math.Floor((time - qCD)/Q.Handle.Cooldown);
+            
+            return damage ;
         }
     }
 }

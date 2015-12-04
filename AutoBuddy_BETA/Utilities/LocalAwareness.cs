@@ -35,8 +35,18 @@ namespace AutoBuddy.Utilities
                     heroTable.Where(
                         hh => hh.hero.IsVisible() && !hh.hero.IsDead() && hh.hero.Position.Distance(pos) < 900))
             {
-                danger += (-0.0042857142857143f*(h.hero.Distance(pos) + 100) + 4.4285714285714f)*HeroStrength(h)*
-                          (h.hero.IsEnemy ? 1 : -1);
+                if (h.hero.IsZombie)
+                {
+                    danger += (-0.0042857142857143f * (h.hero.Distance(pos) + 100) + 4.4285714285714f) * 5000 *
+(h.hero.IsEnemy ? 1 : -1);
+                }
+
+                else
+                {
+                    danger += (-0.0042857142857143f * (h.hero.Distance(pos) + 100) + 4.4285714285714f) * HeroStrength(h) *
+          (h.hero.IsEnemy ? 1 : -1);
+                }
+
             }
             foreach (
                 Obj_AI_Minion tt in

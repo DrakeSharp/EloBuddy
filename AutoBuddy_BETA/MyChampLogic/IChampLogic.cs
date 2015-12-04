@@ -6,7 +6,10 @@ namespace AutoBuddy.MyChampLogic
     internal interface IChampLogic
     {
         int[] skillSequence { get; }
-        LogicSelector Logic { get; set; }
+        float MaxDistanceForAA { get; }
+        float OptimalMaxComboDistance { get; }
+        float HarassDistance { get; }
+        LogicSelector Logic { set; }
         string ShopSequence { get; }
         void Harass(AIHeroClient target);
         void Survi();

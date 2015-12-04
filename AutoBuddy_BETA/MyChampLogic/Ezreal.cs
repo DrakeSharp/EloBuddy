@@ -8,8 +8,12 @@ namespace AutoBuddy.MyChampLogic
 {
     internal class Ezreal : IChampLogic
     {
-        private readonly Spell.Skillshot E;
+        public float MaxDistanceForAA { get { return int.MaxValue; } }
+        public float OptimalMaxComboDistance { get { return AutoWalker.p.AttackRange; } }
+        public float HarassDistance { get { return AutoWalker.p.AttackRange; } }
 
+
+        private readonly Spell.Skillshot E;
         private readonly Spell.Skillshot Q;
         private readonly Spell.Skillshot R;
         private readonly Spell.Skillshot W;

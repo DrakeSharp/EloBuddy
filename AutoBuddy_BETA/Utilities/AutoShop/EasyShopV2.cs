@@ -18,12 +18,14 @@ namespace AutoBuddy.Utilities.AutoShop
     public static class ShopGlobals
     {
         public static int GoldForNextItem=999999;
+        public static string Next;
     }
 
     internal class EasyShopV2
     {
         private readonly List<BuildElement> buildElements;
         private readonly CheckBox enabled;
+        private bool first = false;
 
         public EasyShopV2(List<BuildElement> elements, CheckBox en)
         {
@@ -36,15 +38,17 @@ namespace AutoBuddy.Utilities.AutoShop
         private void Shopping()
         {
             List<LoLItem> myit = ItemInfo.MyItems();
-            if (!enabled.CurrentValue || !ObjectManager.Player.IsInShopRange() || !buildElements.Any())
+            if (!first&&(!enabled.CurrentValue || !ObjectManager.Player.IsInShopRange() || !buildElements.Any()))
             {
+                first = true;
                 Core.DelayAction(Shopping, 300);
                 return;
             }
 
             ShopGlobals.GoldForNextItem = 9999999;
             int currentPos = ItemInfo.GetNum(buildElements);
-
+            if (currentPos == -1)
+                ShopGlobals.Next = "Inventories mismatch, won't buy any items";
             if (currentPos == 0)
             {
                 if (!myit.Any())
@@ -95,6 +99,7 @@ namespace AutoBuddy.Utilities.AutoShop
 
                 if (b.action == ShopActionType.Buy)
                 {
+                    ShopGlobals.Next = b.item.name;
                     ShopGlobals.GoldForNextItem = ItemInfo.BuyItemSim(myit, b.item);
                     Shop.BuyItem(b.item.id);
                 }

@@ -6,6 +6,7 @@ using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
+using EloBuddy.SDK.Rendering;
 using SharpDX;
 using Color = System.Drawing.Color;
 
@@ -24,8 +25,17 @@ namespace AutoBuddy.MainLogics
         private Vector3 randomVector;
         private bool wholeWave;
 
+        private float lastRand;
+        private Vector3 rand;
+        private ColorBGRA color;
+        private ColorBGRA colorGreen;
+        private ColorBGRA colorRed;
+
         public Push(LogicSelector current)
         {
+            color=new ColorBGRA(255, 210, 105, 255);
+            colorRed = new ColorBGRA(139, 0, 0, 255);
+            colorGreen = new ColorBGRA(0, 100, 0, 255);
             SetRandVector();
             randomVector = new Vector3();
             currentWave = new Obj_AI_Minion[0];
@@ -67,14 +77,14 @@ namespace AutoBuddy.MainLogics
             currentLogic.current = LogicSelector.MainLogics.PushLogic;
             if (active) return;
 
-            Game.OnUpdate += Game_OnUpdate;
+            Game.OnTick += Game_OnUpdate;
             active = true;
         }
 
         public void Deactivate()
         {
             active = false;
-            Game.OnUpdate -= Game_OnUpdate;
+            Game.OnTick -= Game_OnUpdate;
         }
 
         private void Game_OnUpdate(EventArgs args)
@@ -97,14 +107,13 @@ namespace AutoBuddy.MainLogics
         {
             Drawing.DrawText(250, 40, Color.Gold,
                 "Push, active: " + active + "  wave num: " + CurrentWaveNum + " minions left: " + currentWave.Length);
-
-            Drawing.DrawCircle(currentWave.Length <= 0 ? AutoWalker.p.Position : AvgPos(currentWave), 120,
-                Color.Chocolate);
+            Circle.Draw(color, 100, currentWave.Length <= 0 ? AutoWalker.p.Position : AvgPos(currentWave));
 
             if (myTurret != null)
-                Drawing.DrawCircle(myTurret.Position, 200, Color.DarkGreen);
+                Circle.Draw(colorGreen, 200, myTurret.Position);
+            
             if (enemyTurret != null)
-                Drawing.DrawCircle(enemyTurret.Position, 200, Color.DarkRed);
+                Circle.Draw(colorRed, 200, enemyTurret.Position);
         }
 
         private void UnderEnemyTurret()
@@ -118,8 +127,8 @@ namespace AutoBuddy.MainLogics
                 return;
             }
             if (AutoWalker.p.Distance(enemyTurret) <
-                AutoWalker.p.AttackRange + enemyTurret.BoundingRadius + Orbwalker.HoldRadius+50 &&
-                AutoWalker.p.Distance(enemyTurret) > AutoWalker.p.AttackRange + enemyTurret.BoundingRadius - 10)
+                AutoWalker.p.AttackRange + enemyTurret.BoundingRadius + Orbwalker.HoldRadius &&
+                AutoWalker.p.Distance(enemyTurret) > AutoWalker.p.AttackRange)
             {
                 AutoWalker.SetMode(Orbwalker.ActiveModes.None);
                 Player.IssueOrder(GameObjectOrder.AttackUnit, enemyTurret);
@@ -142,12 +151,12 @@ namespace AutoBuddy.MainLogics
                 AIHeroClient ally =
                     EntityManager.Heroes.Allies.Where(
                         al => !al.IsMe &&
-                              AutoWalker.p.Distance(al) < 1200 &&
+                              AutoWalker.p.Distance(al) < 1500 &&
                               al.Distance(enemyTurret) < p.Distance(enemyTurret) + 100 &&
-                              currentLogic.localAwareness.LocalDomination(al) < -15000)
+                              currentLogic.localAwareness.LocalDomination(al) < -10000)
                         .OrderBy(l => l.Distance(AutoWalker.p))
                         .FirstOrDefault();
-                if (AutoWalker.p.Gold > 100 && ally != null &&
+                if (ally != null &&
                     Math.Abs(p.Distance(AutoWalker.EneMyNexus) - AutoWalker.p.Distance(AutoWalker.EneMyNexus)) < 200)
                     p = ally.Position.Extend(myTurret, 160).To3DWorld() + randomVector;
                 p =
@@ -164,6 +173,24 @@ namespace AutoBuddy.MainLogics
 
         private void UnderMyTurret()
         {
+            if (AutoWalker.p.Gold <= 100 ||
+                !EntityManager.MinionsAndMonsters.EnemyMinions.Any(en => en.Distance(myTurret) < 1000))
+            {
+                if (Game.Time > lastRand)
+                {
+                    lastRand = Game.Time+RandGen.r.NextFloat(5, 10);
+                    rand = new Vector3(RandGen.r.NextFloat(-400, 400), RandGen.r.NextFloat(-400, 400), 0);
+                    while ((myTurret.Position.Extend(AutoWalker.MyNexus, 200).To3D() + rand).Distance(myTurret)<250)
+                    {
+                        rand = new Vector3(RandGen.r.NextFloat(-400, 400), RandGen.r.NextFloat(-400, 400), 0);
+                    }
+                    
+                }
+
+                AutoWalker.WalkTo(myTurret.Position.Extend(AutoWalker.MyNexus, 200).To3D()+rand);
+                return;
+            }
+
             Vector3 p = new Vector3();
             AIHeroClient ally =
                 EntityManager.Heroes.Allies.Where(
@@ -188,7 +215,7 @@ namespace AutoBuddy.MainLogics
             }
         }
 
-        public Vector3 AvgPos(Obj_AI_Minion[] objects)
+        private Vector3 AvgPos(Obj_AI_Minion[] objects)
         {
             double x = 0, y = 0;
             foreach (Obj_AI_Minion obj in objects)

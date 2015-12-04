@@ -20,15 +20,15 @@ namespace AutoBuddy.MainLogics
         public readonly Survi surviLogic;
 
 
-        public IChampLogic myChamp;
+        public readonly IChampLogic myChamp;
         public bool saveMylife;
 
-        public LogicSelector(IChampLogic my)
+        public LogicSelector(IChampLogic my, Menu menu)
         {
             myChamp = my;
             current = MainLogics.Nothing;
             surviLogic = new Survi(this);
-            recallLogic = new Recall(this);
+            recallLogic = new Recall(this, menu);
             pushLogic = new Push(this);
             loadLogic = new Load(this);
             combatLogic = new Combat(this);

@@ -8,6 +8,11 @@ namespace AutoBuddy.MyChampLogic
 {
     internal class Caitlyn : IChampLogic
     {
+
+
+        public float MaxDistanceForAA { get { return int.MaxValue; } }
+        public float OptimalMaxComboDistance { get { return AutoWalker.p.AttackRange; } }
+        public float HarassDistance { get { return AutoWalker.p.AttackRange; } }
         public Spell.Skillshot E;
         public Spell.Skillshot Q;
         public Spell.Targeted R;

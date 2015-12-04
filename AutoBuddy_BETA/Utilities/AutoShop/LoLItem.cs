@@ -1,6 +1,6 @@
 ﻿namespace AutoBuddy.Utilities.AutoShop
 {
-    internal class LoLItem
+    public class LoLItem
     {
         public readonly int baseGold;
         public readonly string cq;

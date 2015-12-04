@@ -58,8 +58,10 @@ namespace AutoBuddy
                     sender.DisplayName = lanes[changeArgs.NewValue];
                 };
 
-
-            menu.Add("sep2", new Separator(250));
+            menu.Add("disablepings", new CheckBox("Disable pings", false));
+            menu.Add("disablechat", new CheckBox("Disable chat", false));
+            menu.Add("sep2", new Separator(230));
+            menu.Add("oldWalk", new CheckBox("Use old orbwalking(press f5 after)", false));
             menu.Add("reselectlane", new CheckBox("Reselect lane", false));
             menu.Add("debuginfo", new CheckBox("Draw debug info(press f5 after)", true));
             menu.Add("l1", new Label("By Christian Brutal Sniper"));
@@ -113,8 +115,6 @@ namespace AutoBuddy
                     MainMenu.GetMenu("AB_" + ObjectManager.Player.ChampionName).Get<Label>("shopSequence") != null)
                 {
                     Chat.Print("Autobuddy: Loaded shop plugin for " + ObjectManager.Player.ChampionName);
-                    //easyShop = new EasyShop(
-                    //
                     BuildCreator bc = new BuildCreator(menu, Path.Combine(Environment.GetFolderPath(
                         Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Builds"),
                         MainMenu.GetMenu("AB_" + ObjectManager.Player.ChampionName)
@@ -127,7 +127,7 @@ namespace AutoBuddy
                         Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Builds"), myChamp.ShopSequence);
                 }
             }
-            Logic = new LogicSelector(myChamp);
+            Logic = new LogicSelector(myChamp, menu);
         }
 
         private static void createFS()
