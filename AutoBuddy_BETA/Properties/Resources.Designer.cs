@@ -68,5 +68,25 @@ namespace AutoBuddy.Properties {
                 return ResourceManager.GetString("item", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] NavGraphSummonersRift {
+            get {
+                object obj = ResourceManager.GetObject("NavGraphSummonersRift", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] NavGraphSummonersRiftOld {
+            get {
+                object obj = ResourceManager.GetObject("NavGraphSummonersRiftOld", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

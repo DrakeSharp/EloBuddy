@@ -29,7 +29,7 @@ namespace AutoBuddy.MyChampLogic
                 MinimumHitChance = HitChance.Medium,
                 AllowedCollisionCount = 99
             };
-            Game.OnUpdate += Game_OnUpdate;
+            Game.OnTick += Game_OnTick;
         }
 
         public int[] skillSequence { get; private set; }
@@ -65,7 +65,7 @@ namespace AutoBuddy.MyChampLogic
                 R.Cast(target);
         }
 
-        private void Game_OnUpdate(System.EventArgs args)
+        private void Game_OnTick(System.EventArgs args)
         {
             if (!R.IsReady()) return;
             AIHeroClient vic =

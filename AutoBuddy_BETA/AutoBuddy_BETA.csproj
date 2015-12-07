@@ -59,6 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Disrespekt.cs" />
     <Compile Include="MyChampLogic\Ezreal.cs" />
     <Compile Include="AutoWalker.cs" />
     <Compile Include="BrutalExtensions.cs" />
@@ -74,6 +75,10 @@
     <Compile Include="Utilities\AutoShop\EasyShopV2.cs" />
     <Compile Include="Utilities\AutoShop\ItemInfo.cs" />
     <Compile Include="Utilities\AutoShop\LoLItem.cs" />
+    <Compile Include="Utilities\Pathfinder\NavGraph.cs" />
+    <Compile Include="Utilities\Pathfinder\NavGraphTest.cs" />
+    <Compile Include="Utilities\Pathfinder\Node.cs" />
+    <Compile Include="Utilities\Pathfinder\PathNode.cs" />
     <Compile Include="Utilities\StringDistance.cs" />
     <Compile Include="Utilities\ChampLane.cs" />
     <Compile Include="Utilities\AutoShop\BuildCreator.cs" />
@@ -101,6 +106,8 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="Resources\item" />
+    <None Include="Resources\NavGraphSummonersRift" />
+    <None Include="Resources\NavGraphSummonersRiftOld" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

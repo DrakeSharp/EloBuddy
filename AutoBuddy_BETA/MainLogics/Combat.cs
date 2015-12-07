@@ -19,7 +19,7 @@ namespace AutoBuddy.MainLogics
         public Combat(LogicSelector currentLogic)
         {
             current = currentLogic;
-            Game.OnUpdate += Game_OnUpdate;
+            Game.OnTick += Game_OnTick;
             if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
                 Drawing.OnDraw += Drawing_OnDraw;
         }
@@ -42,7 +42,7 @@ namespace AutoBuddy.MainLogics
             active = false;
         }
 
-        private void Game_OnUpdate(EventArgs args)
+        private void Game_OnTick(EventArgs args)
         {
             if (current.current == LogicSelector.MainLogics.SurviLogic) return;
             AIHeroClient har = null;
@@ -56,7 +56,7 @@ namespace AutoBuddy.MainLogics
                     .OrderBy(v => v.Health)
                     .FirstOrDefault();
 
-
+            
             if (victim == null || AutoWalker.p.GetNearestTurret().Distance(AutoWalker.p) > 1100)
             {
                 har =
@@ -72,7 +72,6 @@ namespace AutoBuddy.MainLogics
                 LogicSelector.MainLogics returnT = current.SetLogic(LogicSelector.MainLogics.CombatLogic);
                 if (returnT != LogicSelector.MainLogics.CombatLogic) returnTo = returnT;
             }
-
             if (!active)
                 return;
             if (victim == null && har == null)
@@ -80,7 +79,6 @@ namespace AutoBuddy.MainLogics
                 current.SetLogic(returnTo);
                 return;
             }
-
             if (victim != null)
             {
                 current.myChamp.Combo(victim);
@@ -102,7 +100,8 @@ namespace AutoBuddy.MainLogics
                 }
 
                 Obj_AI_Turret nearestEnemyTurret = posToWalk.GetNearestTurret();
-                if (victim.Health < 10 + 4 * AutoWalker.p.Level && EntityManager.Heroes.Allies.Any(al=>al.Distance(vicPos)<550))
+
+                if (victim.Health < 10 + 4 * AutoWalker.p.Level && EntityManager.Heroes.Allies.Any(al=>!al.IsDead()&&al.Distance(vicPos)<550))
                     AutoWalker.UseIgnite(victim);
                 if (victim.Health + victim.HPRegenRate * 2.5f < 50 + 20 * AutoWalker.p.Level && vicPos.Distance(nearestEnemyTurret)<1350)
                     AutoWalker.UseIgnite(victim);
@@ -133,14 +132,14 @@ namespace AutoBuddy.MainLogics
                     victim.Distance(victim.Position.GetNearestTurret()) > 1500)
                     AutoWalker.Ghost.Cast();
 
-                if (ObjectManager.Player.HealthPercent() < 30)
+                if (ObjectManager.Player.HealthPercent() < 35)
                 {
+                    if (AutoWalker.p.HealthPercent < 25)
                         AutoWalker.UseSeraphs();
                     if (AutoWalker.p.HealthPercent < 20)
                         AutoWalker.UseBarrier();
-                    int potion = ItemInfo.GetHPotionSlot();
-                    if (potion >= 0)
-                        AutoWalker.p.InventoryItems[potion].Cast();
+
+                        AutoWalker.UseHPot();
                 }
             }
             else

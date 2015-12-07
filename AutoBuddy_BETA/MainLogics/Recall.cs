@@ -65,11 +65,11 @@ AutoBuddy won't recall if you have less gold than needed for next item.
                 return;
             }
 
-            if (((AutoWalker.p.Gold > flatGold.CurrentValue+AutoWalker.p.Level*goldPerLevel.CurrentValue&&AutoWalker.p.Gold>ShopGlobals.GoldForNextItem) && AutoWalker.p.InventoryItems.Length < 8 &&
+            if ((AutoWalker.p.Gold > flatGold.CurrentValue+AutoWalker.p.Level*goldPerLevel.CurrentValue&&AutoWalker.p.Gold>ShopGlobals.GoldForNextItem && AutoWalker.p.InventoryItems.Length < 8 &&
                  recallsWithGold <= 30) || AutoWalker.p.HealthPercent() < 25)
             {
                 if (AutoWalker.p.Gold > (AutoWalker.p.Level + 2)*150 && AutoWalker.p.InventoryItems.Length < 8 &&
-                    recallsWithGold <= 10)
+                    recallsWithGold <= 30)
                     recallsWithGold++;
                 current.SetLogic(LogicSelector.MainLogics.RecallLogic);
             }
@@ -81,14 +81,14 @@ AutoBuddy won't recall if you have less gold than needed for next item.
             if (active) return;
             active = true;
             g = null;
-            Game.OnUpdate += Game_OnUpdate;
+            Game.OnTick += Game_OnTick;
         }
 
         public void Deactivate()
         {
             lastRecallTime = 0;
             active = false;
-            Game.OnUpdate -= Game_OnUpdate;
+            Game.OnTick -= Game_OnTick;
         }
 
         private void Drawing_OnDraw(EventArgs args)
@@ -97,7 +97,7 @@ AutoBuddy won't recall if you have less gold than needed for next item.
                 "Recall, active: " + active+" next item: "+ShopGlobals.Next+" gold needed:"+ShopGlobals.GoldForNextItem);
         }
 
-        private void Game_OnUpdate(EventArgs args)
+        private void Game_OnTick(EventArgs args)
         {
             AutoWalker.SetMode(Orbwalker.ActiveModes.Combo);
             if (ObjectManager.Player.Distance(spawn) < 400 && ObjectManager.Player.HealthPercent() > 85 &&
@@ -121,7 +121,7 @@ AutoBuddy won't recall if you have less gold than needed for next item.
 
                         g = ObjectManager.Get<GrassObject>()
                             .Where(gr => gr.Distance(AutoWalker.MyNexus) < AutoWalker.p.Distance(AutoWalker.MyNexus)&&gr.Distance(AutoWalker.p)>Orbwalker.HoldRadius)
-                            .OrderBy(gg => gg.Distance(AutoWalker.p)).FirstOrDefault(gr => ObjectManager.Get<GrassObject>().Count(gr2=>gr.Distance(gr2)<60)>4);
+                            .OrderBy(gg => gg.Distance(AutoWalker.p)).FirstOrDefault(gr => ObjectManager.Get<GrassObject>().Count(gr2=>gr.Distance(gr2)<65)>4);
                     }
                     if (g != null && g.Distance(AutoWalker.p) < nearestTurret.Position.Distance(AutoWalker.p))
                     {
@@ -130,7 +130,7 @@ AutoBuddy won't recall if you have less gold than needed for next item.
                     }
                 }
 
-                if (ObjectManager.Player.Distance(recallPos) < Orbwalker.HoldRadius)
+                if ((!AutoWalker.p.IsMoving && ObjectManager.Player.Distance(recallPos) < Orbwalker.HoldRadius + 30) || (AutoWalker.p.IsMoving && ObjectManager.Player.Distance(recallPos) < 30))
                 {
                     CastRecall();
                 }
@@ -142,13 +142,13 @@ AutoBuddy won't recall if you have less gold than needed for next item.
         private void CastRecall()
         {
             if (Game.Time < lastRecallTime || AutoWalker.p.IsRecalling() || ObjectManager.Player.Distance(spawn) < 500) return;
-            lastRecallTime = Game.Time + 1f;
+            lastRecallTime = Game.Time + 2f;
             Core.DelayAction(CastRecall2, 300);
         }
         private void CastRecall2()//Kappa
         {
             if (AutoWalker.p.IsRecalling() || ObjectManager.Player.Distance(spawn) < 500) return;
-            lastRecallTime = Game.Time + 1f;
+            lastRecallTime = Game.Time + 2f;
             AutoWalker.SetMode(Orbwalker.ActiveModes.None);
             ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall);
         }

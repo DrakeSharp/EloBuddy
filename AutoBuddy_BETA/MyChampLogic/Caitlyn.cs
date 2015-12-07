@@ -31,7 +31,7 @@ namespace AutoBuddy.MyChampLogic
             {
                 MinimumHitChance = HitChance.Low
             };
-            Game.OnUpdate += Game_OnUpdate;
+            Game.OnTick += Game_OnTick;
         }
 
         public int[] skillSequence { get; private set; }
@@ -64,7 +64,7 @@ namespace AutoBuddy.MyChampLogic
         {
         }
 
-        private void Game_OnUpdate(System.EventArgs args)
+        private void Game_OnTick(System.EventArgs args)
         {
             if (Orbwalker.CanAutoAttack && Logic.surviLogic.dangerValue < -20000)
             {

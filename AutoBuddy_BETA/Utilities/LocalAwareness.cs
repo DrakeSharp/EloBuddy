@@ -37,7 +37,7 @@ namespace AutoBuddy.Utilities
             {
                 if (h.hero.IsZombie)
                 {
-                    danger += (-0.0042857142857143f * (h.hero.Distance(pos) + 100) + 4.4285714285714f) * 5000 *
+                    danger += (-0.0042857142857143f * (h.hero.Distance(pos) + 100) + 4.4285714285714f) * 15000 *
 (h.hero.IsEnemy ? 1 : -1);
                 }
 

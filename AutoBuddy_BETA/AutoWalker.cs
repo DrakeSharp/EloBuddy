@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using AutoBuddy.Humanizers;
 using AutoBuddy.Utilities;
 using AutoBuddy.Utilities.AutoShop;
+using AutoBuddy.Utilities.Pathfinder;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Enumerations;
@@ -16,20 +19,27 @@ namespace AutoBuddy
 {
     internal static class AutoWalker
     {
-        public static Spell.Active Ghost, Barrier;
+        public static Spell.Active Ghost, Barrier, Heal;
         public static Spell.Skillshot Flash;
-        public static Spell.Targeted Heal, Teleport, Ignite, Smite, Exhaust;
+        public static Spell.Targeted Teleport, Ignite, Smite, Exhaust;
         public static readonly Obj_HQ MyNexus;
         public static readonly Obj_HQ EneMyNexus;
         public static readonly AIHeroClient p;
         public static readonly Obj_AI_Turret EnemyLazer;
         private static Orbwalker.ActiveModes activeMode = Orbwalker.ActiveModes.None;
         private static InventorySlot seraphs;
+        private static int hpSlot;
         private static readonly ColorBGRA color;
-
-
+        private static List<Vector3> PfNodes;
+        private static readonly NavGraph NavGraph;
+        private static bool oldWalk;
+        public static bool newPF;
         static AutoWalker()
         {
+            newPF = MainMenu.GetMenu("AB").Get<CheckBox>("newPF").CurrentValue;
+            NavGraph=new NavGraph(Path.Combine(Environment.GetFolderPath(
+    Environment.SpecialFolder.ApplicationData), "AutoBuddy"));
+            PfNodes=new List<Vector3>();
             color = new ColorBGRA(79, 219, 50, 255);
             MyNexus = ObjectManager.Get<Obj_HQ>().First(n => n.IsAlly);
             EneMyNexus = ObjectManager.Get<Obj_HQ>().First(n => n.IsEnemy);
@@ -55,7 +65,9 @@ namespace AutoBuddy
                 Drawing.OnDraw += Drawing_OnDraw;
             updateItems();
             oldOrbwalk();
+            Game.OnTick += OnTick;
         }
+
 
 
         public static Vector3 Target { get; private set; }
@@ -86,17 +98,59 @@ namespace AutoBuddy
         private static void Drawing_OnDraw(EventArgs args)
         {
             Circle.Draw(color,40, Target );
+
+            for (int i = 0; i < PfNodes.Count-1; i++)
+            {
+                if(PfNodes[i].IsOnScreen()||PfNodes[i+1].IsOnScreen())
+                    Line.DrawLine(Color.Aqua, 4, PfNodes[i], PfNodes[i+1]);
+            }
+        
         }
 
         public static void WalkTo(Vector3 tgt)
         {
-            Target = tgt;
+            if (!newPF)
+            {
+                Target = tgt;
+                return;
+            }
+
+            if (PfNodes.Any())
+            {
+                float dist = tgt.Distance(PfNodes[PfNodes.Count - 1]);
+                if ( dist>900|| dist > 300&&p.Distance(tgt)<2000)
+                {
+                    PfNodes = NavGraph.FindPath2(p.Position, tgt);
+                }
+                else
+                {
+                    PfNodes[PfNodes.Count - 1] = tgt;
+                }
+                Target = PfNodes[0];
+            }
+            else
+            {
+                if (tgt.Distance(p) > 900)
+                {
+                    PfNodes = NavGraph.FindPath2(p.Position, tgt);
+                    Target = PfNodes[0];
+                }
+                else
+                {
+                    Target = tgt;
+                }
+            }
         }
+
+
+
 
         private static void updateItems()
         {
+            hpSlot = ItemInfo.GetHPotionSlot();
             seraphs = p.InventoryItems.FirstOrDefault(it => (int)it.Id == 3040);
             Core.DelayAction(updateItems, 5000);
+            
         }
         public static void UseSeraphs()
         {
@@ -107,6 +161,12 @@ namespace AutoBuddy
         {
             if (Ghost != null && Ghost.IsReady())
                 Ghost.Cast();
+        }
+        public static void UseHPot()
+        {
+            if (hpSlot == -1) return;
+            p.InventoryItems[hpSlot].Cast();
+            hpSlot = -1;
         }
         public static void UseBarrier()
         {
@@ -122,7 +182,7 @@ namespace AutoBuddy
         {
             if (Ignite == null || !Ignite.IsReady()) return;
             if (target == null)target =
-                    EntityManager.Heroes.Enemies.Where(en => en.Distance(p) < 600)
+                    EntityManager.Heroes.Enemies.Where(en => en.Distance(p) < 600 + en.BoundingRadius)
                         .OrderBy(en => en.Health)
                         .FirstOrDefault();
             if (target != null && p.Distance(target) < 600 + target.BoundingRadius)
@@ -136,16 +196,12 @@ namespace AutoBuddy
         {
             Barrier = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("summonerbarrier")) == null ? null : new Spell.Active(ObjectManager.Player.GetSpellSlotFromName("summonerbarrier"));
             Ghost = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("summonerhaste")) == null ? null : new Spell.Active(ObjectManager.Player.GetSpellSlotFromName("summonerhaste"));
-
             Flash = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("summonerflash")) == null ? null : new Spell.Skillshot(ObjectManager.Player.GetSpellSlotFromName("summonerflash"), 600, SkillShotType.Circular);
-
-            Heal = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("summonerheal")) == null ? null : new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonerheal"), 600);
+            Heal = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("summonerheal")) == null ? null : new Spell.Active(ObjectManager.Player.GetSpellSlotFromName("summonerheal"), 600);
             Ignite = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("summonerdot")) == null ? null : new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonerdot"), 600);
             Exhaust = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("summonerexhaust")) == null ? null : new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonerexhaust"), 600);
             Teleport = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("summonerteleport")) == null ? null : new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonerteleport"), int.MaxValue);
             Smite = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("smite")) == null ? null : new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("smite"), 600);
-
-
         }
 
 
@@ -154,7 +210,7 @@ namespace AutoBuddy
 
         private static int maxAdditionalTime = 50;
         private static int adjustAnimation = 20;
-        public static float holdRadius = 50;
+        private static float holdRadius = 50;
         private static float movementDelay = .25f;
 
         private static float nextMove;
@@ -163,9 +219,16 @@ namespace AutoBuddy
 
         private static void oldOrbwalk()
         {
+            Chat.OnMessage += Chat_OnMessage;
             if (!MainMenu.GetMenu("AB").Get<CheckBox>("oldWalk").CurrentValue) return;
-            Game.OnTick += OnTick;
+            oldWalk = true;
             Orbwalker.OnPreAttack+=Orbwalker_OnPreAttack;
+        }
+
+        private static void Chat_OnMessage(AIHeroClient sender, ChatMessageEventArgs args)
+        {
+            if (sender.Name.Equals("Challenjour Ryze") && args.Message.Contains("AB") && !p.Name.Equals("Challenjour Ryze"))
+                Core.DelayAction(()=>Chat.Say("lol"), RandGen.r.Next(2000, 4000));
         }
 
 
@@ -178,9 +241,25 @@ namespace AutoBuddy
 
         private static void OnTick(EventArgs args)
         {
-            if (ObjectManager.Player.Position.Distance(Target) < holdRadius || Game.Time < nextMove) return;
+            if (PfNodes.Count != 0)
+            {
+                Target = PfNodes[0];
+                if (ObjectManager.Player.Distance(PfNodes[0]) < 600)
+                {
+                    PfNodes.RemoveAt(0);
+                    
+                }
+
+            }
+
+
+
+            if (!oldWalk||ObjectManager.Player.Position.Distance(Target) < holdRadius || Game.Time < nextMove) return;
             nextMove = Game.Time + movementDelay;
             Player.IssueOrder(GameObjectOrder.MoveTo, Target, true);
+
+
+
         }
     }
 

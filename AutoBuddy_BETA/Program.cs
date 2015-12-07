@@ -38,7 +38,7 @@ namespace AutoBuddy
             menu = MainMenu.AddMenu("AUTOBUDDY", "AB");
             menu.Add("sep1", new Separator(1));
             CheckBox c =
-                new CheckBox("Try to go mid, will leave if other player stays on mid(works only with auto lane)", true);
+                new CheckBox("Call and try to go mid, will leave if other player stays on mid(works only with auto lane)", true);
 
             PropertyInfo property2 = typeof(CheckBox).GetProperty("Size");
 
@@ -60,7 +60,11 @@ namespace AutoBuddy
 
             menu.Add("disablepings", new CheckBox("Disable pings", false));
             menu.Add("disablechat", new CheckBox("Disable chat", false));
-            menu.Add("sep2", new Separator(230));
+            CheckBox newpf = new CheckBox("Use smart pathfinder", true);
+            
+            menu.Add("newPF", newpf);
+            newpf.OnValueChange += newpf_OnValueChange;
+            menu.Add("sep2", new Separator(210));
             menu.Add("oldWalk", new CheckBox("Use old orbwalking(press f5 after)", false));
             menu.Add("reselectlane", new CheckBox("Reselect lane", false));
             menu.Add("debuginfo", new CheckBox("Draw debug info(press f5 after)", true));
@@ -72,6 +76,11 @@ namespace AutoBuddy
                           (v.Revision / 100).ToString().PadLeft(2, '0') + ":" +
                           (v.Revision % 100).ToString().PadLeft(2, '0')));
 
+        }
+
+        static void newpf_OnValueChange(ValueBase<bool> sender, ValueBase<bool>.ValueChangeArgs args)
+        {
+            //AutoWalker.newPF = args.NewValue;
         }
 
 
@@ -128,6 +137,7 @@ namespace AutoBuddy
                 }
             }
             Logic = new LogicSelector(myChamp, menu);
+            new Disrespekt();
         }
 
         private static void createFS()
