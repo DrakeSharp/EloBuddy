@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -38,7 +39,7 @@ namespace AutoBuddy
             menu = MainMenu.AddMenu("AUTOBUDDY", "AB");
             menu.Add("sep1", new Separator(1));
             CheckBox c =
-                new CheckBox("Call and try to go mid, will leave if other player stays on mid(works only with auto lane)", true);
+                new CheckBox("Call mid, will leave if other player stays on mid(only auto lane)", true);
 
             PropertyInfo property2 = typeof(CheckBox).GetProperty("Size");
 
@@ -64,7 +65,12 @@ namespace AutoBuddy
             
             menu.Add("newPF", newpf);
             newpf.OnValueChange += newpf_OnValueChange;
-            menu.Add("sep2", new Separator(210));
+            CheckBox autoclose = new CheckBox("Auto close lol when the game ends. F5 to apply", false);
+            property2.GetSetMethod(true).Invoke(autoclose, new object[] { new Vector2(500, 20) });
+            menu.AddSeparator(5);
+            menu.Add("autoclose", autoclose);
+            menu.AddSeparator(5);
+            menu.Add("sep2", new Separator(170));
             menu.Add("oldWalk", new CheckBox("Use old orbwalking(press f5 after)", false));
             menu.Add("reselectlane", new CheckBox("Reselect lane", false));
             menu.Add("debuginfo", new CheckBox("Draw debug info(press f5 after)", true));
@@ -77,6 +83,8 @@ namespace AutoBuddy
                           (v.Revision % 100).ToString().PadLeft(2, '0')));
 
         }
+
+
 
         static void newpf_OnValueChange(ValueBase<bool> sender, ValueBase<bool>.ValueChangeArgs args)
         {

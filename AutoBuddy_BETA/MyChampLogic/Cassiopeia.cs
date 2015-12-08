@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using AutoBuddy.Humanizers;
 using AutoBuddy.MainLogics;
-using AutoBuddy.Utilities;
 using AutoBuddy.Utilities.AutoShop;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Enumerations;
-using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
-using Microsoft.SqlServer.Server;
 using SharpDX;
 using Color = System.Drawing.Color;
 
@@ -22,13 +18,12 @@ namespace AutoBuddy.MyChampLogic
         public float MaxDistanceForAA { get{ return 500; } }
         public float OptimalMaxComboDistance { get { return 500; } }
         public float HarassDistance { get { return 500; } }
-        private Spell.Skillshot Q, W, R;
-        private Spell.Targeted E;
+        private readonly Spell.Skillshot Q, W, R;
+        private readonly Spell.Targeted E;
         private int minManaHarass = 35;
-        private int ticks = 0;
-        private int tick = 0;
-        private bool isTearOwned = false;
-        private float dmg = 0;
+        private int tick;
+        private bool isTearOwned;
+        private float dmg;
         public Cassiopeia()
         {
             ShopSequence =

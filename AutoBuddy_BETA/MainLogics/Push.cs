@@ -30,6 +30,7 @@ namespace AutoBuddy.MainLogics
         private ColorBGRA color;
         private ColorBGRA colorGreen;
         private ColorBGRA colorRed;
+        private float lastAtk;
 
 
         public Push(LogicSelector current)
@@ -133,7 +134,12 @@ namespace AutoBuddy.MainLogics
                 AutoWalker.p.Distance(enemyTurret) > AutoWalker.p.AttackRange)
             {
                 AutoWalker.SetMode(Orbwalker.ActiveModes.None);
-                Player.IssueOrder(GameObjectOrder.AttackUnit, enemyTurret);
+                if (Game.Time > lastAtk)
+                {
+                    lastAtk = Game.Time + RandGen.r.NextFloat(.2f, .4f);
+                    Player.IssueOrder(GameObjectOrder.AttackUnit, enemyTurret);
+                }
+                
             }
             else
             {

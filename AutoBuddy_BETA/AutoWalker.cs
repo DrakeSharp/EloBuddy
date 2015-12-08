@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using AutoBuddy.Humanizers;
@@ -63,12 +64,27 @@ namespace AutoBuddy
             }
             if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
                 Drawing.OnDraw += Drawing_OnDraw;
+            if (MainMenu.GetMenu("AB").Get<CheckBox>("autoclose").CurrentValue)
+                OnEndGame();
             updateItems();
             oldOrbwalk();
             Game.OnTick += OnTick;
         }
 
+        private static void OnEndGame()
+        {
+            Core.DelayAction(OnEndGame, 5000);
+            if (MyNexus == null || EneMyNexus == null || (MyNexus.Health > 0)&& (EneMyNexus.Health > 0)) return;
+            Core.DelayAction(() =>
+            {
+                foreach (Process process in Process.GetProcessesByName("League of Legends"))
+                {
 
+                    process.CloseMainWindow();
+                }
+            }, 10000);
+
+        }
 
         public static Vector3 Target { get; private set; }
 
@@ -120,7 +136,7 @@ namespace AutoBuddy
                 float dist = tgt.Distance(PfNodes[PfNodes.Count - 1]);
                 if ( dist>900|| dist > 300&&p.Distance(tgt)<2000)
                 {
-                    PfNodes = NavGraph.FindPath2(p.Position, tgt);
+                    PfNodes = NavGraph.FindPathRandom(p.Position, tgt);
                 }
                 else
                 {
@@ -132,7 +148,7 @@ namespace AutoBuddy
             {
                 if (tgt.Distance(p) > 900)
                 {
-                    PfNodes = NavGraph.FindPath2(p.Position, tgt);
+                    PfNodes = NavGraph.FindPathRandom(p.Position, tgt);
                     Target = PfNodes[0];
                 }
                 else
@@ -219,18 +235,11 @@ namespace AutoBuddy
 
         private static void oldOrbwalk()
         {
-            Chat.OnMessage += Chat_OnMessage;
+
             if (!MainMenu.GetMenu("AB").Get<CheckBox>("oldWalk").CurrentValue) return;
             oldWalk = true;
             Orbwalker.OnPreAttack+=Orbwalker_OnPreAttack;
         }
-
-        private static void Chat_OnMessage(AIHeroClient sender, ChatMessageEventArgs args)
-        {
-            if (sender.Name.Equals("Challenjour Ryze") && args.Message.Contains("AB") && !p.Name.Equals("Challenjour Ryze"))
-                Core.DelayAction(()=>Chat.Say("lol"), RandGen.r.Next(2000, 4000));
-        }
-
 
 
         private static void Orbwalker_OnPreAttack(AttackableUnit tgt, Orbwalker.PreAttackArgs args)

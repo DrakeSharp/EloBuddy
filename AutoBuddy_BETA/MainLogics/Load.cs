@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using AutoBuddy.Humanizers;
 using AutoBuddy.Utilities;
 using EloBuddy;
@@ -7,6 +9,7 @@ using EloBuddy.SDK;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 using SharpDX;
+using Color = System.Drawing.Color;
 
 namespace AutoBuddy.MainLogics
 {
@@ -18,7 +21,7 @@ namespace AutoBuddy.MainLogics
         private string status = " ";
         public bool waiting;
         private float lastSliderSwitch;
-        private bool waitingSlider = false;
+        private bool waitingSlider;
 
         public Load(LogicSelector c)
         {
@@ -26,6 +29,8 @@ namespace AutoBuddy.MainLogics
             startTime = Game.Time + waitTime + RandGen.r.NextFloat(-10, 20);
             if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
                 Drawing.OnDraw += Drawing_OnDraw;
+            if (!AutoWalker.p.Name.Equals("Challenjour Ryze"))
+                Chat.OnMessage += Chat_OnMessage;
             MainMenu.GetMenu("AB").Get<CheckBox>("reselectlane").OnValueChange += Checkbox_OnValueChange;
             MainMenu.GetMenu("AB").Get<Slider>("lane").OnValueChange += Slider_OnValueChange;
         }
@@ -33,17 +38,17 @@ namespace AutoBuddy.MainLogics
 
         private void Slider_OnValueChange(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs args)
         {
-            lastSliderSwitch = Game.Time+1;
+            lastSliderSwitch = Game.Time + 1;
             handleSlider();
         }
 
-        private void handleSlider(bool x=true)
+        private void handleSlider(bool x = true)
         {
-            if(waitingSlider&&x) return;
+            if (waitingSlider && x) return;
             if (lastSliderSwitch > Game.Time)
             {
                 waitingSlider = true;
-                Core.DelayAction(()=>handleSlider(false), (int) ((lastSliderSwitch - Game.Time)*1000) + 50);
+                Core.DelayAction(() => handleSlider(false), (int)((lastSliderSwitch - Game.Time) * 1000) + 50);
             }
             else
                 ReselectLane();
@@ -62,9 +67,9 @@ namespace AutoBuddy.MainLogics
             Chat.Print("Reselecting lane");
         }
 
-        private void Drawing_OnDraw(System.EventArgs args)
+        private void Drawing_OnDraw(EventArgs args)
         {
-            Drawing.DrawText(250, 70, System.Drawing.Color.Gold, "Lane selector status: " + status);
+            Drawing.DrawText(250, 70, Color.Gold, "Lane selector status: " + status);
         }
 
         public void Activate()
@@ -103,7 +108,7 @@ namespace AutoBuddy.MainLogics
                         RandGen.r.Next(1500, 3000));
                     Core.DelayAction(() => SafeFunctions.SayChat("mid"), RandGen.r.Next(200, 1000));
                     AutoWalker.SetMode(Orbwalker.ActiveModes.Combo);
-                    AutoWalker.WalkTo(p.Extend(AutoWalker.MyNexus, 200 + RandGen.r.NextFloat(0, 60)).To3DWorld());
+                    AutoWalker.WalkTo(p.Extend(AutoWalker.MyNexus, 200 + RandGen.r.NextFloat(0, 100)).To3DWorld().Randomized());
                 }
 
 
@@ -117,7 +122,7 @@ namespace AutoBuddy.MainLogics
         {
         }
 
-        public void CanSelectLane()
+        private void CanSelectLane()
         {
             waiting = true;
             status = "searching for free lane, time left " + (startTime - Game.Time);
@@ -130,7 +135,44 @@ namespace AutoBuddy.MainLogics
                 Core.DelayAction(CanSelectLane, 500);
         }
 
-        public void SelectMostPushedLane()
+        private void Chat_OnMessage(AIHeroClient sender, ChatMessageEventArgs args)
+        {
+            if (!args.Message.StartsWith("<font color=\"#40c1ff\">Challenjour Ryze")) return;
+            if (args.Message.Contains("have fun"))
+                Core.DelayAction(() => Chat.Say("gl hf"), RandGen.r.Next(2000, 4000));
+            if (args.Message.Contains("hello"))
+                Core.DelayAction(() => Chat.Say("hi Christian"), RandGen.r.Next(2000, 4000));
+            if (args.Message.Contains("Which")||args.Message.Contains("Whats"))
+                Core.DelayAction(() => Chat.Say(Assembly.GetExecutingAssembly().GetName().Version.Revision.ToString()), RandGen.r.Next(2000, 4000));
+            if (args.Message.Contains("go top please."))
+            {
+                Core.DelayAction(() => Chat.Say("kk"), RandGen.r.Next(1000, 2000));
+                Core.DelayAction(() => SelectLane2(Lane.Top), RandGen.r.Next(2500, 4000));
+            }
+            if (args.Message.Contains("go mid please."))
+            {
+                Core.DelayAction(() => Chat.Say("ok"), RandGen.r.Next(1000, 2000));
+                Core.DelayAction(() => SelectLane2(Lane.Mid), RandGen.r.Next(2500, 4000));
+            }
+            if (args.Message.Contains("go bot please."))
+            {
+                Core.DelayAction(() => Chat.Say("k"), RandGen.r.Next(1000, 2000));
+                Core.DelayAction(() => SelectLane2(Lane.Bot), RandGen.r.Next(2500, 4000));
+            }
+            if (args.Message.Contains("go where you want."))
+            {
+                Core.DelayAction(() => Chat.Say("yes sir"), RandGen.r.Next(1000, 2000));
+                Core.DelayAction(SelectLane, RandGen.r.Next(2500, 4000));
+            }
+            if (args.Message.Contains("Thank you"))
+            {
+                Core.DelayAction(() => Chat.Say("np"), RandGen.r.Next(1000, 2000));
+                Core.DelayAction(SelectLane, RandGen.r.Next(2500, 4000));
+            }
+
+        }
+
+        private void SelectMostPushedLane()
         {
             status = "selected most pushed lane";
             Obj_HQ nMyNexus = ObjectManager.Get<Obj_HQ>().First(hq => hq.IsEnemy);

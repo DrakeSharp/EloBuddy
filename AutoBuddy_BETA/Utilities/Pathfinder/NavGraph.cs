@@ -237,6 +237,18 @@ namespace AutoBuddy.Utilities.Pathfinder
             ret.Reverse();
             return ret;
         }
+        public List<Vector3> FindPathRandom(Vector3 start, Vector3 end)
+        {
+            PathNode p = FindPath(FindClosestNode(start, end), FindClosestNode(end));
+            List<Vector3> ret = new List<Vector3> { end };
+            while (p != null)
+            {
+                ret.Add(Nodes[p.node].position.Randomized(-15f, 15f));
+                p = p.Parent;
+            }
+            ret.Reverse();
+            return ret;
+        }
 
         private PathNode FindPath(int startNode, int endNode)
         {
