@@ -15,15 +15,22 @@ namespace EssentialLvlUp.AutoLvl
         public int maxTime = 0;
         public int minTime = 0;
 
+        private int oldLvl = 1;
         public SkillLevelUp(SkillToLvl[] skills, CheckBox enabled, int delay = 0)
         {
             this.enabled = enabled;
             enabled.OnValueChange += enabled_OnValueChange;
             this.skills = skills;
-            Core.DelayAction(() => OnLvLUp(ObjectManager.Player.Level), delay*1000 + RandGen.r.Next(minTime, maxTime));
-            Obj_AI_Base.OnLevelUp += Player_OnLevelUp;
+            Core.DelayAction(() => OnLvLUp(ObjectManager.Player.Level), delay * 1000 + RandGen.r.Next(minTime, maxTime));
+            //Obj_AI_Base.OnLevelUp += Player_OnLevelUp;TODO waiting for devs to fix onlvlup...
+            Game.OnTick += Game_OnTick;
         }
-
+        private void Game_OnTick(System.EventArgs args)
+        {
+            if (ObjectManager.Player.Level <= oldLvl) return;
+            oldLvl = ObjectManager.Player.Level;
+            OnLvLUp(oldLvl);
+        }
         private void enabled_OnValueChange(ValueBase<bool> sender, ValueBase<bool>.ValueChangeArgs args)
         {
             if (args.NewValue)
