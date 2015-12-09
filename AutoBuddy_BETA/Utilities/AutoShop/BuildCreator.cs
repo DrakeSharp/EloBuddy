@@ -126,8 +126,8 @@ you can copy/share them.
             BuildElement b = new BuildElement(this, menu, it, myBuild.Any() ? myBuild.Max(a => a.position) + 1 : 1, ty);
 
             List<LoLItem> c = new List<LoLItem>();
-            ItemInfo.InventorySimulator(myBuild, c);
-            b.cost = ItemInfo.InventorySimulator(new List<BuildElement> { b }, c);
+            BrutalItemInfo.InventorySimulator(myBuild, c);
+            b.cost = BrutalItemInfo.InventorySimulator(new List<BuildElement> { b }, c);
             b.freeSlots = 7 - c.Count;
             b.updateText();
             if (b.freeSlots == -1)
@@ -160,7 +160,7 @@ you can copy/share them.
                 }
                 foreach (ItemAction ac in DeserializeBuild(s))
                 {
-                    AddElement(ItemInfo.GetItemByID(ac.item), ac.t);
+                    AddElement(BrutalItemInfo.GetItemByID(ac.item), ac.t);
                 }
             }
             catch (Exception e)
@@ -182,7 +182,7 @@ you can copy/share them.
                 }
                 foreach (ItemAction ac in DeserializeBuild(sugBuild))
                 {
-                    AddElement(ItemInfo.GetItemByID(ac.item), ac.t);
+                    AddElement(BrutalItemInfo.GetItemByID(ac.item), ac.t);
                 }
             }
             catch (Exception e)
@@ -247,8 +247,8 @@ you can copy/share them.
             foreach (BuildElement el in myBuild.OrderBy(b => b.position))
             {
                 List<LoLItem> c = new List<LoLItem>();
-                ItemInfo.InventorySimulator(myBuild, c, el.position - 1);
-                el.cost = ItemInfo.InventorySimulator(new List<BuildElement> { el }, c);
+                BrutalItemInfo.InventorySimulator(myBuild, c, el.position - 1);
+                el.cost = BrutalItemInfo.InventorySimulator(new List<BuildElement> { el }, c);
                 el.freeSlots = 7 - c.Count;
                 el.updateText();
             }
@@ -278,8 +278,8 @@ you can copy/share them.
 
 
                 List<LoLItem> c = new List<LoLItem>();
-                ItemInfo.InventorySimulator(myBuild, c, el.position - 1);
-                el.cost = ItemInfo.InventorySimulator(new List<BuildElement> { el }, c);
+                BrutalItemInfo.InventorySimulator(myBuild, c, el.position - 1);
+                el.cost = BrutalItemInfo.InventorySimulator(new List<BuildElement> { el }, c);
                 el.freeSlots = 7 - c.Count;
                 el.updateText();
             }
@@ -295,12 +295,12 @@ you can copy/share them.
             {
                 args.Process = false;
                 string itemName = args.Input.Substring(2);
-                LoLItem i = ItemInfo.FindBestItem(itemName);
+                LoLItem i = BrutalItemInfo.FindBestItem(itemName);
                 Chat.Print("Buy " + i.name);
 
                 if (myBuild.Count == 0 && !i.groups.Equals("RelicBase"))
                 {
-                    AddElement(ItemInfo.GetItemByID(3340), ShopActionType.Buy);
+                    AddElement(BrutalItemInfo.GetItemByID(3340), ShopActionType.Buy);
                     Chat.Print("Added also warding totem.");
                 }
                 AddElement(i, ShopActionType.Buy);
@@ -310,7 +310,7 @@ you can copy/share them.
             {
                 args.Process = false;
                 string itemName = args.Input.Substring(2);
-                LoLItem i = ItemInfo.FindBestItemAll(itemName);
+                LoLItem i = BrutalItemInfo.FindBestItemAll(itemName);
                 Chat.Print("Sell " + i.name);
 
                 AddElement(i, ShopActionType.Sell);
@@ -320,10 +320,10 @@ you can copy/share them.
             {
                 if (myBuild.Count == 0)
                 {
-                    AddElement(ItemInfo.GetItemByID(3340), ShopActionType.Buy);
+                    AddElement(BrutalItemInfo.GetItemByID(3340), ShopActionType.Buy);
                     Chat.Print("Added also warding totem.");
                 }
-                AddElement(ItemInfo.GetItemByID(2003), ShopActionType.StartHpPot);
+                AddElement(BrutalItemInfo.GetItemByID(2003), ShopActionType.StartHpPot);
                 SaveBuild();
                 args.Process = false;
             }
@@ -331,10 +331,10 @@ you can copy/share them.
             {
                 if (myBuild.Count == 0)
                 {
-                    AddElement(ItemInfo.GetItemByID(3340), ShopActionType.Buy);
+                    AddElement(BrutalItemInfo.GetItemByID(3340), ShopActionType.Buy);
                     Chat.Print("Added also warding totem.");
                 }
-                AddElement(ItemInfo.GetItemByID(2003), ShopActionType.StopHpPot);
+                AddElement(BrutalItemInfo.GetItemByID(2003), ShopActionType.StopHpPot);
                 SaveBuild();
                 args.Process = false;
             }

@@ -169,7 +169,7 @@ namespace AutoBuddy
 
         public static int GetItemSlot(this LoLItem it)
         {
-            ItemInfo.GetItemSlot(it.id);
+            BrutalItemInfo.GetItemSlot(it.id);
             return -1;
         }
 

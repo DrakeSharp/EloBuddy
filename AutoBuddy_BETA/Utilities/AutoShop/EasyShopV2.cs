@@ -37,7 +37,7 @@ namespace AutoBuddy.Utilities.AutoShop
 
         private void Shopping()
         {
-            List<LoLItem> myit = ItemInfo.MyItems();
+            List<LoLItem> myit = BrutalItemInfo.MyItems();
             if (!first&&(!enabled.CurrentValue || !ObjectManager.Player.IsInShopRange() || !buildElements.Any()))
             {
                 first = true;
@@ -46,7 +46,7 @@ namespace AutoBuddy.Utilities.AutoShop
             }
 
             ShopGlobals.GoldForNextItem = 9999999;
-            int currentPos = ItemInfo.GetNum(buildElements);
+            int currentPos = BrutalItemInfo.GetNum(buildElements);
             if (currentPos == -1)
                 ShopGlobals.Next = "Inventories mismatch, won't buy any items";
             if (currentPos == 0)
@@ -85,7 +85,7 @@ namespace AutoBuddy.Utilities.AutoShop
                 BuildElement b = buildElements.First(el => el.position == currentPos + 2);
                 if (b.action == ShopActionType.Sell)
                 {
-                    int slot = ItemInfo.GetItemSlot(buildElements.First(el => el.position == currentPos + 2).item.id);
+                    int slot = BrutalItemInfo.GetItemSlot(buildElements.First(el => el.position == currentPos + 2).item.id);
                     if (slot != -1)
                     {
                         Shop.SellItem(slot);
@@ -100,7 +100,7 @@ namespace AutoBuddy.Utilities.AutoShop
                 if (b.action == ShopActionType.Buy)
                 {
                     ShopGlobals.Next = b.item.name;
-                    ShopGlobals.GoldForNextItem = ItemInfo.BuyItemSim(myit, b.item);
+                    ShopGlobals.GoldForNextItem = BrutalItemInfo.BuyItemSim(myit, b.item);
                     Shop.BuyItem(b.item.id);
                 }
 
@@ -118,7 +118,7 @@ namespace AutoBuddy.Utilities.AutoShop
                     Shop.BuyItem(ItemId.Health_Potion);
                 else if (hp <= 0)
                 {
-                    int slot = ItemInfo.GetHealtlyConsumableSlot();
+                    int slot = BrutalItemInfo.GetHealtlyConsumableSlot();
                     if (slot != -1)
                        Shop.SellItem(slot);
                 }

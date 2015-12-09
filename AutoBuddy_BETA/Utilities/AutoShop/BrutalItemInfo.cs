@@ -7,12 +7,12 @@ using Newtonsoft.Json.Linq;
 
 namespace AutoBuddy.Utilities.AutoShop
 {
-    internal static class ItemInfo
+    internal static class BrutalItemInfo
     {
         public static readonly LoLItem[] itemDB;
         public static readonly LoLItem[] avItemDB;
 
-        static ItemInfo()
+        static BrutalItemInfo()
         {
             List<LoLItem> all = new List<LoLItem>();
             List<LoLItem> av = new List<LoLItem>();

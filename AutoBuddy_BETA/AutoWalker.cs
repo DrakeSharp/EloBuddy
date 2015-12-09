@@ -177,7 +177,7 @@ namespace AutoBuddy
 
         private static void updateItems()
         {
-            hpSlot = ItemInfo.GetHPotionSlot();
+            hpSlot = BrutalItemInfo.GetHPotionSlot();
             seraphs = p.InventoryItems.FirstOrDefault(it => (int)it.Id == 3040);
             Core.DelayAction(updateItems, 5000);
             

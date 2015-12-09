@@ -40,7 +40,7 @@ namespace AutoBuddy.MyChampLogic
 
         private void updateTearStatus()
         {
-            isTearOwned = ItemInfo.GetItemSlot(3070) != -1 || ItemInfo.GetItemSlot(3003) != -1;
+            isTearOwned = BrutalItemInfo.GetItemSlot(3070) != -1 || BrutalItemInfo.GetItemSlot(3003) != -1;
             Core.DelayAction (updateTearStatus,5000);
         }
 
