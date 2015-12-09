@@ -124,8 +124,26 @@ namespace EssentialMapHack
         public void Teleport_OnTeleport(Obj_AI_Base sender, Teleport.TeleportEventArgs args)
         {
 
-            if (sender.NetworkId != hero.NetworkId) return;
-            if (args.Status == TeleportStatus.Start && args.Type != TeleportType.Unknown)
+            if (sender.NetworkId != hero.NetworkId||args.Type != TeleportType.Recall) return;
+            if (args.Status == TeleportStatus.Start)
+            {
+                teleStart = Game.Time;
+                teleDuration = args.Duration / 1000f;
+                teleporting = true;
+                if (invisTime > .8f)
+                    invisTime -= .8f;
+            }else
+            {
+            teleporting = false;
+
+                if (args.Status == TeleportStatus.Finish)
+                {
+                    invisTime = 0;
+                    position = spawn;
+                    health = hero.MaxHealth;
+                }
+            }
+            /*if (args.Status == TeleportStatus.Start && args.Type != TeleportType.Unknown)
             {
                 
                 teleStart = Game.Time;
@@ -141,7 +159,7 @@ namespace EssentialMapHack
             if (!(Game.Time > teleStart + teleDuration - .3f)) return;
             invisTime = 0;
             position = spawn;
-            health = hero.MaxHealth;
+            health = hero.MaxHealth;*/
         }
 
         public void Kill()

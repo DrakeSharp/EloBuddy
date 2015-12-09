@@ -16,6 +16,7 @@ namespace AutoBuddy.MainLogics
         private bool active;
         public float dangerValue;
         private int hits;
+        private int hits2;
         private LogicSelector.MainLogics returnTo;
         private float spierdalanko;
 
@@ -36,7 +37,11 @@ namespace AutoBuddy.MainLogics
             if (sender.IsAlly) return;
             if (sender.Type == GameObjectType.obj_AI_Turret)
                 SetSpierdalanko((1100 - AutoWalker.p.Distance(sender)) / AutoWalker.p.MoveSpeed);
-            else if (sender.Type == GameObjectType.obj_AI_Minion) hits++;
+            else if (sender.Type == GameObjectType.obj_AI_Minion)
+            {
+                hits++;
+                hits2++;
+            }
             else if (sender.Type == GameObjectType.AIHeroClient) hits += 2;
         }
 
@@ -82,7 +87,7 @@ namespace AutoBuddy.MainLogics
                 AIHeroClient i = EntityManager.Heroes.Enemies.FirstOrDefault(en => en.Health < 50 + 20*AutoWalker.p.Level&&en.Distance(AutoWalker.p)<600);
                 if (i != null) AutoWalker.UseIgnite(i);
             }
-            if (hits * 20 > AutoWalker.p.HealthPercent())
+            if (hits * 20 > AutoWalker.p.HealthPercent() || (hits2 >= 5 && AutoWalker.p.Level < 8 && AutoWalker.p.HealthPercent < 50 && !EntityManager.Heroes.Enemies.Any(en => en.IsVisible() && en.HealthPercent < 10 && en.Distance(AutoWalker.p) < current.myChamp.OptimalMaxComboDistance)))
             {
                 SetSpierdalanko(.5f);
             }
@@ -181,6 +186,7 @@ namespace AutoBuddy.MainLogics
                 hits = 3;
             if (hits > 0)
                 hits--;
+            hits2--;
             Core.DelayAction(DecHits, 600);
         }
     }
