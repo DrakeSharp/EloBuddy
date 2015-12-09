@@ -20,7 +20,7 @@ namespace AutoBuddy
 {
     internal static class AutoWalker
     {
-        public static Spell.Active Ghost, Barrier, Heal;
+        public static Spell.Active Ghost, Barrier, Heal, Recall;
         public static Spell.Skillshot Flash;
         public static Spell.Targeted Teleport, Ignite, Smite, Exhaust;
         public static readonly Obj_HQ MyNexus;
@@ -35,6 +35,7 @@ namespace AutoBuddy
         private static readonly NavGraph NavGraph;
         private static bool oldWalk;
         public static bool newPF;
+        private static bool recalling;
         static AutoWalker()
         {
             newPF = MainMenu.GetMenu("AB").Get<CheckBox>("newPF").CurrentValue;
@@ -68,7 +69,21 @@ namespace AutoBuddy
                 OnEndGame();
             updateItems();
             oldOrbwalk();
+            EloBuddy.SDK.Events.Teleport.OnTeleport += Teleport_OnTeleport;
             Game.OnTick += OnTick;
+        }
+
+        private static void Teleport_OnTeleport(Obj_AI_Base sender, EloBuddy.SDK.Events.Teleport.TeleportEventArgs args)
+        {
+            if (sender.NetworkId==p.NetworkId && args.Type == TeleportType.Recall)
+            {
+                recalling = args.Status == TeleportStatus.Start;
+            }
+        }
+
+        public static bool Recalling()
+        {
+            return recalling;
         }
 
         private static void OnEndGame()
@@ -114,7 +129,6 @@ namespace AutoBuddy
         private static void Drawing_OnDraw(EventArgs args)
         {
             Circle.Draw(color,40, Target );
-
             for (int i = 0; i < PfNodes.Count-1; i++)
             {
                 if(PfNodes[i].IsOnScreen()||PfNodes[i+1].IsOnScreen())
@@ -210,6 +224,7 @@ namespace AutoBuddy
 
         private static void initSummonerSpells()
         {
+            Recall=new Spell.Active(SpellSlot.Recall);
             Barrier = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("summonerbarrier")) == null ? null : new Spell.Active(ObjectManager.Player.GetSpellSlotFromName("summonerbarrier"));
             Ghost = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("summonerhaste")) == null ? null : new Spell.Active(ObjectManager.Player.GetSpellSlotFromName("summonerhaste"));
             Flash = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("summonerflash")) == null ? null : new Spell.Skillshot(ObjectManager.Player.GetSpellSlotFromName("summonerflash"), 600, SkillShotType.Circular);
@@ -270,6 +285,8 @@ namespace AutoBuddy
 
 
         }
+
+
     }
 
 #endregion

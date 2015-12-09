@@ -85,10 +85,10 @@ namespace AutoBuddy.MainLogics
                 Vector3 vicPos = Prediction.Position.PredictUnitPosition(victim, 500).To3D();
 
                 Vector3 posToWalk =
-                    vicPos.Extend(AutoWalker.p,
-                        (victim.BoundingRadius + current.myChamp.OptimalMaxComboDistance - 30) *
-                        Math.Min(current.localAwareness.HeroStrength(victim)/current.localAwareness.MyStrength()*2f, 1))
-                        .To3DWorld();
+                    AutoWalker.p.Position.Away(vicPos,
+                        (victim.BoundingRadius + current.myChamp.OptimalMaxComboDistance - 30)*
+                        Math.Min(current.localAwareness.HeroStrength(victim)/current.localAwareness.MyStrength()*1.6f, 1));
+                        
                 if (NavMesh.GetCollisionFlags(posToWalk).HasFlag(CollisionFlags.Wall))
                 {
                     posToWalk =
@@ -145,7 +145,8 @@ namespace AutoBuddy.MainLogics
             else
             {
                 Vector3 harPos = Prediction.Position.PredictUnitPosition(har, 500).To3D();
-                harPos = harPos.Extend(AutoWalker.p.Position, current.myChamp.HarassDistance + har.BoundingRadius - 20).To3D();
+                harPos = AutoWalker.p.Position.Away(harPos, current.myChamp.HarassDistance + har.BoundingRadius - 20);
+                
                 lastMode = "harass";
                 Obj_AI_Turret tu = harPos.GetNearestTurret();
                 AutoWalker.SetMode(Orbwalker.ActiveModes.Harass);
@@ -153,12 +154,13 @@ namespace AutoBuddy.MainLogics
                 {
                     if (harPos.Distance(tu) < 850 + AutoWalker.p.BoundingRadius)
                         AutoWalker.SetMode(Orbwalker.ActiveModes.Flee);
-                    harPos = tu.Position.Extend(harPos, 1090).To3DWorld();
+                    harPos = AutoWalker.p.Position.Away(tu.Position, 1090);
+                    
                     lastMode = "harass under turret";
 
-                    if (harPos.Distance(AutoWalker.MyNexus) > tu.Distance(AutoWalker.MyNexus))
+                    /*if (harPos.Distance(AutoWalker.MyNexus) > tu.Distance(AutoWalker.MyNexus))
                         harPos =
-                            tu.Position.Extend(AutoWalker.MyNexus, 1050 + AutoWalker.p.BoundingRadius).To3DWorld();
+                            tu.Position.Extend(AutoWalker.MyNexus, 1050 + AutoWalker.p.BoundingRadius).To3DWorld();*/
                 }
 
 

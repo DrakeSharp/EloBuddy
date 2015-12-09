@@ -177,6 +177,19 @@ namespace AutoBuddy
         {
             return 1;
         }
+        public static Vector3 Away(this Vector3 myPos, Vector3 threatPos, float range, float add=200, float resolution=40)
+        {
+            Vector3 r = threatPos.Extend(myPos, range).To3D();
+            Vector3 re= threatPos.Extend(myPos, range+add).To3D();
+            if (!NavMesh.GetCollisionFlags(re).HasFlag(CollisionFlags.Wall)) return r;
+            for (int i = 1; i < resolution; i++)
+            {
+                if (!NavMesh.GetCollisionFlags(re.RotatedAround(threatPos, 3.14f / resolution * i)).HasFlag(CollisionFlags.Wall)) return r.RotatedAround(threatPos, 3.14f / resolution * i);
+                if (!NavMesh.GetCollisionFlags(re.RotatedAround(threatPos, 3.14f / resolution * i * -1f)).HasFlag(CollisionFlags.Wall)) return r.RotatedAround(threatPos, 3.14f / resolution * i * -1f);
+            }
+            return r;
+        }
+
 
     }
 }

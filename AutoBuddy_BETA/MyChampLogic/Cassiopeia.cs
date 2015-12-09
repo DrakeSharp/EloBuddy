@@ -23,7 +23,7 @@ namespace AutoBuddy.MyChampLogic
         private int minManaHarass = 35;
         private int tick;
         private bool isTearOwned;
-        private float dmg;
+        private string dmg;
         public Cassiopeia()
         {
             ShopSequence =
@@ -48,9 +48,23 @@ namespace AutoBuddy.MyChampLogic
 
         void Drawing_OnDraw(EventArgs args)
         {
-            Drawing.DrawText(900, 10, Color.Chocolate, dmg.ToString(), 10);
+            Drawing.DrawText(900, 10, Color.Chocolate, dmg, 10);
+            /*AIHeroClient buf =
+    EntityManager.Heroes.AllHeroes.Where(h => h.Distance(Game.CursorPos) < 800)
+        .OrderBy(e => e.Distance(Game.CursorPos))
+        .FirstOrDefault();
+            if (buf != null)
+            {
+                int y = 0;
+                foreach (BuffInstance buff in buf.Buffs)
+                {
+                    Drawing.DrawText(500, 500 + y, Color.Chocolate, "Name: " +buff.Name+"  DisplayName: " +buff.DisplayName, 10);
+                    y += 20;
+                }
+            }
+            
 
-            /*AIHeroClient t=EntityManager.Heroes.Enemies.FirstOrDefault(en=>en.Distance(Game.CursorPos)<600);
+            AIHeroClient t=EntityManager.Heroes.Enemies.FirstOrDefault(en=>en.Distance(Game.CursorPos)<600);
             if (t != null)
             {
                 Vector2 pos = Game.CursorPos.WorldToScreen();
@@ -69,20 +83,22 @@ namespace AutoBuddy.MyChampLogic
 
         private void Game_OnTick(EventArgs args)
         {
-
-            AIHeroClient t = EntityManager.Heroes.Enemies.Where(en => en.Distance(Game.CursorPos) < 630).OrderBy(en=>en.Health).FirstOrDefault();
+            //Chat.Print(AutoWalker.Recalling());
+            AIHeroClient t = EntityManager.Heroes.Enemies.Where(en =>en.IsVisible()&& en.Distance(Game.CursorPos) < 630).OrderBy(en=>en.Health).FirstOrDefault();
             if (t != null)
             {
                 float ti = TimeForAttack(t, 630);
+                float dm=0;
                 if (EstDmg(t, ti) > 0)
                 {
-                    dmg=EstDmg(t, ti);
+                    dm=EstDmg(t, ti);
                 }
-                if(AutoWalker.Ignite!=null&&AutoWalker.Ignite.IsReady()&&t.Health>dmg&&t.Health<dmg+(50 + 20*AutoWalker.p.Level))
+                if(AutoWalker.Ignite!=null&&AutoWalker.Ignite.IsReady()&&t.Health>dm&&t.Health<dm+(50 + 20*AutoWalker.p.Level))
                     AutoWalker.UseIgnite(t);
+                    dmg=dm+", "+(t.Health-dm);
             }
 
-            if(isTearOwned&&Q.IsReady()&&AutoWalker.p.ManaPercent>95&&!AutoWalker.p.IsRecalling()&&!EntityManager.Heroes.Enemies.Any(en=>en.Distance(AutoWalker.p)<2000)&&!EntityManager.MinionsAndMonsters.EnemyMinions.Any(min=>min.Distance(AutoWalker.p)<1000))
+            if(isTearOwned&&Q.IsReady()&&AutoWalker.p.ManaPercent>95&&!AutoWalker.Recalling()&&!EntityManager.Heroes.Enemies.Any(en=>en.Distance(AutoWalker.p)<2000)&&!EntityManager.MinionsAndMonsters.EnemyMinions.Any(min=>min.Distance(AutoWalker.p)<1000))
             {
                 Q.Cast((Prediction.Position.PredictUnitPosition(AutoWalker.p, 2000) +
                        new Vector2(RandGen.r.NextFloat(-200, 200), RandGen.r.NextFloat(-200, 200))).To3D());
@@ -252,9 +268,12 @@ namespace AutoBuddy.MyChampLogic
 
             float eCD = E.Handle.CooldownExpires - Game.Time < 0 ? 0 : E.Handle.CooldownExpires - Game.Time;
             float qCD = Q.Handle.CooldownExpires - Game.Time < 0 ? 0 : Q.Handle.CooldownExpires - Game.Time;
-            float damage = AutoWalker.p.GetSpellDamage(o, SpellSlot.E)*(float)Math.Floor((time - eCD)/.5f);
+            float eTimes = (float) Math.Floor((time - eCD)/.5f);
+            float damage = AutoWalker.p.GetSpellDamage(o, SpellSlot.E)*eTimes;
             damage += AutoWalker.p.GetSpellDamage(o, SpellSlot.Q)*(float)Math.Floor((time - qCD)/Q.Handle.Cooldown);
-            
+            float neededMana = E.Handle.SData.Mana*eTimes + Q.Handle.SData.Mana;
+            if (AutoWalker.p.Mana < neededMana)
+                return damage*AutoWalker.p.Mana/neededMana;
             return damage ;
         }
     }

@@ -16,13 +16,23 @@ namespace AutoBuddy.Utilities.AutoLvl
         public int minTime=0;
         public int maxTime=0;
 
+        private int oldLvl = 1;
+
         public SkillLevelUp(SkillToLvl[] skills, CheckBox enabled)
         {
             this.enabled = enabled;
             enabled.OnValueChange += enabled_OnValueChange;
             this.skills = skills;
             Core.DelayAction(() => OnLvLUp(ObjectManager.Player.Level), RandGen.r.Next(minTime, maxTime));
-            Obj_AI_Base.OnLevelUp += Player_OnLevelUp;
+            //Obj_AI_Base.OnLevelUp += Player_OnLevelUp;TODO waiting for devs to fix onlvlup...
+            Game.OnTick += Game_OnTick;
+        }
+
+        private void Game_OnTick(System.EventArgs args)
+        {
+            if (AutoWalker.p.Level <= oldLvl) return;
+            oldLvl = AutoWalker.p.Level;
+            OnLvLUp(oldLvl);
         }
 
         private void enabled_OnValueChange(ValueBase<bool> sender, ValueBase<bool>.ValueChangeArgs args)
@@ -34,6 +44,7 @@ namespace AutoBuddy.Utilities.AutoLvl
         private void Player_OnLevelUp(Obj_AI_Base sender, Obj_AI_BaseLevelUpEventArgs args)
         {
             if (sender != ObjectManager.Player) return;
+            Chat.Print("lvlup");
             Core.DelayAction(() => OnLvLUp(args.Level), RandGen.r.Next(minTime, maxTime));
         }
 

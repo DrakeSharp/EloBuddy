@@ -105,34 +105,43 @@ namespace AutoBuddy.MainLogics
                 current.saveMylife = false;
                 current.SetLogic(returnTo);
             }
-            Vector3 closestSafePoint =
-                ObjectManager.Get<Obj_AI_Turret>()
-                    .Where(tur => tur.IsAlly && tur.Health > 0)
-                    .OrderBy(tur => tur.Distance(AutoWalker.p))
-                    .First().Position;
-            if (closestSafePoint.Distance(AutoWalker.p) > 2000)
+            Vector3 enemyTurret = AutoWalker.p.GetNearestTurret().Position;
+            
+            Vector3 closestSafePoint;
+            if (AutoWalker.p.Distance(enemyTurret) > 1200)
             {
-                AIHeroClient ally = EntityManager.Heroes.Allies.Where(
-                    a => a.Distance(AutoWalker.p) < 1500 && current.localAwareness.LocalDomination(a.Position) < -40000)
-                    .OrderBy(al => al.Distance(AutoWalker.p))
-                    .FirstOrDefault();
-                if (ally != null)
-                    closestSafePoint = ally.Position;
-            }
-            if (closestSafePoint.Distance(AutoWalker.p) > 150)
-            {
-                AIHeroClient ene =
-                    EntityManager.Heroes.Enemies
-                        .FirstOrDefault(en => en.Health > 0 && en.Distance(closestSafePoint) < 300);
-                if (ene != null)
+                closestSafePoint = AutoWalker.p.GetNearestTurret(false).Position;
+                if (closestSafePoint.Distance(AutoWalker.p) > 2000)
                 {
-                    closestSafePoint = AutoWalker.MyNexus.Position;
+                    AIHeroClient ally = EntityManager.Heroes.Allies.Where(
+                        a =>
+                            a.Distance(AutoWalker.p) < 1500 &&
+                            current.localAwareness.LocalDomination(a.Position) < -40000)
+                        .OrderBy(al => al.Distance(AutoWalker.p))
+                        .FirstOrDefault();
+                    if (ally != null)
+                        closestSafePoint = ally.Position;
                 }
+                if (closestSafePoint.Distance(AutoWalker.p) > 150)
+                {
+                    AIHeroClient ene =
+                        EntityManager.Heroes.Enemies
+                            .FirstOrDefault(en => en.Health > 0 && en.Distance(closestSafePoint) < 300);
+                    if (ene != null)
+                    {
+                        closestSafePoint = AutoWalker.MyNexus.Position;
+                    }
+                }
+                AutoWalker.SetMode(AutoWalker.p.Distance(closestSafePoint) < 200
+                    ? Orbwalker.ActiveModes.Combo
+                    : Orbwalker.ActiveModes.Flee);
+                AutoWalker.WalkTo(closestSafePoint.Extend(AutoWalker.MyNexus, 200).To3DWorld());
             }
-            AutoWalker.SetMode(AutoWalker.p.Distance(closestSafePoint) < 200
-                ? Orbwalker.ActiveModes.Combo
-                : Orbwalker.ActiveModes.Flee);
-            AutoWalker.WalkTo(closestSafePoint.Extend(AutoWalker.MyNexus, 200).To3DWorld());
+            else
+            {
+                AutoWalker.WalkTo(AutoWalker.p.Position.Away(enemyTurret, 1200));
+                AutoWalker.SetMode(Orbwalker.ActiveModes.Flee);
+            }
             if (AutoWalker.p.HealthPercent < 10)
             {
                 if (AutoWalker.p.HealthPercent < 7)

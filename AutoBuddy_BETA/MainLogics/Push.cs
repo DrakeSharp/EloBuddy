@@ -92,7 +92,7 @@ namespace AutoBuddy.MainLogics
         private void Game_OnTick(EventArgs args)
         {
 
-            if (!active) return;
+            if (!active||myTurret==null) return;
             if (!AutoWalker.p.IsDead() && (myTurret.Health <= 0 || enemyTurret.Health <= 0))
             {
                 currentLogic.loadLogic.SetLane();
@@ -126,7 +126,7 @@ namespace AutoBuddy.MainLogics
                     .Count(min => min.IsAlly && min.HealthPercent() > 30 && min.Distance(enemyTurret) < 850) < 2 || (EntityManager.Heroes.Enemies.Any(en => en.IsVisible && en.HasBuffOfType(BuffType.Damage)&&AutoWalker.p.HealthPercent-en.HealthPercent<65 && en.Distance(enemyTurret) < 800 && AutoWalker.p.Distance(enemyTurret) < AutoWalker.p.BoundingRadius+850)))
             {
                 AutoWalker.SetMode(Orbwalker.ActiveModes.LaneClear);
-                AutoWalker.WalkTo(enemyTurret.Position.Extend(AutoWalker.p, 1150).To3DWorld());
+                AutoWalker.WalkTo(AutoWalker.p.Position.Away(enemyTurret.Position, 1200));
                 return;
             }
             if (AutoWalker.p.Distance(enemyTurret) <

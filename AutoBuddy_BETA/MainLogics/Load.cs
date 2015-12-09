@@ -125,7 +125,7 @@ namespace AutoBuddy.MainLogics
         private void CanSelectLane()
         {
             waiting = true;
-            status = "searching for free lane, time left " + (startTime - Game.Time);
+            status = "looking for free lane, time left " + (int)(startTime - Game.Time);
             if (Game.Time > startTime || GetChampLanes().All(cl => cl.lane != Lane.Unknown))
             {
                 waiting = false;
@@ -137,6 +137,7 @@ namespace AutoBuddy.MainLogics
 
         private void Chat_OnMessage(AIHeroClient sender, ChatMessageEventArgs args)
         {
+
             if (!args.Message.StartsWith("<font color=\"#40c1ff\">Challenjour Ryze")) return;
             if (args.Message.Contains("have fun"))
                 Core.DelayAction(() => Chat.Say("gl hf"), RandGen.r.Next(2000, 4000));

@@ -121,7 +121,7 @@ AutoBuddy won't recall if you have less gold than needed for next item.
 
                         g = ObjectManager.Get<GrassObject>()
                             .Where(gr => gr.Distance(AutoWalker.MyNexus) < AutoWalker.p.Distance(AutoWalker.MyNexus)&&gr.Distance(AutoWalker.p)>Orbwalker.HoldRadius)
-                            .OrderBy(gg => gg.Distance(AutoWalker.p)).FirstOrDefault(gr => ObjectManager.Get<GrassObject>().Count(gr2=>gr.Distance(gr2)<65)>4);
+                            .OrderBy(gg => gg.Distance(AutoWalker.p)).FirstOrDefault(gr => ObjectManager.Get<GrassObject>().Count(gr2=>gr.Distance(gr2)<65)>=4);
                     }
                     if (g != null && g.Distance(AutoWalker.p) < nearestTurret.Position.Distance(AutoWalker.p))
                     {
@@ -141,13 +141,13 @@ AutoBuddy won't recall if you have less gold than needed for next item.
 
         private void CastRecall()
         {
-            if (Game.Time < lastRecallTime || AutoWalker.p.IsRecalling() || ObjectManager.Player.Distance(spawn) < 500) return;
+            if (Game.Time < lastRecallTime || AutoWalker.Recalling() || ObjectManager.Player.Distance(spawn) < 500) return;
             lastRecallTime = Game.Time + 2f;
             Core.DelayAction(CastRecall2, 300);
         }
         private void CastRecall2()//Kappa
         {
-            if (AutoWalker.p.IsRecalling() || ObjectManager.Player.Distance(spawn) < 500) return;
+            if (AutoWalker.Recalling() || ObjectManager.Player.Distance(spawn) < 500) return;
             lastRecallTime = Game.Time + 2f;
             AutoWalker.SetMode(Orbwalker.ActiveModes.None);
             ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall);
