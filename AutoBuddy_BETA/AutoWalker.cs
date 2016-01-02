@@ -36,6 +36,7 @@ namespace AutoBuddy
         private static bool oldWalk;
         public static bool newPF;
         private static bool recalling;
+        public static EventHandler EndGame;
         static AutoWalker()
         {
             newPF = MainMenu.GetMenu("AB").Get<CheckBox>("newPF").CurrentValue;
@@ -65,8 +66,8 @@ namespace AutoBuddy
             }
             if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
                 Drawing.OnDraw += Drawing_OnDraw;
-            if (MainMenu.GetMenu("AB").Get<CheckBox>("autoclose").CurrentValue)
-                OnEndGame();
+            
+            Core.DelayAction(OnEndGame, 20000);
             updateItems();
             oldOrbwalk();
             EloBuddy.SDK.Events.Teleport.OnTeleport += Teleport_OnTeleport;
@@ -88,16 +89,27 @@ namespace AutoBuddy
 
         private static void OnEndGame()
         {
-            Core.DelayAction(OnEndGame, 5000);
-            if (MyNexus == null || EneMyNexus == null || (MyNexus.Health > 0)&& (EneMyNexus.Health > 0)) return;
+
+            if (MyNexus == null || EneMyNexus == null || (MyNexus.Health > 0) && (EneMyNexus.Health > 0))
+            {
+                Core.DelayAction(OnEndGame, 5000);
+                return;
+            }
+
+            if (EndGame != null)
+                EndGame(null, new EventArgs());
+
+            if (MainMenu.GetMenu("AB").Get<CheckBox>("autoclose").CurrentValue)
             Core.DelayAction(() =>
             {
+
                 foreach (Process process in Process.GetProcessesByName("League of Legends"))
                 {
 
                     process.CloseMainWindow();
                 }
-            }, 10000);
+
+            }, 15000);
 
         }
 

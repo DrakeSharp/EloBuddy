@@ -102,6 +102,7 @@
     <Compile Include="Utilities\AutoLvl\LvlSlider.cs" />
     <Compile Include="Utilities\AutoLvl\SkillLevelUp.cs" />
     <Compile Include="Utilities\Surrender.cs" />
+    <Compile Include="Utilities\Telemetry.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -1,4 +1,5 @@
-﻿using AutoBuddy.MyChampLogic;
+﻿using System;
+using AutoBuddy.MyChampLogic;
 using AutoBuddy.Utilities;
 using EloBuddy;
 using EloBuddy.SDK;
@@ -39,7 +40,7 @@ namespace AutoBuddy.MainLogics
             if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
                 Drawing.OnEndScene += Drawing_OnDraw;
             myChamp.Logic = this;
-
+            AutoWalker.EndGame += end;
             Core.DelayAction(Watchdog, 3000);
         }
 
@@ -108,6 +109,10 @@ namespace AutoBuddy.MainLogics
             }
         }
 
+        private void end(object o, EventArgs e)
+        {
+            Telemetry.SendEvent("gameEnd", "K=" + localAwareness.me.kills2 + "|D=" + localAwareness.me.deaths + "|A=" + localAwareness.me.assists + "|F=" + localAwareness.me.farm);
+        }
         internal enum MainLogics
         {
             PushLogic,

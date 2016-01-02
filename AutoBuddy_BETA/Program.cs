@@ -5,6 +5,7 @@ using System.Reflection;
 using AutoBuddy.Humanizers;
 using AutoBuddy.MainLogics;
 using AutoBuddy.MyChampLogic;
+using AutoBuddy.Utilities;
 using AutoBuddy.Utilities.AutoLvl;
 using AutoBuddy.Utilities.AutoShop;
 using EloBuddy;
@@ -31,7 +32,8 @@ namespace AutoBuddy
 
         private static void Loading_OnLoadingComplete(EventArgs args)
         {
-
+            Telemetry.Init(Path.Combine(Environment.GetFolderPath(
+Environment.SpecialFolder.ApplicationData), "AutoBuddy"));
             createFS();
             Chat.Print("AutoBuddy will start in 5 seconds. ");
             Core.DelayAction(Start, 5000);
@@ -85,9 +87,10 @@ namespace AutoBuddy
 
 
 
+
         static void newpf_OnValueChange(ValueBase<bool> sender, ValueBase<bool>.ValueChangeArgs args)
         {
-            //AutoWalker.newPF = args.NewValue;
+            AutoWalker.newPF = args.NewValue;
         }
 
 
@@ -145,6 +148,7 @@ namespace AutoBuddy
             }
             Logic = new LogicSelector(myChamp, menu);
             new Disrespekt();
+            Telemetry.SendEvent("gameStart", "Champ=" + AutoWalker.p.ChampionName + "|Type=" + BrutalExtensions.GetGameType() + "|Region=" + Game.Region);
         }
 
         private static void createFS()

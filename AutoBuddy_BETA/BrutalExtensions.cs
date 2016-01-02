@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Web;
 using AutoBuddy.Humanizers;
 using AutoBuddy.Utilities;
 using AutoBuddy.Utilities.AutoShop;
@@ -15,6 +16,21 @@ namespace AutoBuddy
 {
     internal static class BrutalExtensions
     {
+        public static string GetGameType()
+        {
+
+            if (EntityManager.Heroes.AllHeroes.Count < 10)
+                return "custom";
+
+            if (EntityManager.Heroes.Enemies.All(en => en.Name.ToLower().Contains("bot")))
+            {
+                return EntityManager.Heroes.Enemies.All(
+                    en =>
+                        en.GetSpellSlotFromName("summonerhaste") !=SpellSlot.Unknown &&
+                        en.GetSpellSlotFromName("summonerheal") !=SpellSlot.Unknown) ? "bot_ez" : "bot_hard";
+            }
+            return "pvp";
+        }
         public static Lane GetLane(this Obj_AI_Minion min)
         {
             try
@@ -132,7 +148,7 @@ namespace AutoBuddy
             if (string.IsNullOrEmpty(value))
                 throw new ArgumentException("the string to find may not be empty", "value");
             List<int> indexes = new List<int>();
-            for (int index = 0; ; index += value.Length)
+            for (int index = 0;; index += value.Length)
             {
                 index = str.IndexOf(value, index);
                 if (index == -1)
@@ -140,10 +156,38 @@ namespace AutoBuddy
                 indexes.Add(index);
             }
         }
+
         public static string GetResponseText(this string address)
         {
-            var request = (HttpWebRequest)WebRequest.Create(address);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(address);
             request.Proxy = null;
+            using (var response = (HttpWebResponse) request.GetResponse())
+            {
+                var encoding = Encoding.GetEncoding(response.CharacterSet);
+
+                using (var responseStream = response.GetResponseStream())
+                using (var reader = new StreamReader(responseStream, encoding))
+                    return reader.ReadToEnd();
+            }
+        }
+
+        public static string Post(this string address, Dictionary<string, string> data )
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(address);
+            request.Method = "POST";
+            request.Proxy = null;
+            request.ContentType = "application/x-www-form-urlencoded";
+            string postData = data.Aggregate("", (current, pair) => current + pair.Key+ "=" + pair.Value.ToBase64URL() + "&");
+            postData = postData.Substring(0, postData.Length - 1);
+            
+            byte[] byteArray = Encoding.UTF8.GetBytes(postData);
+            request.ContentLength = byteArray.Length;
+
+            Stream dataStream = request.GetRequestStream();
+            dataStream.Write(byteArray, 0, byteArray.Length);
+            dataStream.Close();
+
+
             using (var response = (HttpWebResponse)request.GetResponse())
             {
                 var encoding = Encoding.GetEncoding(response.CharacterSet);
@@ -154,16 +198,25 @@ namespace AutoBuddy
             }
         }
 
+        public static string ToBase64URL(this string toEncode)
+        {
+            byte[] toEncodeAsBytes
+                  = Encoding.Default.GetBytes(toEncode);
+            string returnValue
+                  = Convert.ToBase64String(toEncodeAsBytes);
+            return HttpUtility.UrlEncode(returnValue);
+        }
+
         public static bool IsHealthlyConsumable(this ItemId i)
         {
-            
-            return (int)i == 2003 || (int)i == 2009 || (int)i == 2010;
+
+            return (int) i == 2003 || (int) i == 2009 || (int) i == 2010;
         }
 
         public static bool IsHPotion(this ItemId i)
         {
 
-            return (int)i == 2003 || (int)i == 2009 || (int)i == 2010||(int)i==2031;
+            return (int) i == 2003 || (int) i == 2009 || (int) i == 2010 || (int) i == 2031;
         }
 
 
@@ -177,19 +230,39 @@ namespace AutoBuddy
         {
             return 1;
         }
-        public static Vector3 Away(this Vector3 myPos, Vector3 threatPos, float range, float add=200, float resolution=40)
+
+        public static Vector3 Away(this Vector3 myPos, Vector3 threatPos, float range, float add = 200,
+            float resolution = 40)
         {
             Vector3 r = threatPos.Extend(myPos, range).To3D();
-            Vector3 re= threatPos.Extend(myPos, range+add).To3D();
+            Vector3 re = threatPos.Extend(myPos, range + add).To3D();
             if (!NavMesh.GetCollisionFlags(re).HasFlag(CollisionFlags.Wall)) return r;
             for (int i = 1; i < resolution; i++)
             {
-                if (!NavMesh.GetCollisionFlags(re.RotatedAround(threatPos, 3.14f / resolution * i)).HasFlag(CollisionFlags.Wall)) return r.RotatedAround(threatPos, 3.14f / resolution * i);
-                if (!NavMesh.GetCollisionFlags(re.RotatedAround(threatPos, 3.14f / resolution * i * -1f)).HasFlag(CollisionFlags.Wall)) return r.RotatedAround(threatPos, 3.14f / resolution * i * -1f);
+                if (
+                    !NavMesh.GetCollisionFlags(re.RotatedAround(threatPos, 3.14f/resolution*i))
+                        .HasFlag(CollisionFlags.Wall)) return r.RotatedAround(threatPos, 3.14f/resolution*i);
+                if (
+                    !NavMesh.GetCollisionFlags(re.RotatedAround(threatPos, 3.14f/resolution*i*-1f))
+                        .HasFlag(CollisionFlags.Wall)) return r.RotatedAround(threatPos, 3.14f/resolution*i*-1f);
             }
             return r;
         }
 
+        public static Vector3 Copy(this Vector3 from)
+        {
+            return new Vector3(from.X, from.Y, from.Z);
+        }
 
+        public static Vector3[] Copy(this Vector3[] from)
+        {
+            Vector3[] ar = new Vector3[from.Length];
+            for (int i = 0; i < ar.Length; i++)
+            {
+                ar[i] = from[i].Copy();
+            }
+            return ar;
+
+        }
     }
 }

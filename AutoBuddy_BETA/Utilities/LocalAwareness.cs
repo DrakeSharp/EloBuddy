@@ -8,8 +8,8 @@ namespace AutoBuddy.Utilities
 {
     internal class LocalAwareness
     {
-        private readonly List<HeroInfo> heroTable;
-        private readonly HeroInfo me;
+        public readonly List<HeroInfo> heroTable;
+        public readonly HeroInfo me;
 
         public LocalAwareness()
         {
