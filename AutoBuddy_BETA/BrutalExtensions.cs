@@ -19,15 +19,12 @@ namespace AutoBuddy
         public static string GetGameType()
         {
 
-            if (EntityManager.Heroes.AllHeroes.Count < 10)
+            if (EntityManager.Heroes.Allies.Count < 5 || EntityManager.Heroes.Allies.Count(en=>en.Name.EndsWith(" Bot"))>1)
                 return "custom";
             
-            if (EntityManager.Heroes.Enemies.All(en => en.Name.ToLower().Contains("bot")))
+            if (EntityManager.Heroes.Enemies.All(en => en.Name.EndsWith(" Bot")))
             {
-                return EntityManager.Heroes.Enemies.All(
-                    en =>
-                        en.GetSpellSlotFromName("summonerhaste") !=SpellSlot.Unknown &&
-                        en.GetSpellSlotFromName("summonerheal") !=SpellSlot.Unknown) ? "bot_easy" : "bot_intermediate";
+                return EntityManager.Heroes.Enemies.All(en =>en.SkinId==0) ? "bot_easy" : "bot_intermediate";
             }
             return "normal";
         }
