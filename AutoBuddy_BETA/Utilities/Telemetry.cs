@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Threading;
@@ -32,36 +33,32 @@ namespace AutoBuddy.Utilities
                 id = content;
             }
         }
-        public static void SendEvent(string type, string data)
+        public static void SendEvent(string type, Dictionary<string, string>data )
         {
             BackgroundWorker bw3 = new BackgroundWorker();
             bw3.DoWork += bw3_DoWork;
-            bw3.RunWorkerAsync(new[] { type, data });
+            bw3.RunWorkerAsync(new object[] { type, data });
         }
 
         private static void bw3_DoWork(object sender, DoWorkEventArgs e)
         {
-            string[] args = (string[])e.Argument;
-            string x =
-                "http://autobuddy.tk/ann/d.php".Post(new Dictionary<string, string>()
-                {
-                    {"id", id},
-                    {"type", "event"},
-                    {"data", args[0] + ":" + args[1]}
-                });
-
+            object[] args = (object[])e.Argument;
+            Dictionary<string, string> arg = (Dictionary<string, string>) args[1];
+            foreach (var kv in new Dictionary<string, string>()
+            {
+                {"id", id},
+                {"type", "Event"},
+                {"eventType", (string) args[0]},
+            })
+                arg.Add(kv.Key, kv.Value);
+            string x ="http://autobuddy.tk/ann/d2.php".Post(arg);
             while(!x.Contains("thanks"))
             {
                 if(x.Contains("error 1"))
                     getId();
                 Thread.Sleep(5000);
-                x =
-                "http://autobuddy.tk/ann/d.php".Post(new Dictionary<string, string>()
-                {
-                    {"id", id},
-                    {"type", "event"},
-                    {"data", args[0] + ":" + args[1]}
-                });
+                arg["id"] = id;
+                x ="http://autobuddy.tk/ann/d2.php".Post(arg);
                 
             }
 
@@ -69,6 +66,7 @@ namespace AutoBuddy.Utilities
 
         public static void SendFileAndDelete(string file, string name)
         {
+
             BackgroundWorker bw2 = new BackgroundWorker();
             bw2.DoWork += bw2_DoWork;
             bw2.RunWorkerAsync(new[]{file, name});
@@ -78,7 +76,7 @@ namespace AutoBuddy.Utilities
         {
             string[] args = (string[]) e.Argument;
             if (!File.Exists(args[0])) return;
-            string result = "http://autobuddy.tk/ann/d.php".Post(new Dictionary<string, string>() { { "id", id }, { "type", args[1] }, { "data", File.ReadAllText(args[0]) } });
+            string result = "http://autobuddy.tk/ann/d2.php".Post(new Dictionary<string, string>() { { "id", id }, { "GameID", AutoWalker.GameID }, { "type", "File" }, { "fileType", args[1] }, { "data", File.ReadAllText(args[0]) } });
             if(result.Contains("thanks"))
                 File.Delete(args[0]);
         }
@@ -94,7 +92,8 @@ namespace AutoBuddy.Utilities
         }
         private static void bw_DoWork(object sender, DoWorkEventArgs e)
         {
-            e.Result="http://autobuddy.tk/ann/d.php".Post(new Dictionary<string, string>() {{"type", "getID"}});
+            e.Result="http://autobuddy.tk/ann/d2.php".Post(new Dictionary<string, string>() {{"type", "GetID"}});
+
         }
 
         private static void bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

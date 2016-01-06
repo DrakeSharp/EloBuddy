@@ -21,15 +21,15 @@ namespace AutoBuddy
 
             if (EntityManager.Heroes.AllHeroes.Count < 10)
                 return "custom";
-
+            
             if (EntityManager.Heroes.Enemies.All(en => en.Name.ToLower().Contains("bot")))
             {
                 return EntityManager.Heroes.Enemies.All(
                     en =>
                         en.GetSpellSlotFromName("summonerhaste") !=SpellSlot.Unknown &&
-                        en.GetSpellSlotFromName("summonerheal") !=SpellSlot.Unknown) ? "bot_ez" : "bot_hard";
+                        en.GetSpellSlotFromName("summonerheal") !=SpellSlot.Unknown) ? "bot_easy" : "bot_intermediate";
             }
-            return "pvp";
+            return "normal";
         }
         public static Lane GetLane(this Obj_AI_Minion min)
         {

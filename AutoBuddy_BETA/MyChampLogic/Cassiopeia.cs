@@ -34,7 +34,7 @@ namespace AutoBuddy.MyChampLogic
         private readonly bool log = false;
         public Cassiopeia()
         {
-            if (BrutalExtensions.GetGameType().Equals("bot_hard"))
+            if (BrutalExtensions.GetGameType().Equals("bot_intermediate"))
             {
                 log = true;
                 AutoWalker.EndGame += end;
@@ -76,11 +76,11 @@ namespace AutoBuddy.MyChampLogic
             file600.Close();
             file700.Close();
             Telemetry.SendFileAndDelete(Path.Combine(Environment.GetFolderPath(
-    Environment.SpecialFolder.ApplicationData), "AutoBuddy\\qPred700"), "qData700");
+    Environment.SpecialFolder.ApplicationData), "AutoBuddy\\qPred700"), "cassQ700");
             Telemetry.SendFileAndDelete(Path.Combine(Environment.GetFolderPath(
-Environment.SpecialFolder.ApplicationData), "AutoBuddy\\qPred500"), "qData500");
+Environment.SpecialFolder.ApplicationData), "AutoBuddy\\qPred500"), "cassQ500");
             Telemetry.SendFileAndDelete(Path.Combine(Environment.GetFolderPath(
-Environment.SpecialFolder.ApplicationData), "AutoBuddy\\qPred600"), "cassQ");
+Environment.SpecialFolder.ApplicationData), "AutoBuddy\\qPred600"), "cassQ600");
 
         }
 

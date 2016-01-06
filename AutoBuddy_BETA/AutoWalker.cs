@@ -20,6 +20,7 @@ namespace AutoBuddy
 {
     internal static class AutoWalker
     {
+        public static string GameID;
         public static Spell.Active Ghost, Barrier, Heal, Recall;
         public static Spell.Skillshot Flash;
         public static Spell.Targeted Teleport, Ignite, Smite, Exhaust;
@@ -39,6 +40,7 @@ namespace AutoBuddy
         public static EventHandler EndGame;
         static AutoWalker()
         {
+            GameID = DateTime.Now.Ticks + ""+RandomString(10);
             newPF = MainMenu.GetMenu("AB").Get<CheckBox>("newPF").CurrentValue;
             NavGraph=new NavGraph(Path.Combine(Environment.GetFolderPath(
     Environment.SpecialFolder.ApplicationData), "AutoBuddy"));
@@ -90,7 +92,7 @@ namespace AutoBuddy
         private static void OnEndGame()
         {
 
-            if (MyNexus == null || EneMyNexus == null || (MyNexus.Health > 0) && (EneMyNexus.Health > 0))
+            if (MyNexus != null && EneMyNexus != null && (MyNexus.Health > 1) && (EneMyNexus.Health > 1))
             {
                 Core.DelayAction(OnEndGame, 5000);
                 return;
@@ -297,7 +299,13 @@ namespace AutoBuddy
 
 
         }
-
+        public static string RandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
 
     }
 

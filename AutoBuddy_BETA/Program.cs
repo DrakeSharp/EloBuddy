@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -32,6 +33,7 @@ namespace AutoBuddy
 
         private static void Loading_OnLoadingComplete(EventArgs args)
         {
+
             Telemetry.Init(Path.Combine(Environment.GetFolderPath(
 Environment.SpecialFolder.ApplicationData), "AutoBuddy"));
             createFS();
@@ -148,7 +150,13 @@ Environment.SpecialFolder.ApplicationData), "AutoBuddy"));
             }
             Logic = new LogicSelector(myChamp, menu);
             new Disrespekt();
-            Telemetry.SendEvent("gameStart", "Champ=" + AutoWalker.p.ChampionName + "|Type=" + BrutalExtensions.GetGameType() + "|Region=" + Game.Region);
+            Telemetry.SendEvent("GameStart", new Dictionary<string, string>()
+            {
+                {"GameChamp", AutoWalker.p.ChampionName},
+                {"GameType", BrutalExtensions.GetGameType()},
+                {"GameRegion", Game.Region},
+                {"GameID", ""+AutoWalker.GameID},
+            });
         }
 
         private static void createFS()

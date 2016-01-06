@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using AutoBuddy.MyChampLogic;
 using AutoBuddy.Utilities;
 using EloBuddy;
@@ -111,7 +112,15 @@ namespace AutoBuddy.MainLogics
 
         private void end(object o, EventArgs e)
         {
-            Telemetry.SendEvent("gameEnd", "K=" + localAwareness.me.kills2 + "|D=" + localAwareness.me.deaths + "|A=" + localAwareness.me.assists + "|F=" + localAwareness.me.farm);
+            Telemetry.SendEvent("GameEnd", new Dictionary<string, string>()
+            {
+                {"GameChamp", AutoWalker.p.ChampionName},
+                {"GameKills",localAwareness.me.kills2+""},
+                {"GameDeaths",localAwareness.me.deaths+""},
+                {"GameAssists",localAwareness.me.assists+""},
+                {"GameFarm",localAwareness.me.farm+""},
+                {"GameID", AutoWalker.GameID},
+            });
         }
         internal enum MainLogics
         {
