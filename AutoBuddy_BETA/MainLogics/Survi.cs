@@ -101,7 +101,7 @@ namespace AutoBuddy.MainLogics
             {
                 return;
             }
-            if (ObjectManager.Player.HealthPercent() < 43)
+            if (ObjectManager.Player.HealthPercent() < 43 && !Player.Instance.IsInShopRange())
             {
                 AutoWalker.UseHPot();
             }

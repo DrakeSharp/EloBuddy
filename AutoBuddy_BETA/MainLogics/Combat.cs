@@ -132,7 +132,7 @@ namespace AutoBuddy.MainLogics
                     victim.Distance(victim.Position.GetNearestTurret()) > 1500)
                     AutoWalker.Ghost.Cast();
 
-                if (ObjectManager.Player.HealthPercent() < 35)
+                if (ObjectManager.Player.HealthPercent() < 35 && !Player.Instance.IsInShopRange())
                 {
                     if (AutoWalker.p.HealthPercent < 25)
                         AutoWalker.UseSeraphs();
