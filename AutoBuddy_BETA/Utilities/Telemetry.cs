@@ -76,6 +76,11 @@ namespace AutoBuddy.Utilities
         {
             string[] args = (string[]) e.Argument;
             if (!File.Exists(args[0])) return;
+            if (new FileInfo(args[0]).Length > 400000)
+            {
+                File.Delete(args[0]);
+                return;
+            }
             string result = "http://autobuddy.tk/ann/d2.php".Post(new Dictionary<string, string>() { { "id", id }, { "GameID", AutoWalker.GameID }, { "type", "File" }, { "fileType", args[1] }, { "data", File.ReadAllText(args[0]) } });
             if(result.Contains("thanks"))
                 File.Delete(args[0]);
